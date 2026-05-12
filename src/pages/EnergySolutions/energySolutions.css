@@ -1,0 +1,528 @@
+.energy-page {
+  min-height: 100vh;
+  background: #fff;
+  color: #222;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* HERO */
+.energy-hero {
+  position: relative;
+  min-height: 78vh;
+  padding: 7rem 7% 5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #fff;
+  background: url(../../assets/background.jpg) center/cover no-repeat;
+  overflow: hidden;
+}
+
+.energy-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.78),
+    rgba(0, 0, 0, 0.58),
+    rgba(0, 0, 0, 0.35)
+  );
+}
+
+.energy-hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.energy-hero .section-label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.energy-hero h1 {
+  font-size: clamp(2.6rem, 6vw, 5rem);
+  line-height: 1.05;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.energy-hero p {
+  max-width: 760px;
+  margin: 0 auto;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.85;
+  font-size: 1.05rem;
+}
+
+.energy-hero-actions,
+.energy-cta-actions,
+.third-party-actions {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+.energy-primary-btn,
+.energy-secondary-btn,
+.energy-secondary-light-btn,
+.band-a-btn {
+  display: inline-block;
+  text-decoration: none;
+  font-weight: 800;
+  padding: 14px 24px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.energy-primary-btn,
+.band-a-btn {
+  background: var(--accent-red);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(214, 40, 40, 0.24);
+}
+
+.energy-primary-btn:hover,
+.band-a-btn:hover {
+  background: #b91f1f;
+  transform: translateY(-2px);
+}
+
+.energy-secondary-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(8px);
+}
+
+.energy-secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-2px);
+}
+
+.energy-secondary-light-btn {
+  background: #fff;
+  color: #111;
+  border: 1px solid #eee;
+}
+
+.energy-secondary-light-btn:hover {
+  transform: translateY(-2px);
+  background: #f7f7f7;
+}
+
+.energy-trust-row {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.energy-trust-row span {
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.86rem;
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+/* TRUST SECTION */
+.energy-trust-section {
+  padding: 3rem 7%;
+  background: #fff;
+}
+
+.energy-trust-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.energy-trust-card {
+  background: #fafafa;
+  border: 1px solid #ececec;
+  border-radius: 20px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.energy-trust-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.06);
+}
+
+.energy-trust-card h3 {
+  color: #111;
+  margin-bottom: 0.7rem;
+}
+
+.energy-trust-card p {
+  color: #666;
+  line-height: 1.75;
+  margin: 0;
+}
+
+/* OFFER */
+.energy-offer {
+  padding: 5rem 7%;
+  background: #fafaf8;
+}
+
+.energy-offer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.energy-card,
+.benefit-card,
+.step,
+.band-a-card,
+.third-party-card {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+}
+
+.energy-card:hover,
+.benefit-card:hover,
+.step:hover,
+.band-a-card:hover,
+.third-party-card:hover {
+  transform: translateY(-7px);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.07);
+}
+
+.energy-card.highlight {
+  background: linear-gradient(180deg, #f7faf8, #fff);
+  border-color: rgba(46, 139, 87, 0.22);
+}
+
+.energy-card h3,
+.benefit-card h3,
+.step h3,
+.band-a-card h3,
+.third-party-card h3 {
+  color: #111;
+  font-size: 1.25rem;
+  margin-bottom: 0.9rem;
+}
+
+.energy-card p,
+.benefit-card p,
+.step p,
+.band-a-card p,
+.third-party-card p {
+  color: #666;
+  line-height: 1.8;
+  margin: 0;
+}
+
+/* BENEFITS */
+.energy-benefits {
+  padding: 5rem 7%;
+  background: #fff;
+}
+
+.benefits-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+/* BAND A COST */
+.band-a-cost-section {
+  padding: 5rem 7%;
+  background: #fff;
+}
+
+.band-a-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.band-a-head {
+  max-width: 850px;
+  margin-bottom: 2.5rem;
+}
+
+.band-a-head h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: #111;
+  line-height: 1.15;
+  margin-bottom: 1rem;
+}
+
+.band-a-head p {
+  color: #666;
+  line-height: 1.8;
+  margin: 0;
+}
+
+.band-a-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  margin-bottom: 2rem;
+}
+
+.band-a-card {
+  background: #fafafa;
+}
+
+.band-a-card.highlight {
+  background: linear-gradient(180deg, #fff7f7, #ffffff);
+  border-color: rgba(214, 40, 40, 0.22);
+}
+
+.band-a-card ul,
+.third-party-card ul {
+  padding-left: 1.2rem;
+  margin: 0;
+}
+
+.band-a-card li,
+.third-party-card li {
+  color: #555;
+  line-height: 1.7;
+  margin-bottom: 0.65rem;
+}
+
+.big-cost {
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 800;
+  color: var(--accent-red);
+  margin-bottom: 1rem;
+  line-height: 1.05;
+}
+
+.band-a-savings-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  background: #fafaf8;
+  border: 1px solid #ececec;
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.04);
+}
+
+.band-a-savings-box h3 {
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  color: #111;
+  margin-bottom: 0.8rem;
+  line-height: 1.18;
+}
+
+.band-a-savings-box p {
+  color: #666;
+  line-height: 1.8;
+  max-width: 780px;
+  margin: 0;
+}
+/* PROCESS */
+.energy-process {
+  padding: 5rem 7%;
+  background: #fafaf8;
+}
+
+.process-steps {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.step span {
+  display: inline-flex;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  align-items: center;
+  justify-content: center;
+  background: rgba(214, 40, 40, 0.1);
+  color: var(--accent-red);
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+/* CALCULATOR */
+.energy-calculator-section {
+  padding: 5rem 7%;
+  background: #fff;
+}
+
+/* THIRD PARTY FINANCING */
+.third-party-financing {
+  padding: 5rem 7%;
+  background: #fafaf8;
+}
+
+.third-party-financing-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.third-party-financing-content h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: #111;
+  line-height: 1.15;
+  margin-bottom: 1rem;
+}
+
+.third-party-intro {
+  color: #555;
+  line-height: 1.8;
+  max-width: 850px;
+  margin-bottom: 2rem;
+}
+
+.third-party-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+.third-party-card.warning {
+  background: #fff7f7;
+  border-color: rgba(214, 40, 40, 0.2);
+}
+
+.third-party-actions {
+  justify-content: flex-start;
+}
+
+/* CTA */
+.energy-cta {
+  padding: 5rem 7%;
+  background: #111;
+  color: #fff;
+  text-align: center;
+}
+
+.energy-cta .section-label {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.energy-cta-content {
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.energy-cta h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.15;
+  margin-bottom: 1rem;
+}
+
+.energy-cta p {
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.85;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1100px) {
+  .energy-trust-grid,
+  .energy-offer-grid,
+  .band-a-grid,
+  .process-steps,
+  .benefits-grid,
+  .third-party-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .band-a-savings-box {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .energy-hero,
+  .energy-trust-section,
+  .energy-offer,
+  .energy-benefits,
+  .band-a-cost-section,
+  .energy-process,
+  .energy-calculator-section,
+  .third-party-financing,
+  .energy-cta {
+    padding-left: 5%;
+    padding-right: 5%;
+  }
+
+  .energy-hero {
+    min-height: 72vh;
+    padding-top: 5rem;
+    padding-bottom: 4rem;
+  }
+
+  .energy-trust-grid,
+  .energy-offer-grid,
+  .band-a-grid,
+  .process-steps,
+  .benefits-grid,
+  .third-party-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .energy-primary-btn,
+  .energy-secondary-btn,
+  .energy-secondary-light-btn,
+  .band-a-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .energy-card,
+  .benefit-card,
+  .step,
+  .band-a-card,
+  .third-party-card,
+  .band-a-savings-box {
+    padding: 1.5rem;
+  }
+
+  .third-party-actions {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .energy-hero h1 {
+    font-size: 2.25rem;
+  }
+
+  .energy-hero p,
+  .band-a-head p,
+  .third-party-intro {
+    font-size: 0.95rem;
+  }
+
+  .big-cost {
+    font-size: 2rem;
+  }
+
+  .energy-trust-row span {
+    width: 100%;
+    text-align: center;
+  }
+}

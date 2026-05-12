@@ -1,0 +1,213 @@
+.admin-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  background:
+    radial-gradient(circle at top left, rgba(46, 139, 87, 0.1), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(198, 40, 40, 0.1), transparent 30%),
+    #f5f7f8;
+}
+
+.admin-layout-sidebar {
+  background: linear-gradient(180deg, #0f172a 0%, #111827 50%, #2b0d0d 100%);
+  color: #fff;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.admin-layout-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-layout-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--accent-red), #8f1717);
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+}
+
+.admin-layout-brand h2 {
+  font-size: 1.15rem;
+}
+
+.admin-layout-brand p {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.82rem;
+}
+
+.admin-layout-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.admin-layout-nav a {
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.78);
+  padding: 0.95rem 1rem;
+  border-radius: 14px;
+  font-weight: 800;
+  transition: 0.25s ease;
+}
+
+.admin-layout-nav a.active,
+.admin-layout-nav a:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  transform: translateX(4px);
+}
+
+.admin-layout-sidebar-footer {
+  margin-top: auto;
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-layout-sidebar-footer p {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.82rem;
+}
+
+.admin-layout-sidebar-footer button {
+  border: none;
+  background: #fff;
+  color: #111;
+  padding: 0.95rem 1rem;
+  border-radius: 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.admin-layout-main {
+  padding: 2rem;
+}
+
+.admin-layout-topbar {
+  background:
+    linear-gradient(135deg, rgba(17, 24, 39, 0.95), rgba(43, 13, 13, 0.9)),
+    url("../../assets/solar.jpeg");
+  background-size: cover;
+  background-position: center;
+  border-radius: 28px;
+  padding: 2rem;
+  color: #fff;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.14);
+}
+
+.admin-layout-eyebrow {
+  color: #5ee099;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-weight: 900;
+  font-size: 0.76rem;
+  margin-bottom: 0.55rem;
+}
+
+.admin-layout-topbar h1 {
+  font-size: clamp(2rem, 4vw, 4rem);
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+  margin-bottom: 0.7rem;
+}
+
+.admin-layout-topbar span {
+  display: block;
+  max-width: 650px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.admin-layout-content {
+  display: grid;
+  gap: 1.5rem;
+}
+.admin-mobile-menu-btn,
+.admin-mobile-overlay {
+  display: none;
+}
+
+@media (max-width: 1050px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-layout-sidebar {
+    position: fixed;
+    top: 0;
+    left: -310px;
+    width: 290px;
+    height: 100vh;
+    z-index: 1001;
+    transition: left 0.3s ease;
+  }
+
+  .admin-layout-sidebar.sidebar-open {
+    left: 0;
+  }
+
+  .admin-mobile-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    z-index: 1000;
+  }
+
+  .admin-mobile-menu-btn {
+    display: inline-flex;
+    border: none;
+    background: #111827;
+    color: #fff;
+    padding: 0.85rem 1rem;
+    border-radius: 12px;
+    font-weight: 900;
+    cursor: pointer;
+    margin-bottom: 1rem;
+  }
+
+  .admin-layout-nav {
+    display: flex;
+    flex-direction: column;
+  }
+}
+@media (max-width: 1050px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-layout-sidebar {
+    position: static;
+    height: auto;
+  }
+
+  .admin-layout-nav {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .admin-layout-main {
+    padding: 1rem;
+  }
+
+  .admin-layout-nav {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-layout-topbar {
+    padding: 1.4rem;
+    border-radius: 22px;
+  }
+}

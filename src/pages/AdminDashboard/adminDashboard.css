@@ -1,0 +1,360 @@
+.admin-dashboard {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  background:
+    radial-gradient(circle at top left, rgba(46, 139, 87, 0.12), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(198, 40, 40, 0.12), transparent 32%),
+    #f5f6f7;
+  color: #222;
+}
+
+.admin-sidebar {
+  background: linear-gradient(180deg, #0f172a 0%, #111827 55%, #2b0d0d 100%);
+  color: #fff;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.admin-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-brand-mark {
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--accent-red), #8f1717);
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+}
+.admin-card {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+.admin-dashboard-hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-dashboard-hero-actions button {
+  border: none;
+  background: var(--accent-red);
+  color: #fff;
+  padding: 0.9rem 1.1rem;
+  border-radius: 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.admin-dashboard-hero-actions button.secondary {
+  background: #111827;
+}
+
+.admin-card {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.admin-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(214, 40, 40, 0.16);
+  box-shadow: 0 24px 45px rgba(15, 23, 42, 0.08);
+}
+.admin-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(214, 40, 40, 0.16);
+  box-shadow: 0 24px 45px rgba(15, 23, 42, 0.08);
+}
+
+.admin-card h3 {
+  transition: 0.3s ease;
+}
+
+.admin-sidebar h2 {
+  font-size: 1.2rem;
+  margin-bottom: 0.15rem;
+}
+
+.admin-sidebar-brand p,
+.admin-sidebar-footer p {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.82rem;
+}
+
+.admin-sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.admin-sidebar a {
+  color: rgba(255, 255, 255, 0.78);
+  text-decoration: none;
+  padding: 0.95rem 1rem;
+  border-radius: 14px;
+  font-weight: 800;
+  transition: 0.25s ease;
+}
+
+.admin-sidebar a.active,
+.admin-sidebar a:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  transform: translateX(4px);
+}
+
+.admin-sidebar-footer {
+  margin-top: auto;
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-sidebar-footer button {
+  border: none;
+  background: #fff;
+  color: #111;
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.admin-main {
+  padding: 2rem;
+}
+
+.admin-hero-panel {
+  min-height: 240px;
+  background:
+    linear-gradient(135deg, rgba(17, 24, 39, 0.94), rgba(43, 13, 13, 0.88)),
+    url("../../assets/solar.jpeg");
+  background-size: cover;
+  background-position: center;
+  border-radius: 30px;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  align-items: flex-end;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+}
+
+.admin-eyebrow {
+  color: #5ee099;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-weight: 900;
+  font-size: 0.76rem;
+  margin-bottom: 0.6rem;
+}
+
+.admin-hero-panel h1 {
+  font-size: clamp(2.3rem, 4vw, 4.5rem);
+  letter-spacing: -0.05em;
+  line-height: 0.98;
+  margin-bottom: 0.8rem;
+}
+
+.admin-hero-panel span {
+  display: block;
+  max-width: 620px;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.75;
+}
+
+.admin-hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-hero-actions button,
+.quick-actions button {
+  border: none;
+  background: var(--accent-red);
+  color: #fff;
+  padding: 0.9rem 1.1rem;
+  border-radius: 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.admin-hero-actions button.secondary {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.admin-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 1.5rem;
+}
+
+.admin-card {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e8e8e8;
+  border-radius: 24px;
+  padding: 1.4rem;
+  box-shadow: 0 16px 35px rgba(15, 23, 42, 0.05);
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.admin-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: #f7faf8;
+  font-size: 1.35rem;
+}
+
+.admin-card span {
+  color: #666;
+  font-weight: 800;
+}
+
+.admin-card h3 {
+  font-size: 2.2rem;
+  margin: 0.35rem 0;
+  color: #111;
+}
+
+.admin-card p {
+  color: #777;
+  font-size: 0.88rem;
+}
+
+.admin-grid-panels {
+  display: grid;
+  grid-template-columns: 1.35fr 0.65fr;
+  gap: 18px;
+  margin-bottom: 1.5rem;
+}
+
+.admin-panel {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid #e8e8e8;
+  border-radius: 24px;
+  padding: 1.6rem;
+  box-shadow: 0 16px 35px rgba(15, 23, 42, 0.04);
+}
+
+.admin-panel h2 {
+  color: #111;
+  margin-bottom: 0.6rem;
+}
+
+.admin-panel p {
+  color: #666;
+  line-height: 1.7;
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 1.2rem;
+}
+
+.quick-actions button {
+  background: #111827;
+}
+
+.pipeline-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.pipeline-row span {
+  color: #666;
+  font-weight: 800;
+}
+
+.pipeline-row strong {
+  color: #111;
+}
+
+.pipeline-meter {
+  height: 12px;
+  border-radius: 999px;
+  background: #eee;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+.pipeline-meter div {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-green), var(--accent-red));
+  border-radius: inherit;
+}
+
+@media (max-width: 1050px) {
+  .admin-dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-sidebar {
+    position: static;
+    height: auto;
+  }
+
+  .admin-sidebar nav {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin-cards,
+  .admin-grid-panels {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .admin-hero-panel {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 700px) {
+  .admin-main {
+    padding: 1rem;
+  }
+
+  .admin-cards,
+  .admin-grid-panels,
+  .quick-actions,
+  .admin-sidebar nav {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-hero-panel {
+    padding: 1.4rem;
+    border-radius: 22px;
+  }
+
+  .admin-card {
+    border-radius: 18px;
+  }
+}

@@ -1,0 +1,121 @@
+.supplier-products-page {
+  background: #fff;
+  color: #222;
+}
+
+/* ─── HERO ───────────────────────────── */
+.supplier-hero {
+  padding: 6rem 7% 4rem;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+}
+
+.supplier-hero-content {
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.supplier-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.supplier-hero h1 {
+  font-size: clamp(2.5rem, 5vw, 3.8rem);
+  font-weight: 800;
+  color: #111;
+  margin-bottom: 1rem;
+}
+
+.supplier-hero p {
+  color: #666;
+  line-height: 1.8;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* ─── BACK BUTTON ───────────────────── */
+.back-supplier-btn {
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent-red);
+  border: 1px solid rgba(214, 40, 40, 0.2);
+  padding: 8px 14px;
+  border-radius: 999px;
+  transition: all 0.3s ease;
+}
+
+.back-supplier-btn:hover {
+  background: var(--accent-red);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* ─── PRODUCTS SECTION ─────────────── */
+.supplier-products-list {
+  padding: 5rem 7%;
+}
+
+.supplier-products-head {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.supplier-products-head h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: #111;
+  margin-bottom: 0.5rem;
+}
+
+.supplier-products-head p {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+/* ─── GRID ─────────────────────────── */
+.products-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+/* ─── EMPTY STATE ─────────────────── */
+.not-found {
+  padding: 6rem 7%;
+  text-align: center;
+  font-size: 1.1rem;
+  color: #666;
+}
+
+/* ─── RESPONSIVE ─────────────────── */
+@media (max-width: 1024px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .supplier-hero {
+    padding: 5rem 5% 3rem;
+  }
+
+  .supplier-products-list {
+    padding: 4rem 5%;
+  }
+
+  .products-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .supplier-topbar {
+    flex-direction: column;
+    align-items: center;
+  }
+}

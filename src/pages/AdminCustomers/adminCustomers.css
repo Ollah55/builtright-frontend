@@ -1,0 +1,89 @@
+.admin-customer-filters {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 22px;
+  padding: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.admin-customer-filters input {
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 13px 14px;
+  outline: none;
+}
+
+.admin-customer-filters input:focus {
+  border-color: var(--primary-green);
+  box-shadow: 0 0 0 4px rgba(46, 139, 87, 0.08);
+}
+
+.admin-customer-message {
+  background: #f7faf8;
+  border: 1px solid #e5ece7;
+  color: var(--primary-green);
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  font-weight: 800;
+}
+
+.admin-customer-head {
+  margin-bottom: 1.3rem;
+}
+
+.admin-customers-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-customers-table {
+  width: 100%;
+  min-width: 850px;
+  border-collapse: collapse;
+}
+
+.admin-customers-table th,
+.admin-customers-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+
+.admin-customers-table th {
+  background: #fafafa;
+  color: #111;
+  font-size: 0.85rem;
+}
+
+.admin-customers-table td strong {
+  display: block;
+  color: #111;
+  margin-bottom: 0.3rem;
+}
+
+.admin-customers-table td span {
+  color: var(--primary-green);
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.admin-customer-delete-btn {
+  border: none;
+  background: #fff1f2;
+  color: #be123c;
+  padding: 0.65rem 0.9rem;
+  border-radius: 10px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.admin-customer-delete-btn:hover {
+  background: #ffe4e6;
+}
+.admin-customer-empty {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+}

@@ -1,0 +1,133 @@
+.customer-profile-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 270px 1fr;
+  background: #f6f7f8;
+  color: #222;
+}
+
+.customer-profile-main {
+  padding: 2rem;
+}
+
+.customer-profile-topbar,
+.customer-profile-panel {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 22px;
+  padding: 1.5rem;
+}
+
+.customer-profile-topbar {
+  margin-bottom: 1.5rem;
+}
+
+.customer-profile-topbar p {
+  color: var(--primary-green);
+  font-weight: 800;
+  margin-bottom: 0.3rem;
+}
+
+.customer-profile-topbar h1,
+.customer-profile-head h2 {
+  color: #111;
+}
+
+.customer-profile-head {
+  margin-bottom: 1.5rem;
+}
+
+.customer-profile-head p {
+  color: #666;
+  line-height: 1.7;
+  margin-top: 0.4rem;
+}
+
+.customer-profile-message {
+  background: #f7faf8;
+  border: 1px solid #e5ece7;
+  color: var(--primary-green);
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  font-weight: 800;
+}
+
+.customer-profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.profile-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.profile-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.profile-form-group label {
+  color: #111;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.profile-form-group input {
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 13px 14px;
+  outline: none;
+}
+
+.profile-form-group input:focus {
+  border-color: var(--primary-green);
+  box-shadow: 0 0 0 4px rgba(46, 139, 87, 0.08);
+}
+
+.profile-form-group input:disabled {
+  background: #f3f3f3;
+  color: #777;
+  cursor: not-allowed;
+}
+
+.customer-profile-form button {
+  width: fit-content;
+  border: none;
+  background: var(--accent-red);
+  color: #fff;
+  padding: 0.9rem 1.3rem;
+  border-radius: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.customer-profile-form button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .customer-profile-page {
+    grid-template-columns: 1fr;
+  }
+
+  .customer-profile-main {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .profile-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .customer-profile-form button {
+    width: 100%;
+  }
+}
