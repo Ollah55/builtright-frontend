@@ -30,7 +30,7 @@ function AdminLogin() {
       setIsSubmitting(true);
       setStatusMessage("");
 
-      const response = await fetch("https://builtright-backend.onrender.com/api/admin/login", {
+      const response = await fetch("https://builtright-backend-1.onrender.com/api/admin/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

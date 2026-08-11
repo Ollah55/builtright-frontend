@@ -16,7 +16,7 @@ function AdminOrders() {
   useEffect(() => {
     const loadOrders = async () => {
       try {
-        const response = await fetch("https://builtright-backend.onrender.com/api/admin/orders", {
+        const response = await fetch("https://builtright-backend-1.onrender.com/api/admin/orders", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -64,7 +64,7 @@ function AdminOrders() {
   const updateOrderStatus = async (id, status) => {
     try {
       const response = await fetch(
-        `https://builtright-backend.onrender.com/api/admin/orders/${id}/status`,
+        `https://builtright-backend-1.onrender.com/api/admin/orders/${id}/status`,
         {
           method: "PATCH",
           headers: {

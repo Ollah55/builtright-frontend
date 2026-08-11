@@ -61,7 +61,7 @@ function Checkout() {
       const itemsForReceipt = [...cartItems];
 
       const response = await fetch(
-        "https://builtright-backend.onrender.com/api/paystack/initialize",
+        "https://builtright-backend-1.onrender.com/api/paystack/initialize",
         {
           method: "POST",
           headers: {
@@ -94,7 +94,7 @@ function Checkout() {
         onSuccess: async (transaction) => {
           try {
             const verifyResponse = await fetch(
-              `https://builtright-backend.onrender.com/api/paystack/verify/${transaction.reference}`
+              `https://builtright-backend-1.onrender.com/api/paystack/verify/${transaction.reference}`
             );
 
             const verifyData = await verifyResponse.json();

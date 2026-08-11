@@ -47,7 +47,7 @@ function Auth() {
       setIsSubmitting(true);
       setMessage("");
 
-      const response = await fetch("https://builtright-backend.onrender.com/api/auth/login", {
+      const response = await fetch("https://builtright-backend-1.onrender.com/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -82,7 +82,7 @@ function Auth() {
       setIsSubmitting(true);
       setMessage("");
 
-      const response = await fetch("https://builtright-backend.onrender.com/api/auth/register", {
+      const response = await fetch("https://builtright-backend-1.onrender.com/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

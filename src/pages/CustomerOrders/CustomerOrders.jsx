@@ -17,7 +17,7 @@ function CustomerOrders() {
       try {
         const token = localStorage.getItem("customerToken");
 
-        const response = await fetch("https://builtright-backend.onrender.com/api/customer/orders", {
+        const response = await fetch("https://builtright-backend-1.onrender.com/api/customer/orders", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

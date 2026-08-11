@@ -14,7 +14,7 @@ function AdminCustomers() {
     const loadCustomers = async () => {
       try {
         const response = await fetch(
-          "https://builtright-backend.onrender.com/api/admin/customers",
+          "https://builtright-backend-1.onrender.com/api/admin/customers",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -46,7 +46,7 @@ const deleteCustomer = async (id) => {
 
   try {
     const response = await fetch(
-      `https://builtright-backend.onrender.com/api/admin/customers/${id}`,
+      `https://builtright-backend-1.onrender.com/api/admin/customers/${id}`,
       {
         method: "DELETE",
         headers: {

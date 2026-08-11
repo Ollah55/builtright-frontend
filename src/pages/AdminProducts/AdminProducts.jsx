@@ -46,7 +46,7 @@ function AdminProducts() {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const response = await fetch("https://builtright-backend.onrender.com/api/products");
+        const response = await fetch("https://builtright-backend-1.onrender.com/api/products");
         const data = await response.json();
 
         if (data.status && Array.isArray(data.products)) {
@@ -198,7 +198,7 @@ function AdminProducts() {
         uploadData.append("image", file);
 
         const response = await fetch(
-          "https://builtright-backend.onrender.com/api/admin/upload-image",
+          "https://builtright-backend-1.onrender.com/api/admin/upload-image",
           {
             method: "POST",
             headers: {
@@ -262,8 +262,8 @@ function AdminProducts() {
       delete payload.featuresText;
 
       const url = editingProduct
-        ? `https://builtright-backend.onrender.com/api/admin/products/${editingProduct._id}`
-        : "https://builtright-backend.onrender.com/api/admin/products";
+        ? `https://builtright-backend-1.onrender.com/api/admin/products/${editingProduct._id}`
+        : "https://builtright-backend-1.onrender.com/api/admin/products";
 
       const method = editingProduct ? "PATCH" : "POST";
 
@@ -351,7 +351,7 @@ function AdminProducts() {
 
     try {
       const response = await fetch(
-        `https://builtright-backend.onrender.com/api/admin/products/${productId}`,
+        `https://builtright-backend-1.onrender.com/api/admin/products/${productId}`,
         {
           method: "DELETE",
           headers: {

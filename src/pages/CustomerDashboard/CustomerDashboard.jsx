@@ -17,12 +17,12 @@ function CustomerDashboard() {
     const loadDashboardData = async () => {
       try {
         const [ordersResponse, loansResponse] = await Promise.all([
-          fetch("https://builtright-backend.onrender.com/api/customer/orders", {
+          fetch("https://builtright-backend-1.onrender.com/api/customer/orders", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }),
-          fetch("https://builtright-backend.onrender.com/api/customer/loan-requests", {
+          fetch("https://builtright-backend-1.onrender.com/api/customer/loan-requests", {
             headers: {
               Authorization: `Bearer ${token}`,
             },

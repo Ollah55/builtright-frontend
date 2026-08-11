@@ -13,7 +13,7 @@ function ManufacturerProducts() {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const response = await fetch("https://builtright-backend.onrender.com/api/products");
+        const response = await fetch("https://builtright-backend-1.onrender.com/api/products");
         const data = await response.json();
 
         if (data.status && Array.isArray(data.products)) {

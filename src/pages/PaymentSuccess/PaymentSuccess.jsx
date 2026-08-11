@@ -21,7 +21,7 @@ function PaymentSuccess() {
       }
 
       try {
-        const response = await fetch("https://builtright-backend.onrender.com/api/orders/finalize", {
+        const response = await fetch("https://builtright-backend-1.onrender.com/api/orders/finalize", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

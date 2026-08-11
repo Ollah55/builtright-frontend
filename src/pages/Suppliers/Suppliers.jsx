@@ -10,7 +10,7 @@ function Suppliers() {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const response = await fetch("https://builtright-backend.onrender.com/api/products");
+        const response = await fetch("https://builtright-backend-1.onrender.com/api/products");
 
         if (!response.ok) {
           throw new Error("Failed to fetch products");

@@ -34,7 +34,7 @@ function CustomerProfile() {
 
       const token = localStorage.getItem("customerToken");
 
-      const response = await fetch("https://builtright-backend.onrender.com/api/customer/profile", {
+      const response = await fetch("https://builtright-backend-1.onrender.com/api/customer/profile", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

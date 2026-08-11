@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./financingform.css";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://builtright-backend.onrender.com";
+const API_BASE_URL = "https://builtright-backend-1.onrender.com";
 
 function FinancingForm() {
   const location = useLocation();

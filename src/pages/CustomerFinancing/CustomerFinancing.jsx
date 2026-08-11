@@ -15,7 +15,7 @@ import {
 import { isDevelopmentPreview } from "../../lib/previewMode";
 import "./customerFinancing.css";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://builtright-backend.onrender.com";
+const API_BASE_URL = "https://builtright-backend-1.onrender.com";
 
 const customerMilestones = [
   { id: "submitted", label: "Request" },
