@@ -146,7 +146,7 @@
 }
 
 .result-card.highlight {
-  border: 1px solid rgba(46, 139, 87, 0.25);
+  border: 1px solid rgba(21, 146, 132, 0.25);
   background: linear-gradient(180deg, #f7faf8, #ffffff);
 }
 
@@ -245,7 +245,7 @@
 }
 
 .calculator-whatsapp-btn:hover {
-  background: #b91f1f;
+  background: var(--accent-red-hover);
   transform: translateY(-2px);
 }
 .user-details {

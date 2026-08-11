@@ -16,7 +16,7 @@
 
 .admin-customer-filters input:focus {
   border-color: var(--primary-green);
-  box-shadow: 0 0 0 4px rgba(46, 139, 87, 0.08);
+  box-shadow: 0 0 0 4px rgba(21, 146, 132, 0.08);
 }
 
 .admin-customer-message {

@@ -78,7 +78,7 @@
 .supplier-card:hover {
   transform: translateY(-8px);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
-  border-color: rgba(214, 40, 40, 0.2);
+  border-color: rgba(179, 33, 39, 0.2);
 }
 
 /* BADGE */
@@ -89,7 +89,7 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--primary-green);
-  background: rgba(46, 139, 87, 0.1);
+  background: rgba(21, 146, 132, 0.1);
   padding: 0.4rem 0.7rem;
   border-radius: 999px;
   margin-bottom: 1rem;

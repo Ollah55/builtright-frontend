@@ -89,7 +89,7 @@
 }
 
 .btn.primary:hover {
-  background: #b91f1f;
+  background: var(--accent-red-hover);
   transform: translateY(-2px);
 }
 

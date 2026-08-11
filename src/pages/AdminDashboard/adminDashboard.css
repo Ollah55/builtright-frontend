@@ -333,7 +333,7 @@
   border-radius: 50%;
 }
 
-.attention-severity.critical { background: var(--ops-red); box-shadow: 0 0 0 4px rgba(201, 43, 50, 0.1); }
+.attention-severity.critical { background: var(--ops-red); box-shadow: 0 0 0 4px rgba(179, 33, 39, 0.1); }
 .attention-severity.warning { background: #d99c23; box-shadow: 0 0 0 4px rgba(217, 156, 35, 0.1); }
 .attention-severity.info { background: var(--ops-teal); box-shadow: 0 0 0 4px rgba(22, 143, 130, 0.1); }
 

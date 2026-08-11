@@ -22,6 +22,7 @@ import {
 } from "../../lib/operations";
 import { isDevelopmentPreview } from "../../lib/previewMode";
 import { downloadProjectDocument } from "../../lib/projectDocumentPdf";
+import { getFinancingPartner } from "../../lib/financingPartners";
 import "./adminFinancingCase.css";
 
 const API_BASE_URL = "https://builtright-backend-1.onrender.com";
@@ -130,7 +131,7 @@ function AdminFinancingCase() {
     cableDistance: "",
     mountingMethod: "",
     scope: "Supply, install, test, commission, monitor, and maintain the complete solar power system described in this quotation.",
-    equityPercentage: 20,
+    equityPercentage: getFinancingPartner(previewCase.financeInstitution).equityPercentage,
     discount: 0,
     tax: 0,
     validUntil: "",
@@ -168,6 +169,11 @@ function AdminFinancingCase() {
             terms: latestQuote.terms,
             notes: latestQuote.notes,
           }));
+        } else {
+          setQuoteMeta((current) => ({
+            ...current,
+            equityPercentage: getFinancingPartner(data.loanRequest.financeInstitution).equityPercentage,
+          }));
         }
       } catch (error) {
         setMessage(error.message);
@@ -180,12 +186,14 @@ function AdminFinancingCase() {
 
   const latestQuotation = documents.find((document) => document.type === "quotation") || null;
   const assessmentPassed = financingCase?.assessment?.status === "passed" || assessment.status === "passed";
+  const selectedPartner = getFinancingPartner(financingCase?.financeInstitution);
+  const equityPercentage = Number(quoteMeta.equityPercentage || selectedPartner.equityPercentage);
   const totals = useMemo(() => {
     const subtotal = lineItems.reduce((sum, item) => sum + Number(item.quantity || 0) * Number(item.unitPrice || 0), 0);
     const total = Math.max(0, subtotal - Number(quoteMeta.discount || 0) + Number(quoteMeta.tax || 0));
-    const equityAmount = total * 0.2;
+    const equityAmount = total * (equityPercentage / 100);
     return { subtotal, total, equityAmount, bankFinanceAmount: total - equityAmount };
-  }, [lineItems, quoteMeta.discount, quoteMeta.tax]);
+  }, [lineItems, quoteMeta.discount, quoteMeta.tax, equityPercentage]);
 
   const updateAssessment = (section, field, value) => {
     setAssessment((current) => ({ ...current, [section]: { ...current[section], [field]: value } }));
@@ -265,7 +273,7 @@ function AdminFinancingCase() {
           scope: quoteMeta.scope,
         },
         lineItems,
-        equityPercentage: 20,
+        equityPercentage,
         discount: Number(quoteMeta.discount),
         tax: Number(quoteMeta.tax),
         validUntil: quoteMeta.validUntil || null,
@@ -288,7 +296,7 @@ function AdminFinancingCase() {
           project: payload.project,
           lineItems: lineItems.map((item) => ({ ...item, amount: Number(item.quantity || 0) * Number(item.unitPrice || 0) })),
           ...totals,
-          equityPercentage: 20,
+          equityPercentage,
           discount: Number(quoteMeta.discount),
           tax: Number(quoteMeta.tax),
           terms: quoteMeta.terms,
@@ -390,6 +398,7 @@ function AdminFinancingCase() {
       <section className="case-workspace-summary ops-card">
         <div><span>Current stage</span><strong className={`status-pill ${statusTone(financingCase.status)}`}>{getFinancingStage(financingCase.status).label}</strong></div>
         <div><span>System</span><strong>{financingCase.systemCapacity || financingCase.items?.[0]?.capacity || "Sizing pending"}</strong></div>
+        <div><span>Finance partner</span><strong>{selectedPartner.name}</strong></div>
         <div><span>Site</span><strong>{financingCase.customer?.location || "Location pending"}</strong></div>
         <div><span>Final project cost</span><strong>{formatMoney(financingCase.finalProjectCost)}</strong></div>
       </section>
@@ -476,7 +485,7 @@ function AdminFinancingCase() {
               <div className="quotation-total-card">
                 <label><span>Discount</span><input type="number" min="0" value={quoteMeta.discount} onChange={(event) => setQuoteMeta((current) => ({ ...current, discount: event.target.value }))} disabled={!assessmentPassed} /></label>
                 <label><span>Tax</span><input type="number" min="0" value={quoteMeta.tax} onChange={(event) => setQuoteMeta((current) => ({ ...current, tax: event.target.value }))} disabled={!assessmentPassed} /></label>
-                <label><span>Customer equity %</span><input type="number" value="20" readOnly /></label>
+                <label><span>Customer equity %</span><input type="number" value={equityPercentage} readOnly /></label>
                 <div><span>Subtotal</span><strong>{formatMoney(totals.subtotal)}</strong></div>
                 <div className="grand-total"><span>Total project cost</span><strong>{formatMoney(totals.total)}</strong></div>
                 <div><span>Customer equity</span><strong>{formatMoney(totals.equityAmount)}</strong></div>

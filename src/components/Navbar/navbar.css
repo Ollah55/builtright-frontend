@@ -80,7 +80,7 @@
 }
 
 .nav-auth-btn:hover {
-  background: #b91f1f;
+  background: var(--accent-red-hover);
   transform: translateY(-1px);
 }
 
@@ -95,14 +95,14 @@
 }
 
 .nav-user span {
-  color: #b91f1f;
+  color: var(--accent-red-hover);
   font-size: 0.9rem;
   font-weight: 800;
   white-space: nowrap;
 }
 
 .nav-user button {
-  background: #b91f1f;
+  background: var(--accent-red-hover);
   color: #fff;
   padding: 8px 11px;
   font-size: 0.82rem;

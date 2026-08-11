@@ -48,7 +48,7 @@
 
 .receipt-status-box {
   background: #f7faf8;
-  border: 1px solid rgba(46, 139, 87, 0.18);
+  border: 1px solid rgba(21, 146, 132, 0.18);
   border-radius: 16px;
   padding: 1rem 1.2rem;
   min-width: 180px;
@@ -257,7 +257,7 @@
 }
 
 .receipt-btn.primary:hover {
-  background: #b91f1f;
+  background: var(--accent-red-hover);
   transform: translateY(-2px);
 }
 

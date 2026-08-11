@@ -136,7 +136,7 @@
 
 .contact-card.highlight {
   background: linear-gradient(180deg, #f7faf8, #ffffff);
-  border: 1px solid rgba(46, 139, 87, 0.2);
+  border: 1px solid rgba(21, 146, 132, 0.2);
 }
 
 .contact-whatsapp-btn {
@@ -152,7 +152,7 @@
 }
 
 .contact-whatsapp-btn:hover {
-  background: #b91f1f;
+  background: var(--accent-red-hover);
   transform: translateY(-2px);
 }
 
@@ -203,7 +203,7 @@
 .contact-form input:focus,
 .contact-form textarea:focus {
   border-color: var(--primary-green);
-  box-shadow: 0 0 0 4px rgba(46, 139, 87, 0.08);
+  box-shadow: 0 0 0 4px rgba(21, 146, 132, 0.08);
 }
 
 .contact-form textarea {
@@ -224,7 +224,7 @@
 }
 
 .contact-form button:hover {
-  background: #b91f1f;
+  background: var(--accent-red-hover);
   transform: translateY(-2px);
 }
 .contact-form select {
@@ -241,7 +241,7 @@
 
 .contact-form select:focus {
   border-color: var(--primary-green);
-  box-shadow: 0 0 0 4px rgba(46, 139, 87, 0.08);
+  box-shadow: 0 0 0 4px rgba(21, 146, 132, 0.08);
 }
 
 .form-status {

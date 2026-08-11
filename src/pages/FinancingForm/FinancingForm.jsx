@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useLocation, useNavigate } from "react-router-dom";
+import { financingPartners, generalFinancingRequirements, getFinancingPartner } from "../../lib/financingPartners";
 import "./financingform.css";
 
 const API_BASE_URL = "https://builtright-backend-1.onrender.com";
@@ -18,6 +19,7 @@ function FinancingForm() {
     phone: passedState.customer?.phone || "",
     location: passedState.customer?.location || "",
     occupation: "",
+    financeInstitution: "RichGreen Microfinance Bank",
     productSource: cartItems.length > 0 ? "BuiltRight Marketplace" : "External Vendor",
     vendorName: "",
     vendorContact: "",
@@ -31,6 +33,7 @@ function FinancingForm() {
   const [submittedReference, setSubmittedReference] = useState("");
 
   const isExternalVendor = formData.productSource === "External Vendor";
+  const selectedPartner = getFinancingPartner(formData.financeInstitution);
   const items = isExternalVendor
     ? [{
           id: "external-system",
@@ -101,10 +104,10 @@ function FinancingForm() {
           items,
           estimatedAmount,
           productSource: formData.productSource,
-          financeInstitution: "Bank partner pending",
+          financeInstitution: selectedPartner.name,
           interestRate: "",
           loanTenor: "",
-          depositRequired: "20% of approved total project cost",
+          depositRequired: `${selectedPartner.equityPercentage}% of approved total project cost`,
           vendorName: formData.vendorName,
           vendorContact: formData.vendorContact,
           vendorProductDetails: formData.vendorProductDetails,
@@ -146,7 +149,7 @@ function FinancingForm() {
         <div className="loan-process-grid">
           <article className="loan-step-card"><span>01</span><h3>Submit request</h3><p>Select your preferred system and provide the project location and contact details.</p></article>
           <article className="loan-step-card"><span>02</span><h3>Assess the project</h3><p>BuiltRight completes site inspection, load audit, technical checks, and due diligence.</p></article>
-          <article className="loan-step-card"><span>03</span><h3>Approve quotation</h3><p>Review the full system, materials, installation scope, total cost, and 20% equity amount.</p></article>
+          <article className="loan-step-card"><span>03</span><h3>Approve quotation</h3><p>Review the full system, materials, installation scope, total cost, and your selected bank's equity amount.</p></article>
           <article className="loan-step-card"><span>04</span><h3>Apply with the bank</h3><p>After approval, the secure bank button opens for KYC, credit checks, account opening, and payment.</p></article>
         </div>
       </section>
@@ -167,6 +170,30 @@ function FinancingForm() {
               <div><span>Bank access</span><strong>After approval</strong></div>
             </div>
             <p>The bank partner and its final lending terms will appear only after you approve BuiltRight's final quotation. The bank—not BuiltRight—will perform credit decisioning and KYC.</p>
+          </div>
+
+          <div className="financing-partner-overview">
+            <h2>Available financial institutions</h2>
+            <p className="financing-partner-intro">Choose either partner below. Final approval remains subject to the bank's assessment and documentation review.</p>
+            <div className="financing-partner-cards">
+              {financingPartners.map((partner) => (
+                <article className={`financing-partner-card ${selectedPartner.id === partner.id ? "selected" : ""}`} key={partner.id}>
+                  <header><h3>{partner.name}</h3><span>{partner.eligibleCustomers}</span></header>
+                  <dl>
+                    <div><dt>Customer equity</dt><dd>{partner.equityPercentage}%</dd></div>
+                    <div><dt>Finance amount</dt><dd>{partner.financePercentage}</dd></div>
+                    <div><dt>Maximum tenor</dt><dd>{partner.maximumTenor}</dd></div>
+                    <div><dt>Repayment</dt><dd>{partner.repaymentFrequency}</dd></div>
+                  </dl>
+                  <p className="partner-limit">{partner.maximumAmount}</p>
+                  <ul>{partner.features.map((feature) => <li key={feature}>{feature}</li>)}</ul>
+                </article>
+              ))}
+            </div>
+            <div className="general-requirements">
+              <h3>Documents to prepare</h3>
+              <ul>{generalFinancingRequirements.map((requirement) => <li key={requirement}>{requirement}</li>)}</ul>
+            </div>
           </div>
 
           {!isExternalVendor && (
@@ -211,8 +238,16 @@ function FinancingForm() {
             </div>
 
             <div className="selected-bank-terms">
-              <h3>Bank application is not required yet</h3>
-              <p>Once your assessment passes and you approve the final quotation, your profile will display the bank's hosted application button and BuiltRight will share the approved quotation with the bank.</p>
+              <label htmlFor="financeInstitution">Preferred financial institution</label>
+              <select id="financeInstitution" name="financeInstitution" value={formData.financeInstitution} onChange={handleChange}>
+                {financingPartners.map((partner) => <option key={partner.id} value={partner.name}>{partner.name}</option>)}
+              </select>
+              <div className="selected-bank-grid">
+                <div><span>Customer equity</span><strong>{selectedPartner.equityPercentage}%</strong></div>
+                <div><span>Finance amount</span><strong>{selectedPartner.financePercentage}</strong></div>
+                <div><span>Maximum tenor</span><strong>{selectedPartner.maximumTenor}</strong></div>
+              </div>
+              <p>Bank application is not required yet. Once your assessment passes and you approve the final quotation, your profile will display {selectedPartner.name}'s hosted application button and BuiltRight will share the approved quotation with the bank.</p>
             </div>
 
             {isExternalVendor && (

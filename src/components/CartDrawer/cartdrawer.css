@@ -167,7 +167,7 @@
 }
 
 .cart-checkout-btn:hover:not(:disabled) {
-  background: #b91f1f;
+  background: var(--accent-red-hover);
   transform: translateY(-2px);
 }
 

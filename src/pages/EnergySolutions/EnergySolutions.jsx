@@ -50,7 +50,7 @@ function EnergySolutions() {
             <span>Solar Installation</span>
             <span>Energy Audit</span>
             <span>Flexible Financing</span>
-            <span>RichGreen Loan Support</span>
+            <span>RichGreen & LOTUS Bank Support</span>
           </div>
         </div>
       </section>

@@ -1,6 +1,7 @@
 import React from "react";
 import "./footer.css";
 import { FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
+import brandLogo from "../../assets/logoooo.png";
 
 function Footer() {
   return (
@@ -9,10 +10,12 @@ function Footer() {
 
         {/* BRAND */}
         <div className="footer-col">
-          <h3 className="footer-logo">BuiltRight</h3>
+          <a className="footer-logo" href="/" aria-label="BuiltRight Services home">
+            <img src={brandLogo} alt="BuiltRight Services Ltd" />
+          </a>
           <p className="footer-text">
-            Member of relevant UK/Nigeria Facility Management Associations.
-            </p>
+            Reliable facility support, energy solutions, and solar financing guidance for modern businesses and homes.
+          </p>
         </div>
 
         {/* QUICK LINKS */}

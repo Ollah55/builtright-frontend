@@ -3,7 +3,7 @@
   position: relative;
   overflow: hidden;
   background:
-    radial-gradient(circle at top left, rgba(46, 139, 87, 0.22), transparent 34%),
+    radial-gradient(circle at top left, rgba(21, 146, 132, 0.22), transparent 34%),
     radial-gradient(circle at bottom right, rgba(198, 40, 40, 0.2), transparent 35%),
     linear-gradient(135deg, #07120d 0%, #111827 45%, #2b0d0d 100%);
   color: #fff;
@@ -19,7 +19,7 @@
 .glow-one {
   width: 260px;
   height: 260px;
-  background: rgba(46, 139, 87, 0.28);
+  background: rgba(21, 146, 132, 0.28);
   top: 8%;
   left: 6%;
 }
@@ -65,7 +65,7 @@
   inset: 0;
   background:
     linear-gradient(45deg, rgba(198, 40, 40, 0.22), transparent 45%),
-    radial-gradient(circle at top right, rgba(46, 139, 87, 0.26), transparent 32%);
+    radial-gradient(circle at top right, rgba(21, 146, 132, 0.26), transparent 32%);
   pointer-events: none;
 }
 
@@ -190,7 +190,7 @@
 
 .admin-login-card input:focus {
   border-color: var(--primary-green);
-  box-shadow: 0 0 0 4px rgba(46, 139, 87, 0.1);
+  box-shadow: 0 0 0 4px rgba(21, 146, 132, 0.1);
 }
 
 .admin-login-card button {

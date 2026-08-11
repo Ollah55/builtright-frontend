@@ -100,7 +100,7 @@
 .shop-search input:focus,
 .shop-filter-grid select:focus {
   border-color: var(--primary-green);
-  box-shadow: 0 0 0 4px rgba(46, 139, 87, 0.08);
+  box-shadow: 0 0 0 4px rgba(21, 146, 132, 0.08);
 }
 
 .shop-filter-grid {
@@ -184,7 +184,7 @@
 .product-card:hover {
   transform: translateY(-7px);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
-  border-color: rgba(214, 40, 40, 0.2);
+  border-color: rgba(179, 33, 39, 0.2);
 }
 
 .product-image-placeholder {

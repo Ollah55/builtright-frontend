@@ -45,7 +45,7 @@
 
 .customer-orders-message {
   background: #fff4f4;
-  border: 1px solid rgba(214, 40, 40, 0.2);
+  border: 1px solid rgba(179, 33, 39, 0.2);
   color: var(--accent-red);
   padding: 0.9rem 1rem;
   border-radius: 12px;
@@ -179,7 +179,7 @@
 }
 
 .download-invoice-btn:hover {
-  background: #b91f1f;
+  background: var(--accent-red-hover);
 }
 
 .customer-orders-empty {

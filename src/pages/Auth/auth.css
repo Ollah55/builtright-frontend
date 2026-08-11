@@ -110,7 +110,7 @@
 
 .auth-face input:focus {
   border-color: var(--primary-green);
-  box-shadow: 0 0 0 4px rgba(46, 139, 87, 0.08);
+  box-shadow: 0 0 0 4px rgba(21, 146, 132, 0.08);
 }
 
 .auth-face button[type="submit"] {
@@ -125,7 +125,7 @@
 }
 
 .auth-face button[type="submit"]:hover {
-  background: #b91f1f;
+  background: var(--accent-red-hover);
   transform: translateY(-2px);
 }
 
@@ -150,7 +150,7 @@
 .auth-message {
   margin-top: 1rem;
   background: #fff4f4;
-  border: 1px solid rgba(214, 40, 40, 0.2);
+  border: 1px solid rgba(179, 33, 39, 0.2);
   color: var(--accent-red);
   padding: 12px 14px;
   border-radius: 12px;

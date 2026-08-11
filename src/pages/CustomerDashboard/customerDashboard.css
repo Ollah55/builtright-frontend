@@ -3,7 +3,7 @@
   display: grid;
   grid-template-columns: 290px 1fr;
   background:
-    radial-gradient(circle at top left, rgba(46, 139, 87, 0.12), transparent 30%),
+    radial-gradient(circle at top left, rgba(21, 146, 132, 0.12), transparent 30%),
     radial-gradient(circle at bottom right, rgba(198, 40, 40, 0.1), transparent 30%),
     #f5f7f8;
   color: #222;

@@ -6,7 +6,7 @@
   --ops-canvas: #f4f7f6;
   --ops-teal: #168f82;
   --ops-teal-dark: #0f6f65;
-  --ops-red: #c92b32;
+  --ops-red: var(--accent-red);
   --ops-navy: #142f3b;
   --ops-shadow: 0 18px 48px rgba(18, 48, 42, 0.08);
 }

@@ -65,7 +65,7 @@
   border-radius: 999px;
   align-items: center;
   justify-content: center;
-  background: rgba(214, 40, 40, 0.1);
+  background: rgba(179, 33, 39, 0.1);
   color: var(--accent-red);
   font-weight: 800;
   margin-bottom: 1rem;
@@ -212,7 +212,7 @@
 .financing-form-card textarea:focus,
 .financing-form-card select:focus {
   border-color: var(--primary-green);
-  box-shadow: 0 0 0 4px rgba(46, 139, 87, 0.08);
+  box-shadow: 0 0 0 4px rgba(21, 146, 132, 0.08);
 }
 
 .financing-form-card textarea {
@@ -284,7 +284,7 @@
 }
 
 .financing-form-card button:hover {
-  background: #b91f1f;
+  background: var(--accent-red-hover);
   transform: translateY(-2px);
 }
 
@@ -339,7 +339,7 @@
 .finance-terms-box,
 .selected-bank-terms {
   background: #f7faf8;
-  border: 1px solid rgba(46, 139, 87, 0.18);
+  border: 1px solid rgba(21, 146, 132, 0.18);
   border-radius: 18px;
   padding: 1.2rem;
   margin-bottom: 1.5rem;
@@ -388,6 +388,128 @@
   margin: 0;
 }
 
+.financing-partner-overview {
+  margin: 1.5rem 0;
+}
+
+.financing-partner-overview > h2 {
+  margin-bottom: 0.45rem;
+}
+
+.financing-partner-intro {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.financing-partner-cards {
+  display: grid;
+  gap: 12px;
+}
+
+.financing-partner-card {
+  border: 1px solid #dce9e6;
+  border-radius: 16px;
+  padding: 1rem;
+  background: #fbfefd;
+}
+
+.financing-partner-card.selected {
+  border-color: var(--primary-green);
+  box-shadow: 0 0 0 3px rgba(21, 146, 132, 0.1);
+}
+
+.financing-partner-card header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 0.85rem;
+}
+
+.financing-partner-card h3,
+.general-requirements h3 {
+  color: var(--primary-green);
+  font-size: 1rem;
+}
+
+.financing-partner-card header span {
+  color: #5f6e6b;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+.financing-partner-card dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.financing-partner-card dl div {
+  padding: 0.7rem;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #edf2f0;
+}
+
+.financing-partner-card dt {
+  color: #687673;
+  font-size: 0.68rem;
+}
+
+.financing-partner-card dd {
+  margin: 0.22rem 0 0;
+  color: #253735;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.partner-limit {
+  color: var(--accent-red);
+  font-size: 0.75rem;
+  font-weight: 800;
+  margin: 0.85rem 0 0.55rem;
+}
+
+.financing-partner-card ul,
+.general-requirements ul {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.financing-partner-card li,
+.general-requirements li {
+  color: #566360;
+  font-size: 0.74rem;
+  line-height: 1.55;
+  margin-bottom: 0.35rem;
+}
+
+.general-requirements {
+  margin-top: 12px;
+  padding: 1rem;
+  border-radius: 14px;
+  background: #f5fbfa;
+  border: 1px solid rgba(21, 146, 132, 0.2);
+}
+
+.general-requirements h3 {
+  margin-bottom: 0.6rem;
+}
+
+.selected-bank-terms > label {
+  display: block;
+  color: #111;
+  font-size: 0.9rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.selected-bank-terms > select {
+  margin-bottom: 1rem;
+}
+
 @media (max-width: 768px) {
   .finance-terms-grid,
   .selected-bank-grid {
@@ -406,7 +528,7 @@
 }
 
 .financing-form-card .financing-secondary-action {
-  color: #0f776b;
+  color: var(--primary-green);
   background: #e7f4f1;
 }
 
