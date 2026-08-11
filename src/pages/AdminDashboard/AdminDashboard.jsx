@@ -1,227 +1,237 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-// import CountUp from "react-countup";
+import {
+  FiAlertTriangle,
+  FiArrowUpRight,
+  FiCheckCircle,
+  FiClock,
+  FiCpu,
+  FiCreditCard,
+  FiFileText,
+  FiMapPin,
+  FiTool,
+  FiWifi,
+  FiWifiOff,
+} from "react-icons/fi";
 import AdminLayout from "../../components/AdminLayout/AdminLayout";
+import {
+  demoAlerts,
+  demoDevices,
+  demoFinancingRequests,
+  getFinancingStage,
+  integrationReadiness,
+  statusTone,
+} from "../../lib/operations";
 import "./adminDashboard.css";
 
-function AnimatedNumber({ value }) {
-  const [displayValue, setDisplayValue] = useState(0);
-
-  useEffect(() => {
-    let start = 0;
-    const end = Number(value || 0);
-    const duration = 900;
-    const increment = end / (duration / 16);
-
-    const timer = setInterval(() => {
-      start += increment;
-
-      if (start >= end) {
-        setDisplayValue(end);
-        clearInterval(timer);
-      } else {
-        setDisplayValue(Math.floor(start));
-      }
-    }, 16);
-
-    return () => clearInterval(timer);
-  }, [value]);
-
-  return displayValue.toLocaleString();
-}
+const stageSummary = [
+  { label: "New requests", value: 6, tone: "neutral" },
+  { label: "Inspection", value: 4, tone: "warning" },
+  { label: "Quotation", value: 3, tone: "teal" },
+  { label: "Bank review", value: 5, tone: "violet" },
+  { label: "Approved", value: 2, tone: "success" },
+  { label: "Disbursed", value: 1, tone: "success" },
+];
 
 function AdminDashboard() {
   const navigate = useNavigate();
+  const onlineDevices = demoDevices.filter((device) => device.connectivity === "online").length;
+  const tamperAlerts = demoDevices.filter((device) => device.tamper).length;
 
-  const [stats, setStats] = useState({
-    totalProducts: 0,
-    totalOrders: 0,
-    totalLoanRequests: 0,
-    totalCustomers: 0,
-    pendingLoanRequests: 0,
-    approvedLoans: 0,
-  });
-
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadStats = async () => {
-      try {
-        const token = localStorage.getItem("adminToken");
-
-        const response = await fetch(
-          "https://builtright-backend.onrender.com/api/admin/dashboard-stats",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        const data = await response.json();
-
-        if (data.status) {
-          setStats(data.stats);
-        }
-      } catch (error) {
-        console.error("LOAD ADMIN STATS ERROR:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadStats();
-  }, []);
-
-  const statCards = [
+  const metrics = [
     {
-      label: "Total Products",
-      value: stats.totalProducts,
-      icon: "📦",
-      note: "Marketplace inventory",
+      label: "Active financing",
+      value: "21",
+      note: "Across the full review pipeline",
+      icon: FiCreditCard,
+      tone: "teal",
+      trend: "+4 this week",
     },
     {
-      label: "Total Orders",
-      value: stats.totalOrders,
-      icon: "🧾",
-      note: "Customer purchases",
+      label: "Inspections due",
+      value: "4",
+      note: "2 scheduled within 48 hours",
+      icon: FiFileText,
+      tone: "amber",
+      trend: "Needs scheduling",
     },
     {
-      label: "Loan Requests",
-      value: stats.totalLoanRequests,
-      icon: "💳",
-      note: "Financing pipeline",
+      label: "Active projects",
+      value: "8",
+      note: "Delivery through commissioning",
+      icon: FiTool,
+      tone: "navy",
+      trend: "3 installations",
     },
     {
-      label: "Customers",
-      value: stats.totalCustomers,
-      icon: "👥",
-      note: "Registered users",
-    },
-    {
-      label: "Pending Loans",
-      value: stats.pendingLoanRequests,
-      icon: "⏳",
-      note: "Needs review",
-    },
-    {
-      label: "Approved Loans",
-      value: stats.approvedLoans,
-      icon: "✅",
-      note: "Approved financing",
+      label: "Device alerts",
+      value: String(tamperAlerts),
+      note: "Pilot device requires attention",
+      icon: FiAlertTriangle,
+      tone: "red",
+      trend: "Open incident",
     },
   ];
 
-  const approvalRate =
-    stats.totalLoanRequests > 0
-      ? Math.min(100, (stats.approvedLoans / stats.totalLoanRequests) * 100)
-      : 0;
-
   return (
     <AdminLayout
-      title="Operations Overview"
-      subtitle="Manage products, orders, customers, and financing activity from one secure BuiltRight control center."
+      title="Operations overview"
+      subtitle="A single view of financing, inspections, quotations, fulfilment, installation, and financed solar assets."
+      actions={
+        <>
+          <button className="ops-button secondary" type="button" onClick={() => navigate("/admin/projects")}>View projects</button>
+          <button className="ops-button primary" type="button" onClick={() => navigate("/admin/loan-requests")}>Review financing <FiArrowUpRight /></button>
+        </>
+      }
     >
-      <section className="admin-dashboard-hero-actions">
-        <button type="button" onClick={() => navigate("/admin/products")}>
-          Add / Manage Products
-        </button>
-
-        <button
-          type="button"
-          className="secondary"
-          onClick={() => navigate("/admin/loan-requests")}
-        >
-          Review Loans
-        </button>
+      <section className="overview-context-strip">
+        <div>
+          <span className="context-dot" />
+          <p><strong>Sandbox workspace:</strong> live BuiltRight operations can continue manually while bank and AshGridX connections remain isolated.</p>
+        </div>
+        <button type="button" onClick={() => navigate("/admin/integrations")}>Integration readiness <FiArrowUpRight /></button>
       </section>
 
-      {loading ? (
-        <section className="admin-panel">
-          <h2>Loading dashboard...</h2>
-          <p>Please wait while we load your business data.</p>
-        </section>
-      ) : (
-        <>
-          <section className="admin-cards">
-            {statCards.map((card) => (
-              <div className="admin-card" key={card.label}>
-                <div className="admin-card-icon">{card.icon}</div>
+      <section className="overview-metrics" aria-label="Operations metrics">
+        {metrics.map((metric) => {
+          const Icon = metric.icon;
+          return (
+            <article className="overview-metric" key={metric.label}>
+              <div className={`metric-icon ${metric.tone}`}><Icon /></div>
+              <div className="metric-copy">
+                <span>{metric.label}</span>
+                <strong>{metric.value}</strong>
+                <p>{metric.note}</p>
+              </div>
+              <small>{metric.trend}</small>
+            </article>
+          );
+        })}
+      </section>
 
-                <div>
-                  <span>{card.label}</span>
-                  <h3>
-                    <AnimatedNumber value={card.value} />
-                  </h3>
-                  <p>{card.note}</p>
+      <section className="overview-grid primary-grid">
+        <article className="ops-card pipeline-card">
+          <div className="ops-card-head">
+            <div>
+              <p className="ops-section-kicker">Financing pipeline</p>
+              <h2>From interest to disbursement</h2>
+            </div>
+            <button type="button" className="text-button" onClick={() => navigate("/admin/loan-requests")}>Open pipeline <FiArrowUpRight /></button>
+          </div>
+
+          <div className="pipeline-stage-grid">
+            {stageSummary.map((stage, index) => (
+              <div className="pipeline-stage" key={stage.label}>
+                <div className="pipeline-stage-label">
+                  <span className={`stage-dot ${stage.tone}`} />
+                  <p>{stage.label}</p>
                 </div>
+                <strong>{stage.value}</strong>
+                <div className="pipeline-stage-bar"><span style={{ width: `${Math.max(22, 100 - index * 13)}%` }} /></div>
               </div>
             ))}
-          </section>
+          </div>
 
-          <section className="admin-grid-panels">
-            <div className="admin-panel admin-action-panel">
+          <div className="pipeline-note">
+            <FiCheckCircle />
+            <p>Confirmed orders are created only after verified bank disbursement, not at approval.</p>
+          </div>
+        </article>
+
+        <article className="ops-card attention-card">
+          <div className="ops-card-head compact">
+            <div>
+              <p className="ops-section-kicker">Attention queue</p>
+              <h2>What needs action</h2>
+            </div>
+            <span className="count-badge">{demoAlerts.length}</span>
+          </div>
+
+          <div className="attention-list">
+            {demoAlerts.map((alert) => (
+              <button type="button" key={alert.id} onClick={() => navigate(alert.route)}>
+                <span className={`attention-severity ${alert.severity}`} />
+                <span className="attention-copy">
+                  <strong>{alert.title}</strong>
+                  <small>{alert.detail}</small>
+                </span>
+                <time>{alert.time}</time>
+              </button>
+            ))}
+          </div>
+        </article>
+      </section>
+
+      <section className="overview-grid secondary-grid">
+        <article className="ops-card work-queue-card">
+          <div className="ops-card-head">
+            <div>
+              <p className="ops-section-kicker">Financing work queue</p>
+              <h2>Next customer actions</h2>
+            </div>
+            <button type="button" className="text-button" onClick={() => navigate("/admin/loan-requests")}>View all</button>
+          </div>
+
+          <div className="work-queue-table" role="table">
+            <div className="work-queue-row work-queue-header" role="row">
+              <span>Customer</span><span>System</span><span>Stage</span><span>Next action</span>
+            </div>
+            {demoFinancingRequests.map((request) => {
+              const stage = getFinancingStage(request.status);
+              return (
+                <button type="button" className="work-queue-row" role="row" key={request._id} onClick={() => navigate("/admin/loan-requests")}>
+                  <span><strong>{request.customer.fullName}</strong><small>{request.reference}</small></span>
+                  <span><strong>{request.systemCapacity}</strong><small>{request.customer.location}</small></span>
+                  <span><i className={`status-pill ${statusTone(request.status)}`}>{stage.label}</i></span>
+                  <span><strong>{request.nextAction}</strong><FiArrowUpRight /></span>
+                </button>
+              );
+            })}
+          </div>
+        </article>
+
+        <article className="ops-card device-card">
+          <div className="ops-card-head compact">
+            <div>
+              <p className="ops-section-kicker">Financed assets</p>
+              <h2>Device health</h2>
+            </div>
+            <div className="device-health-ring"><strong>{onlineDevices}</strong><span>online</span></div>
+          </div>
+
+          <div className="device-health-list">
+            {demoDevices.map((device) => (
+              <button type="button" key={device.id} onClick={() => navigate("/admin/devices")}>
+                <span className={`device-connectivity ${device.connectivity}`}>
+                  {device.connectivity === "online" ? <FiWifi /> : <FiWifiOff />}
+                </span>
+                <span>
+                  <strong>{device.deviceNumber}</strong>
+                  <small><FiMapPin /> {device.site}</small>
+                </span>
+                <i className={`status-pill ${device.tamper ? "danger" : "success"}`}>{device.tamper ? "Tamper" : device.state}</i>
+              </button>
+            ))}
+          </div>
+          <button type="button" className="ops-button secondary full" onClick={() => navigate("/admin/devices")}><FiCpu /> Open device centre</button>
+        </article>
+      </section>
+
+      <section className="integration-mini-grid">
+        {integrationReadiness.map((integration) => (
+          <article className="integration-mini-card" key={integration.id}>
+            <div>
+              <span className={`integration-mark ${integration.tone}`} />
               <div>
-                <p className="admin-eyebrow">Quick Actions</p>
-                <h2>Run daily operations faster</h2>
-              </div>
-
-              <div className="quick-actions">
-                <button onClick={() => navigate("/admin/products")}>
-                  Manage Products
-                </button>
-
-                <button onClick={() => navigate("/admin/orders")}>
-                  View Orders
-                </button>
-
-                <button onClick={() => navigate("/admin/loan-requests")}>
-                  Financing Requests
-                </button>
-
-                <button onClick={() => navigate("/admin/customers")}>
-                  Customers
-                </button>
+                <p>{integration.name}</p>
+                <strong>{integration.status}</strong>
               </div>
             </div>
-
-            <div className="admin-panel admin-pipeline-panel">
-              <p className="admin-eyebrow">Financing Pipeline</p>
-              <h2>Loan request health</h2>
-
-              <div className="pipeline-row">
-                <span>Pending Review</span>
-                 <AnimatedNumber value={stats.pendingLoanRequests} /> 
-              </div>
-
-              <div className="pipeline-row">
-                <span>Approved Loans</span>
-                <strong>
-                  <AnimatedNumber value={stats.approvedLoans} />
-                </strong>
-              </div>
-
-              <div className="pipeline-meter">
-                <div style={{ width: `${approvalRate}%` }}></div>
-              </div>
-
-              <p>
-                Approval progress across all financing requests currently
-                recorded in the system.
-              </p>
-            </div>
-          </section>
-
-          <section className="admin-panel">
-            <p className="admin-eyebrow">System Status</p>
-            <h2>BuiltRight control center is active</h2>
-            <p>
-              Your admin workspace is connected to product inventory, customers,
-              orders, and financing requests.
-            </p>
-          </section>
-        </>
-      )}
+            <span className="integration-progress"><i style={{ width: `${integration.readiness}%` }} /></span>
+            <small>{integration.readiness}% interface readiness</small>
+          </article>
+        ))}
+      </section>
     </AdminLayout>
   );
 }

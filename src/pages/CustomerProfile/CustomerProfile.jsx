@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import CustomerLayout from "../../components/CustomerLayout/CustomerLayout";
 import "./customerProfile.css";
 
@@ -72,6 +73,15 @@ function CustomerProfile() {
         </div>
 
         {message && <p className="customer-profile-message">{message}</p>}
+
+        <section className="customer-profile-documents">
+          <div>
+            <span>Project documents</span>
+            <h2>Quotations and invoices</h2>
+            <p>Review the full project cost, approve your quotation, and download every issued document from your account.</p>
+          </div>
+          <Link to="/customer/documents">Open documents</Link>
+        </section>
 
         <section className="customer-profile-panel">
           <div className="customer-profile-head">

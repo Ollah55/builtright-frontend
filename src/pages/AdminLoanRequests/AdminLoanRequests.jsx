@@ -1,389 +1,349 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import "../AdminDashboard/adminDashboard.css";
+import { useNavigate } from "react-router-dom";
+import {
+  FiArrowRight,
+  FiCalendar,
+  FiCheck,
+  FiChevronRight,
+  FiClock,
+  FiCreditCard,
+  FiFileText,
+  FiMapPin,
+  FiSearch,
+  FiUser,
+  FiX,
+} from "react-icons/fi";
+import AdminLayout from "../../components/AdminLayout/AdminLayout";
+import {
+  demoFinancingRequests,
+  FINANCING_STAGES,
+  formatMoney,
+  getFinancingStage,
+  getNextFinancingStage,
+  getStageIndex,
+  isAssessmentPricingUnlocked,
+  isInstallationCostLabel,
+  normalizeFinancingStatus,
+  statusTone,
+} from "../../lib/operations";
+import { isDevelopmentPreview } from "../../lib/previewMode";
 import "./adminloanrequests.css";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://builtright-backend.onrender.com";
+
+const filterGroups = [
+  { id: "all", label: "All cases" },
+  { id: "intake", label: "Intake" },
+  { id: "inspection", label: "Inspection" },
+  { id: "assessment", label: "Assessment" },
+  { id: "quotation", label: "Quotation" },
+  { id: "bank", label: "Bank review" },
+  { id: "decision", label: "Decision and deposit" },
+  { id: "disbursement", label: "Disbursement" },
+  { id: "fulfillment", label: "Fulfilment" },
+];
+
+function normalizeRequest(request) {
+  const firstItem = request.items?.[0];
+  const id = request._id || request.id;
+  const installationPricingUnlocked = isAssessmentPricingUnlocked(request);
+  const rawUpfrontCosts = request.upfrontCosts?.length
+    ? request.upfrontCosts
+    : [
+        { label: "Solar system", amount: request.estimatedAmount, confirmed: Boolean(request.estimatedAmount) },
+        { label: "Standard installation service", amount: null, confirmed: false },
+        { label: "Insurance and compliance (above 5kVA)", amount: null, confirmed: false },
+        { label: "IoT tracking", amount: null, confirmed: false },
+        { label: "Maintenance", amount: null, confirmed: false },
+      ];
+  const rawInspectionCosts = request.inspectionCosts?.length
+    ? request.inspectionCosts
+    : [
+        { label: "Installation kit and materials", amount: null },
+        { label: "Panel mounting materials", amount: null },
+        { label: "Cable, DB and protection accessories", amount: null },
+        { label: "Extra civil or electrical work", amount: null },
+      ];
+  return {
+    ...request,
+    _id: id,
+    reference: request.reference || `BRF-${String(id || "NEW").slice(-5).toUpperCase()}`,
+    status: normalizeFinancingStatus(request.status),
+    systemName: request.systemName || firstItem?.name || "Selected solar system",
+    systemCapacity: request.systemCapacity || firstItem?.capacity || "Sizing to be confirmed",
+    nextAction: request.nextAction || getNextFinancingStage(request.status)?.label || "Review case",
+    updatedAt: request.updatedAt || request.createdAt,
+    customer: {
+      ...request.customer,
+      location: request.customer?.location || "Location not recorded",
+    },
+    installationPricingUnlocked,
+    upfrontCosts: rawUpfrontCosts.map((item) => isInstallationCostLabel(item.label) && !installationPricingUnlocked
+      ? { ...item, amount: null, confirmed: false }
+      : item),
+    inspectionCosts: rawInspectionCosts.map((item) => installationPricingUnlocked ? item : { ...item, amount: null }),
+  };
+}
+
+function FinancingTimeline({ status }) {
+  const currentIndex = getStageIndex(status);
+  const visibleStages = [
+    "submitted",
+    "internal-review",
+    "inspection-scheduled",
+    "inspection-completed",
+    "load-audit-completed",
+    "due-diligence-passed",
+    "quotation-draft",
+    "quotation-sent",
+    "quotation-approved",
+    "sent-to-bank",
+    "credit-review",
+    "approved",
+    "deposit-paid",
+    "disbursed",
+    "order-created",
+    "installation-scheduled",
+    "completed",
+  ];
+
+  return (
+    <div className="finance-timeline">
+      {visibleStages.map((stageId) => {
+        const stage = FINANCING_STAGES.find((item) => item.id === stageId);
+        const index = FINANCING_STAGES.findIndex((item) => item.id === stageId);
+        const complete = currentIndex >= index && status !== "rejected";
+        const current = normalizeFinancingStatus(status) === stageId;
+        return (
+          <div className={`finance-timeline-step ${complete ? "complete" : ""} ${current ? "current" : ""}`} key={stageId}>
+            <span>{complete ? <FiCheck /> : ""}</span>
+            <p>{stage?.label}</p>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 function AdminLoanRequests() {
   const navigate = useNavigate();
-
-  const [loanRequests, setLoanRequests] = useState([]);
+  const [loanRequests, setLoanRequests] = useState(demoFinancingRequests);
   const [loading, setLoading] = useState(true);
+  const [usingPreviewData, setUsingPreviewData] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedId, setSelectedId] = useState(null);
   const [message, setMessage] = useState("");
-
-  const token = localStorage.getItem("adminToken");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const loadLoanRequests = async () => {
+      const isLocalPreview = isDevelopmentPreview();
+
+      if (isLocalPreview) {
+        setLoading(false);
+        setUsingPreviewData(true);
+        return;
+      }
+
+      const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
       try {
-        const response = await fetch("https://builtright-backend.onrender.com/api/loan-requests", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const response = await fetch(`${API_BASE_URL}/api/loan-requests`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-
         const data = await response.json();
-
-        if (data.status && Array.isArray(data.loanRequests)) {
-          setLoanRequests(data.loanRequests);
+        if (!response.ok || !data.status) throw new Error(data.message || "Could not load financing cases.");
+        if (Array.isArray(data.loanRequests) && data.loanRequests.length > 0) {
+          setLoanRequests(data.loanRequests.map(normalizeRequest));
+          setUsingPreviewData(false);
         }
       } catch (error) {
-        console.error("LOAD LOAN REQUESTS ERROR:", error);
-        setMessage("Failed to load loan requests.");
+        console.info("Using financing preview data:", error.message);
+        setUsingPreviewData(true);
       } finally {
         setLoading(false);
       }
     };
-
     loadLoanRequests();
-  }, [token]);
+  }, []);
+
+  const normalizedRequests = useMemo(() => loanRequests.map(normalizeRequest), [loanRequests]);
+  const selectedRequest = normalizedRequests.find((request) => request._id === selectedId) || null;
 
   const filteredRequests = useMemo(() => {
-    let result = [...loanRequests];
-
-    if (statusFilter !== "all") {
-      result = result.filter((request) => request.status === statusFilter);
-    }
-
-    if (searchTerm.trim()) {
-      const search = searchTerm.toLowerCase();
-
-      result = result.filter(
-        (request) =>
-          request.customer?.fullName?.toLowerCase().includes(search) ||
-          request.customer?.email?.toLowerCase().includes(search) ||
-          request.customer?.phone?.toLowerCase().includes(search) ||
-          request.productSource?.toLowerCase().includes(search) ||
-          request.financeInstitution?.toLowerCase().includes(search)
-      );
-    }
-
-    return result;
-  }, [loanRequests, statusFilter, searchTerm]);
-
-  const updateStatus = async (id, status) => {
-  try {
-    const response = await fetch(
-      `https://builtright-backend.onrender.com/api/loan-requests/${id}/status`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status }),
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok || !data.status) {
-      throw new Error(data.message || "Failed to update status.");
-    }
-
-    setLoanRequests((prev) =>
-      prev.map((request) =>
-        request._id === id ? data.loanRequest : request
-      )
-    );
-
-    setMessage(
-      status === "approved"
-        ? "Loan approved and order created. Check Admin Orders."
-        : "Loan request status updated."
-    );
-  } catch (error) {
-    setMessage(error.message || "Failed to update status.");
-  }
-};
-const deleteLoanRequest = async (id) => {
-  const confirmDelete = window.confirm(
-    "Are you sure you want to delete this loan request?"
-  );
-
-  if (!confirmDelete) return;
-
-  try {
-    const response = await fetch(`https://builtright-backend.onrender.com/api/loan-requests/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const search = searchTerm.trim().toLowerCase();
+    return normalizedRequests.filter((request) => {
+      const stage = getFinancingStage(request.status);
+      const matchesGroup =
+        statusFilter === "all" ||
+        stage.group === statusFilter ||
+        (statusFilter === "decision" && request.status === "rejected");
+      const matchesSearch =
+        !search ||
+        [
+          request.reference,
+          request.customer?.fullName,
+          request.customer?.email,
+          request.customer?.phone,
+          request.customer?.location,
+          request.systemName,
+        ].some((value) => String(value || "").toLowerCase().includes(search));
+      return matchesGroup && matchesSearch;
     });
+  }, [normalizedRequests, searchTerm, statusFilter]);
 
-    const data = await response.json();
-
-
-    if (!response.ok || !data.status) {
-      throw new Error(data.message || "Failed to delete loan request.");
+  const updateCaseStatus = async (request, nextStatus) => {
+    setSaving(true);
+    setMessage("");
+    try {
+      if (!request.isDemo && !usingPreviewData) {
+        const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
+        const response = await fetch(`${API_BASE_URL}/api/loan-requests/${request._id}/status`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: nextStatus }),
+        });
+        const data = await response.json();
+        if (!response.ok || !data.status) throw new Error(data.message || "Status update failed.");
+        setLoanRequests((items) => items.map((item) => (item._id === request._id ? normalizeRequest(data.loanRequest) : item)));
+        setMessage("Financing stage updated and added to the case history.");
+      } else {
+        setLoanRequests((items) => items.map((item) => (item._id === request._id ? { ...item, status: nextStatus, nextAction: getNextFinancingStage(nextStatus)?.label || "Review case" } : item)));
+        setMessage("Preview stage updated. It will persist after the operations API is connected.");
+      }
+    } catch (error) {
+      setMessage(error.message || "The stage could not be updated.");
+    } finally {
+      setSaving(false);
     }
-
-    setLoanRequests((prev) => prev.filter((request) => request._id !== id));
-    setMessage("Loan request deleted successfully.");
-    window.location.reload();
-  } catch (error) {
-    setMessage(error.message || "Failed to delete loan request.");
-  }
-};
-  const handleLogout = () => {
-    localStorage.removeItem("adminToken");
-    navigate("/admin/login");
   };
 
+  const nextStage = selectedRequest ? getNextFinancingStage(selectedRequest.status) : null;
+  const selectedStageGroup = selectedRequest ? getFinancingStage(selectedRequest.status).group : null;
+  const canManuallyAdvance = Boolean(
+    selectedRequest && nextStage && (
+      ["bank", "decision", "disbursement", "fulfillment"].includes(selectedStageGroup) ||
+      (selectedRequest.status === "quotation-approved" && selectedRequest.bankApplication?.redirectUrl)
+    )
+  );
+
   return (
-    <div className="admin-dashboard">
-      <aside className="admin-sidebar">
-        <h2>BuiltRight Admin</h2>
+    <AdminLayout
+      title="Financing cases"
+      subtitle="Move each request through BuiltRight review, site inspection, final quotation, bank decision, deposit, and verified disbursement."
+      actions={<button className="ops-button secondary" type="button"><FiFileText /> Export case register</button>}
+    >
+      {usingPreviewData && (
+        <div className="finance-preview-banner">
+          <span />
+          <p><strong>Interface preview:</strong> representative cases are shown while the live operations schema is being prepared.</p>
+        </div>
+      )}
 
-        <nav>
-          <NavLink to="/admin/dashboard">Overview</NavLink>
-          <NavLink to="/admin/products">Products</NavLink>
-          <NavLink to="/admin/orders">Orders</NavLink>
-          <NavLink to="/admin/loan-requests">Loan Requests</NavLink>
-          <NavLink to="/admin/customers">Customers</NavLink>
-        </nav>
+      {message && <div className="finance-message" role="status">{message}</div>}
 
-        <button onClick={handleLogout}>Logout</button>
-      </aside>
+      <section className="finance-toolbar">
+        <div className="finance-search"><FiSearch /><input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Search reference, customer, location or system" /></div>
+        <div className="finance-filter-tabs">
+          {filterGroups.map((group) => (
+            <button type="button" className={statusFilter === group.id ? "active" : ""} key={group.id} onClick={() => setStatusFilter(group.id)}>{group.label}</button>
+          ))}
+        </div>
+      </section>
 
-      <main className="admin-main">
-        <div className="admin-topbar">
-          <div>
-            <p>Financing Management</p>
-            <h1>Loan Requests</h1>
-          </div>
+      <section className="finance-register ops-card">
+        <div className="finance-register-head">
+          <div><p className="ops-section-kicker">Case register</p><h2>{loading ? "Loading cases" : `${filteredRequests.length} financing cases`}</h2></div>
+          <span>Last synced just now</span>
         </div>
 
-        <section className="loan-admin-filters">
-          <input
-            type="text"
-            placeholder="Search name, email, phone, institution..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="all">All Status</option>
-
-            <option value="pending">Pending</option>
-
-            <option value="contacted">Contacted</option>
-
-            <option value="sent-to-bank">
-              Sent to Institution
-            </option>
-
-            <option value="under-assessment">
-              Under Assessment
-            </option>
-
-            <option value="approved">Approved</option>
-
-            <option value="installation-scheduled">
-              Installation Scheduled
-            </option>
-
-            <option value="completed">Completed</option>
-
-            <option value="declined">Declined</option>
-          </select>
-        </section>
-
-        {message && <p className="loan-admin-message">{message}</p>}
-
-        <section className="admin-panel">
-          <div className="loan-admin-head">
-            <h2>{filteredRequests.length} Loan Requests</h2>
-          </div>
-
-          {loading ? (
-            <div className="loan-empty-box">Loading loan requests...</div>
-          ) : filteredRequests.length === 0 ? (
-            <div className="loan-empty-box">No loan requests found.</div>
-          ) : (
-            <div className="loan-request-grid">
-              {filteredRequests.map((request) => (
-                <div className="loan-request-card" key={request._id}>
-                  <div className="loan-request-top">
-                    <div>
-                      <h3>{request.customer?.fullName}</h3>
-                      <p>{request.customer?.email}</p>
-                      <p>{request.customer?.phone}</p>
-                    </div>
-
-                    <span className={`loan-status ${request.status}`}>
-                      {request.status}
-                    </span>
-                  </div>
-
-                  <div className="loan-request-details">
-                    <p>
-                      <strong>Product Source:</strong>{" "}
-                      {request.productSource || "N/A"}
-                    </p>
-
-                    <p>
-                      <strong>Finance Institution:</strong>{" "}
-                      {request.financeInstitution ||
-                        request.bankPartner ||
-                        "N/A"}
-                    </p>
-
-                    <p>
-                      <strong>Estimated Amount:</strong>{" "}
-                      {request.estimatedAmount
-                        ? `₦${Number(
-                            request.estimatedAmount
-                          ).toLocaleString()}`
-                        : "Request Price"}
-                    </p>
-
-                    <p>
-                      <strong>Preferred Contact:</strong>{" "}
-                      {request.preferredContact || "WhatsApp"}
-                    </p>
-
-                    <p>
-                      <strong>Consent:</strong>{" "}
-                      {request.consentToShare ? "Yes" : "No"}
-                    </p>
-
-                    <p>
-                      <strong>Date:</strong>{" "}
-                      {request.createdAt
-                        ? new Date(request.createdAt).toLocaleString()
-                        : "N/A"}
-                    </p>
-                  </div>
-
-                  {request.productSource === "External Vendor" && (
-                    <div className="loan-external-box">
-                      <h4>External Vendor</h4>
-                      <p>
-                        <strong>Name:</strong> {request.vendorName || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Contact:</strong>{" "}
-                        {request.vendorContact || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Details:</strong>{" "}
-                        {request.vendorProductDetails || "N/A"}
-                      </p>
-                    </div>
-                  )}
-
-                  <div className="loan-items-box">
-                    <h4>Requested Items</h4>
-
-                    {request.items?.length > 0 ? (
-                      request.items.map((item, index) => (
-                        <div className="loan-item-row" key={item._id || index}>
-                          <span>{item.name}</span>
-                          <strong>
-                            {item.price
-                              ? `₦${Number(item.price).toLocaleString()}`
-                              : "Request Price"}
-                          </strong>
-                        </div>
-                      ))
-                    ) : (
-                      <p>No items listed.</p>
-                    )}
-                  </div>
-
-                  {request.notes && (
-                    <div className="loan-notes-box">
-                      <h4>Notes</h4>
-                      <p>{request.notes}</p>
-                    </div>
-                  )}
-
-                <div className="loan-status-actions">
-
-                  <button
-                    onClick={() =>
-                      updateStatus(request._id, "contacted")
-                    }
-                  >
-                    Contacted
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      updateStatus(request._id, "sent-to-bank")
-                    }
-                  >
-                    Send to Bank
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      updateStatus(request._id, "under-assessment")
-                    }
-                  >
-                    Under Review
-                  </button>
-
-                  <button
-                    className="success"
-                    onClick={() =>
-                      updateStatus(request._id, "approved")
-                    }
-                  >
-                    Approve
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      updateStatus(
-                        request._id,
-                        "installation-scheduled"
-                      )
-                    }
-                  >
-                    Schedule Install
-                  </button>
-
-                  <button
-                    className="success"
-                    onClick={() =>
-                      updateStatus(request._id, "completed")
-                    }
-                  >
-                    Completed
-                  </button>
-
-                  <button
-                    className="danger"
-                    onClick={() =>
-                      updateStatus(request._id, "declined")
-                    }
-                  >
-                    Decline
-                  </button>
-
-                  <button
-                    className="danger"
-                    onClick={() =>
-                      deleteLoanRequest(request._id)
-                    }
-                  >
-                    Delete
-                  </button>
-
-                </div>
-                </div>
-              ))}
+        <div className="finance-table-wrap">
+          <div className="finance-table">
+            <div className="finance-table-row finance-table-header">
+              <span>Reference and customer</span><span>System</span><span>Project value</span><span>Current stage</span><span>Next action</span><span />
             </div>
-          )}
-        </section>
-      </main>
-    </div>
+            {filteredRequests.map((request) => {
+              const stage = getFinancingStage(request.status);
+              return (
+                <button type="button" className="finance-table-row" key={request._id} onClick={() => setSelectedId(request._id)}>
+                  <span className="finance-customer-cell"><strong>{request.reference}</strong><p>{request.customer?.fullName}</p><small>{request.customer?.location}</small></span>
+                  <span><strong>{request.systemCapacity}</strong><small>{request.systemName}</small></span>
+                  <span><strong>{formatMoney(request.finalProjectCost || request.estimatedAmount)}</strong><small>{request.finalProjectCost ? "Final quotation" : "Selected system price only"}</small></span>
+                  <span><i className={`status-pill ${statusTone(request.status)}`}>{stage.label}</i></span>
+                  <span><strong>{request.nextAction}</strong><small>{request.updatedAt ? new Date(request.updatedAt).toLocaleDateString("en-GB") : "Not updated"}</small></span>
+                  <span><FiChevronRight /></span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {selectedRequest && (
+        <div className="finance-drawer-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedId(null); }}>
+          <aside className="finance-drawer" role="dialog" aria-modal="true" aria-label={`Financing case ${selectedRequest.reference}`}>
+            <div className="finance-drawer-head">
+              <div><p>{selectedRequest.reference}</p><h2>{selectedRequest.customer.fullName}</h2><span className={`status-pill ${statusTone(selectedRequest.status)}`}>{getFinancingStage(selectedRequest.status).label}</span></div>
+              <button type="button" onClick={() => setSelectedId(null)} aria-label="Close case"><FiX /></button>
+            </div>
+
+            <div className="finance-drawer-scroll">
+              <section className="finance-summary-grid">
+                <div><FiUser /><span>Customer</span><strong>{selectedRequest.customer.fullName}</strong><small>{selectedRequest.customer.phone}</small></div>
+                <div><FiMapPin /><span>Project site</span><strong>{selectedRequest.customer.location}</strong><small>{selectedRequest.inspection?.property || "Property details pending"}</small></div>
+                <div><FiCreditCard /><span>Solar system</span><strong>{selectedRequest.systemCapacity}</strong><small>{selectedRequest.systemName}</small></div>
+                <div><FiClock /><span>Next action</span><strong>{selectedRequest.nextAction}</strong><small>Case owner: Operations</small></div>
+              </section>
+
+              <section className="drawer-section">
+                <div className="drawer-section-head"><div><p>Case progress</p><h3>Financing lifecycle</h3></div></div>
+                <FinancingTimeline status={selectedRequest.status} />
+              </section>
+
+              <section className="drawer-section">
+                <div className="drawer-section-head"><div><p>Request-stage pricing</p><h3>Known costs before assessment</h3></div><strong>{formatMoney(selectedRequest.upfrontCosts.reduce((sum, item) => sum + Number(item.amount || 0), 0))}</strong></div>
+                <div className="cost-list">
+                  {selectedRequest.upfrontCosts.map((item) => <div key={item.label}><span>{item.label}</span><strong>{isInstallationCostLabel(item.label) && !selectedRequest.installationPricingUnlocked ? "Locked" : formatMoney(item.amount)}</strong></div>)}
+                </div>
+              </section>
+
+              <section className="drawer-section estimate-section">
+                <div className="drawer-section-head"><div><p>After full assessment</p><h3>Installation and materials</h3></div><strong>{selectedRequest.installationPricingUnlocked && selectedRequest.inspectionCosts.some((item) => item.amount) ? formatMoney(selectedRequest.inspectionCosts.reduce((sum, item) => sum + Number(item.amount || 0), 0)) : "Locked"}</strong></div>
+                <div className="cost-list">
+                  {selectedRequest.inspectionCosts.map((item) => <div key={item.label}><span>{item.label}</span><strong>{selectedRequest.installationPricingUnlocked ? formatMoney(item.amount) : "Locked"}</strong></div>)}
+                </div>
+                <p className="estimate-note">Installation labour and material prices unlock only after the site inspection, load audit, and due-diligence checks all pass.</p>
+              </section>
+
+              <section className="finance-two-column">
+                <div className="drawer-section compact-section">
+                  <div className="drawer-section-head"><div><p>Site inspection</p><h3>{selectedRequest.inspection?.status || "Not scheduled"}</h3></div><FiCalendar /></div>
+                  <span>{selectedRequest.inspection?.date || "Date pending"}</span>
+                  <small>{selectedRequest.inspection?.assignee || "Technician not assigned"}</small>
+                </div>
+                <div className="drawer-section compact-section">
+                  <div className="drawer-section-head"><div><p>Bank handoff</p><h3>{selectedRequest.bankApplication?.status || "Not started"}</h3></div><FiCreditCard /></div>
+                  <span>{selectedRequest.bankApplication?.provider || "Provider pending"}</span>
+                  <small>Reference: {selectedRequest.bankApplication?.externalReference || "Pending"}</small>
+                </div>
+              </section>
+            </div>
+
+            <footer className="finance-drawer-actions">
+              <button type="button" className="ops-button secondary" onClick={() => navigate(`/admin/loan-requests/${selectedRequest._id}`)}>
+                Open assessment &amp; quotation
+              </button>
+              {canManuallyAdvance && selectedRequest.status !== "rejected" && (
+                <button type="button" className="ops-button primary" disabled={saving} onClick={() => updateCaseStatus(selectedRequest, nextStage.id)}>{saving ? "Updating..." : `Move to ${nextStage.label}`} <FiArrowRight /></button>
+              )}
+            </footer>
+          </aside>
+        </div>
+      )}
+    </AdminLayout>
   );
 }
 

@@ -1,0 +1,63 @@
+.financing-workspace-loading { padding: 40px; color: var(--ops-muted); text-align: center; }
+.case-workspace-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; padding: 0; overflow: hidden; background: var(--ops-border); }
+.case-workspace-summary > div { min-height: 82px; display: grid; align-content: center; gap: 7px; padding: 16px; background: #fff; }
+.case-workspace-summary span { color: var(--ops-muted); font-size: .6rem; font-weight: 850; text-transform: uppercase; }
+.case-workspace-summary strong { width: max-content; max-width: 100%; color: var(--ops-ink); font-size: .78rem; }
+.case-workspace-tabs { display: flex; gap: 8px; margin-top: 16px; padding-bottom: 2px; overflow-x: auto; }
+.case-workspace-tabs button { display: inline-flex; align-items: center; gap: 7px; padding: 11px 15px; border: 1px solid var(--ops-border); border-radius: 10px; color: var(--ops-muted); background: #fff; font-size: .7rem; font-weight: 850; white-space: nowrap; cursor: pointer; }
+.case-workspace-tabs button.active { color: #fff; border-color: var(--ops-teal); background: var(--ops-teal); }
+.assessment-workspace { display: grid; gap: 13px; margin-top: 12px; }
+.assessment-card { padding: 20px; }
+.assessment-card > header { display: grid; grid-template-columns: 38px 1fr; gap: 12px; margin-bottom: 17px; }
+.assessment-card > header > span { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 11px; color: var(--ops-teal); background: #e6f5f2; font-size: .68rem; font-weight: 900; }
+.assessment-card h2 { color: var(--ops-ink); font-size: 1rem; }
+.assessment-card header p { margin-top: 4px; color: var(--ops-muted); font-size: .66rem; line-height: 1.5; }
+.assessment-form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; }
+.audit-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.assessment-form-grid label, .assessment-wide-field, .quotation-project-grid label, .quotation-terms label, .quotation-total-card label { display: grid; gap: 6px; }
+.assessment-form-grid label > span, .assessment-wide-field > span, .quotation-project-grid label > span, .quotation-terms label > span, .quotation-total-card label > span { color: #53645f; font-size: .59rem; font-weight: 850; text-transform: uppercase; }
+.assessment-form-grid input, .assessment-form-grid select, .assessment-form-grid textarea, .assessment-wide-field textarea, .quotation-project-grid input, .quotation-project-grid textarea, .quotation-terms input, .quotation-terms textarea, .quotation-total-card input { width: 100%; padding: 10px 11px; border: 1px solid var(--ops-border); border-radius: 9px; outline: none; color: var(--ops-ink); background: #fff; font: inherit; font-size: .69rem; }
+.assessment-form-grid .wide, .quotation-project-grid .wide { grid-column: 1 / -1; }
+.due-diligence-list { display: grid; border: 1px solid var(--ops-border); border-radius: 11px; overflow: hidden; }
+.due-diligence-list > div { display: grid; grid-template-columns: 1fr 150px; align-items: center; gap: 14px; padding: 11px 13px; border-bottom: 1px solid var(--ops-border); }
+.due-diligence-list > div:last-child { border: 0; }
+.due-diligence-list span { color: var(--ops-ink); font-size: .68rem; font-weight: 750; }
+.due-diligence-list select { padding: 8px 9px; border: 1px solid var(--ops-border); border-radius: 8px; background: #fff; font-size: .66rem; }
+.assessment-wide-field { margin-top: 12px; }
+.case-workspace-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 14px; }
+.quotation-workspace { margin-top: 12px; }
+.quotation-lock { display: grid; grid-template-columns: 34px 1fr; gap: 10px; margin-bottom: 12px; padding: 14px; border: 1px solid #ead7a5; border-radius: 12px; color: #765d1e; background: #fff8e6; }
+.quotation-lock p { margin-top: 3px; font-size: .66rem; }
+.quotation-builder { padding: 20px; }
+.quotation-builder.locked { opacity: .75; }
+.quotation-project-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; }
+.quotation-line-head { display: flex; justify-content: space-between; gap: 15px; margin-top: 23px; padding-top: 20px; border-top: 1px solid var(--ops-border); }
+.quotation-line-head h2 { margin-top: 4px; color: var(--ops-ink); font-size: 1rem; }
+.quotation-line-table { margin-top: 13px; border: 1px solid var(--ops-border); border-radius: 11px; overflow-x: auto; }
+.quotation-line-row { min-width: 1020px; display: grid; grid-template-columns: 150px minmax(260px, 1fr) 70px 80px 125px 125px 40px; gap: 8px; align-items: center; padding: 9px; border-bottom: 1px solid var(--ops-border); }
+.quotation-line-row:last-child { border: 0; }
+.quotation-line-row.header { color: var(--ops-muted); background: #f5f8f7; font-size: .56rem; font-weight: 850; text-transform: uppercase; }
+.quotation-line-row input, .quotation-line-row select { width: 100%; padding: 8px; border: 1px solid var(--ops-border); border-radius: 7px; font-size: .64rem; }
+.quotation-line-row strong { font-size: .66rem; }
+.quotation-line-row button { width: 30px; height: 30px; display: grid; place-items: center; border: 0; border-radius: 7px; color: #ad2831; background: #fff0f1; cursor: pointer; }
+.quotation-bottom-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(260px, .55fr); gap: 16px; margin-top: 17px; }
+.quotation-terms { display: grid; gap: 11px; }
+.quotation-total-card { display: grid; gap: 9px; padding: 15px; border-radius: 12px; background: #f4f8f7; }
+.quotation-total-card > div { display: flex; justify-content: space-between; gap: 12px; color: var(--ops-muted); font-size: .68rem; }
+.quotation-total-card > div strong { color: var(--ops-ink); }
+.quotation-total-card .grand-total { margin-top: 3px; padding-top: 10px; border-top: 1px solid #d9e4e1; color: var(--ops-ink); font-weight: 900; }
+.case-document-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+.case-document-card { display: grid; gap: 14px; padding: 18px; }
+.case-document-card > div > span { color: var(--ops-teal); font-size: .56rem; font-weight: 900; text-transform: uppercase; }
+.case-document-card h2 { margin-top: 4px; color: var(--ops-ink); font-size: .95rem; }
+.case-document-card p { margin-top: 4px; color: var(--ops-muted); font-size: .64rem; line-height: 1.45; }
+.case-document-card > i { width: max-content; }
+.case-document-card dl { display: grid; gap: 7px; }
+.case-document-card dl > div { display: flex; justify-content: space-between; gap: 12px; font-size: .64rem; }
+.case-document-card dt { color: var(--ops-muted); }
+.case-document-card dd { color: var(--ops-ink); font-weight: 800; }
+.case-document-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.case-document-actions .ops-button { flex: 1 1 130px; }
+.case-document-empty { grid-column: 1 / -1; padding: 45px; color: var(--ops-muted); text-align: center; }
+@media (max-width: 1050px) { .case-workspace-summary { grid-template-columns: repeat(2, 1fr); } .audit-grid, .quotation-project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .case-document-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 720px) { .assessment-form-grid, .audit-grid, .quotation-project-grid, .quotation-bottom-grid, .case-document-grid { grid-template-columns: 1fr; } .due-diligence-list > div { grid-template-columns: 1fr; } .case-workspace-actions { flex-direction: column; } .case-workspace-actions button { width: 100%; } }

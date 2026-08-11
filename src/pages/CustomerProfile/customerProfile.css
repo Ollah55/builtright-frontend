@@ -53,6 +53,46 @@
   font-weight: 800;
 }
 
+.customer-profile-documents {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 1rem;
+  padding: 1.35rem;
+  border: 1px solid #cfe3dd;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #eef8f5, #fff);
+}
+
+.customer-profile-documents span {
+  color: #168f82;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.customer-profile-documents h2 { margin: 0.25rem 0; }
+
+.customer-profile-documents p {
+  max-width: 650px;
+  color: #66736f;
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.customer-profile-documents a {
+  flex: 0 0 auto;
+  padding: 0.82rem 1.05rem;
+  border-radius: 11px;
+  color: #fff;
+  background: #168f82;
+  font-size: 0.75rem;
+  font-weight: 900;
+  text-decoration: none;
+}
+
 .customer-profile-form {
   display: flex;
   flex-direction: column;
@@ -123,6 +163,16 @@
 }
 
 @media (max-width: 700px) {
+  .customer-profile-documents {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .customer-profile-documents a {
+    width: 100%;
+    text-align: center;
+  }
+
   .profile-form-row {
     grid-template-columns: 1fr;
   }

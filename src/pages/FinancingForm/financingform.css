@@ -394,3 +394,22 @@
     grid-template-columns: 1fr;
   }
 }
+
+.financing-price-note {
+  margin: 0.75rem 0 1.5rem;
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  color: #6b5200;
+  background: #fff4db;
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.financing-form-card .financing-secondary-action {
+  color: #0f776b;
+  background: #e7f4f1;
+}
+
+.financing-form-card .financing-secondary-action:hover {
+  background: #d6ebe6;
+}

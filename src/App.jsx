@@ -23,12 +23,17 @@ import AdminProducts from "./pages/AdminProducts/AdminProducts";
 import AdminOrders from "./pages/AdminOrders/AdminOrders";
 import AdminCustomers from "./pages/AdminCustomers/AdminCustomers";
 import AdminLoanRequests from "./pages/AdminLoanRequests/AdminLoanRequests";
+import AdminFinancingCase from "./pages/AdminFinancingCase/AdminFinancingCase";
+import AdminProjects from "./pages/AdminProjects/AdminProjects";
+import AdminDevices from "./pages/AdminDevices/AdminDevices";
+import AdminIntegrations from "./pages/AdminIntegrations/AdminIntegrations";
 
 // Customer Pages
 import CustomerDashboard from "./pages/CustomerDashboard/CustomerDashboard";
 import CustomerFinancing from "./pages/CustomerFinancing/CustomerFinancing";
 import CustomerOrders from "./pages/CustomerOrders/CustomerOrders";
 import CustomerProfile from "./pages/CustomerProfile/CustomerProfile";
+import CustomerDocuments from "./pages/CustomerDocuments/CustomerDocuments";
 
 // Components
 import Navbar from "./components/Navbar/Navbar";
@@ -157,6 +162,15 @@ function AppContent() {
         />
 
         <Route
+          path="/customer/documents"
+          element={
+            <ProtectedRoute>
+              <CustomerDocuments />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/customer/profile"
           element={
             <ProtectedRoute>
@@ -209,6 +223,42 @@ function AppContent() {
           element={
             <ProtectedAdminRoute>
               <AdminLoanRequests />
+            </ProtectedAdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/loan-requests/:id"
+          element={
+            <ProtectedAdminRoute>
+              <AdminFinancingCase />
+            </ProtectedAdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/projects"
+          element={
+            <ProtectedAdminRoute>
+              <AdminProjects />
+            </ProtectedAdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/devices"
+          element={
+            <ProtectedAdminRoute>
+              <AdminDevices />
+            </ProtectedAdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/integrations"
+          element={
+            <ProtectedAdminRoute>
+              <AdminIntegrations />
             </ProtectedAdminRoute>
           }
         />
