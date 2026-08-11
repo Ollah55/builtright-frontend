@@ -1,0 +1,13 @@
+.installer-access-page { min-height: 100vh; display: grid; place-items: center; padding: 2rem; background: linear-gradient(135deg, #effaf8, #fff5f5); }
+.installer-access-card { width: min(100%, 510px); padding: 2.2rem; border: 1px solid #d9ebe7; border-radius: 24px; background: #fff; box-shadow: 0 20px 45px rgba(21, 146, 132, .12); }
+.installer-eyebrow { margin: 0 0 .65rem; color: var(--primary-green); font-size: .76rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+.installer-access-card h1 { margin-bottom: .7rem; color: #173330; font-size: clamp(2rem, 5vw, 2.7rem); }
+.installer-access-card > p:not(.installer-eyebrow):not(.installer-access-message) { color: #60716e; line-height: 1.65; }
+.installer-access-card form { display: grid; gap: 14px; margin-top: 1.6rem; }
+.installer-access-card label { display: grid; gap: 7px; color: #263c38; font-size: .83rem; font-weight: 800; }
+.installer-access-card input { width: 100%; padding: 13px 14px; border: 1px solid #cfe0dc; border-radius: 10px; outline: none; }
+.installer-access-card input:focus { border-color: var(--primary-green); box-shadow: 0 0 0 3px rgba(21, 146, 132, .12); }
+.installer-access-card button, .installer-access-link { display: inline-flex; justify-content: center; align-items: center; border: 0; border-radius: 10px; padding: 13px 16px; color: #fff; background: var(--accent-red); font-weight: 900; text-decoration: none; cursor: pointer; }
+.installer-access-card button:disabled { opacity: .65; cursor: wait; }
+.installer-access-message { margin: 1rem 0 0; padding: .8rem .9rem; border-radius: 10px; color: #a12126; background: #fff1f2; font-size: .86rem; font-weight: 700; }
+.installer-access-message.success { color: #087b70; background: #eaf8f5; }

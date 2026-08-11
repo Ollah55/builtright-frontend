@@ -27,6 +27,7 @@ const navGroups = [
       { to: "/admin/loan-requests", label: "Financing", icon: FiCreditCard },
       { to: "/admin/projects", label: "Projects", icon: FiTool },
       { to: "/admin/devices", label: "Devices", icon: FiCpu },
+      { to: "/admin/installers", label: "Installers", icon: FiTool },
     ],
   },
   {

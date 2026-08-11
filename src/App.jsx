@@ -27,6 +27,10 @@ import AdminFinancingCase from "./pages/AdminFinancingCase/AdminFinancingCase";
 import AdminProjects from "./pages/AdminProjects/AdminProjects";
 import AdminDevices from "./pages/AdminDevices/AdminDevices";
 import AdminIntegrations from "./pages/AdminIntegrations/AdminIntegrations";
+import AdminInstallers from "./pages/AdminInstallers/AdminInstallers";
+import InstallerLogin from "./pages/InstallerLogin/InstallerLogin";
+import InstallerActivate from "./pages/InstallerActivate/InstallerActivate";
+import InstallerAssignments from "./pages/InstallerAssignments/InstallerAssignments";
 
 // Customer Pages
 import CustomerDashboard from "./pages/CustomerDashboard/CustomerDashboard";
@@ -44,6 +48,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import WhatsappFloat from "./components/WhatsappFloat/WhatsappFloat";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute/ProtectedAdminRoute";
+import ProtectedInstallerRoute from "./components/ProtectedInstallerRoute/ProtectedInstallerRoute";
 
 // Context
 import { useCart } from "./context/useCart";
@@ -59,6 +64,7 @@ function App() {
 function AppContent() {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith("/admin");
+  const isPortalPage = isAdminPage || location.pathname.startsWith("/installer");
 
   const [isCartOpen, setIsCartOpen] = useState(false);
 
@@ -91,7 +97,7 @@ function AppContent() {
     <>
       <ScrollToTop />
 
-      {!isAdminPage && (
+      {!isPortalPage && (
         <Navbar
           onOpenCart={() => setIsCartOpen(true)}
           cartCount={cartCount}
@@ -181,6 +187,9 @@ function AppContent() {
 
         {/* Admin Pages */}
         <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/installer/login" element={<InstallerLogin />} />
+        <Route path="/installer/activate" element={<InstallerActivate />} />
+        <Route path="/installer/assignments" element={<ProtectedInstallerRoute><InstallerAssignments /></ProtectedInstallerRoute>} />
 
         <Route
           path="/admin/dashboard"
@@ -262,9 +271,14 @@ function AppContent() {
             </ProtectedAdminRoute>
           }
         />
+
+        <Route
+          path="/admin/installers"
+          element={<ProtectedAdminRoute><AdminInstallers /></ProtectedAdminRoute>}
+        />
       </Routes>
 
-      {!isAdminPage && (
+      {!isPortalPage && (
         <>
           <CartDrawer
             isOpen={isCartOpen}
