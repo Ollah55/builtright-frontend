@@ -8,18 +8,14 @@ import {
   FiX,
 } from "react-icons/fi";
 import CustomerLayout from "../../components/CustomerLayout/CustomerLayout";
-import { demoProjectDocuments, formatMoney } from "../../lib/operations";
-import { isDevelopmentPreview } from "../../lib/previewMode";
+import { formatMoney } from "../../lib/operations";
 import { downloadProjectDocument } from "../../lib/projectDocumentPdf";
 import "./customerDocuments.css";
 
 const API_BASE_URL = "https://builtright-backend-1.onrender.com";
-const clone = (value) => JSON.parse(JSON.stringify(value));
-
 function CustomerDocuments() {
-  const preview = isDevelopmentPreview();
-  const [documents, setDocuments] = useState(preview ? clone(demoProjectDocuments) : []);
-  const [loading, setLoading] = useState(!preview);
+  const [documents, setDocuments] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
   const [selectedId, setSelectedId] = useState(null);
   const [approvalChecked, setApprovalChecked] = useState(false);
@@ -29,7 +25,6 @@ function CustomerDocuments() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (preview) return;
     const loadDocuments = async () => {
       try {
         const token = localStorage.getItem("customerToken");
@@ -46,7 +41,7 @@ function CustomerDocuments() {
       }
     };
     loadDocuments();
-  }, [preview]);
+  }, []);
 
   const filteredDocuments = useMemo(
     () => documents.filter((document) => filter === "all" || document.type === filter),
@@ -69,46 +64,28 @@ function CustomerDocuments() {
     setSaving(true);
     setMessage("");
     try {
-      if (preview) {
-        setDocuments((items) => items.map((item) => item._id === selectedDocument._id ? {
-          ...item,
-          status: "approved",
-          customerDecision: { status: "approved", decidedAt: new Date().toISOString() },
-          financing: {
-            ...item.financing,
-            status: "quotation-approved",
-            bankApplication: {
-              ...item.financing?.bankApplication,
-              status: item.financing?.bankApplication?.redirectUrl ? "ready-for-customer" : "awaiting-bank-link",
-            },
+      const token = localStorage.getItem("customerToken");
+      const response = await fetch(`${API_BASE_URL}/api/customer/quotations/${selectedDocument._id}/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ note: "Customer approved the full project cost and quotation terms." }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.status) throw new Error(data.message || "Quotation could not be approved.");
+      setDocuments((items) => items.map((item) => item._id === selectedDocument._id ? {
+        ...data.quotation,
+        financing: {
+          ...item.financing,
+          status: "quotation-approved",
+          bankApplication: {
+            ...item.financing?.bankApplication,
+            status: data.bankApplication.status,
+            redirectUrl: data.bankApplication.url,
           },
-        } : item));
-        setMessage("Quotation approved. The bank application will unlock when the bank supplies its hosted link.");
-        closeDocument();
-      } else {
-        const token = localStorage.getItem("customerToken");
-        const response = await fetch(`${API_BASE_URL}/api/customer/quotations/${selectedDocument._id}/approve`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ note: "Customer approved the full project cost and quotation terms." }),
-        });
-        const data = await response.json();
-        if (!response.ok || !data.status) throw new Error(data.message || "Quotation could not be approved.");
-        setDocuments((items) => items.map((item) => item._id === selectedDocument._id ? {
-          ...data.quotation,
-          financing: {
-            ...item.financing,
-            status: "quotation-approved",
-            bankApplication: {
-              ...item.financing?.bankApplication,
-              status: data.bankApplication.status,
-              redirectUrl: data.bankApplication.url,
-            },
-          },
-        } : item));
-        setMessage(data.message);
-        closeDocument();
-      }
+        },
+      } : item));
+      setMessage(data.message);
+      closeDocument();
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -121,23 +98,17 @@ function CustomerDocuments() {
     setSaving(true);
     setMessage("");
     try {
-      if (preview) {
-        setDocuments((items) => items.map((item) => item._id === selectedDocument._id ? { ...item, status: "changes-requested", customerDecision: { status: "changes-requested", decidedAt: new Date().toISOString(), note: changeNote } } : item));
-        setMessage("Your requested quotation changes were sent to BuiltRight in preview mode.");
-        closeDocument();
-      } else {
-        const token = localStorage.getItem("customerToken");
-        const response = await fetch(`${API_BASE_URL}/api/customer/quotations/${selectedDocument._id}/request-changes`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ note: changeNote }),
-        });
-        const data = await response.json();
-        if (!response.ok || !data.status) throw new Error(data.message || "Change request could not be sent.");
-        setDocuments((items) => items.map((item) => item._id === selectedDocument._id ? { ...data.quotation, financing: item.financing } : item));
-        setMessage(data.message);
-        closeDocument();
-      }
+      const token = localStorage.getItem("customerToken");
+      const response = await fetch(`${API_BASE_URL}/api/customer/quotations/${selectedDocument._id}/request-changes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ note: changeNote }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.status) throw new Error(data.message || "Change request could not be sent.");
+      setDocuments((items) => items.map((item) => item._id === selectedDocument._id ? { ...data.quotation, financing: item.financing } : item));
+      setMessage(data.message);
+      closeDocument();
     } catch (error) {
       setMessage(error.message);
     } finally {

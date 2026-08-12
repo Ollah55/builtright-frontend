@@ -12,15 +12,12 @@ import {
 } from "react-icons/fi";
 import AdminLayout from "../../components/AdminLayout/AdminLayout";
 import {
-  demoFinancingRequests,
-  demoProjectDocuments,
   formatMoney,
   getFinancingStage,
   isAssessmentPricingUnlocked,
   isInstallationCostLabel,
   statusTone,
 } from "../../lib/operations";
-import { isDevelopmentPreview } from "../../lib/previewMode";
 import { downloadProjectDocument } from "../../lib/projectDocumentPdf";
 import { getFinancingPartner } from "../../lib/financingPartners";
 import "./adminFinancingCase.css";
@@ -113,37 +110,32 @@ function buildDefaultLineItems(financingCase) {
 function AdminFinancingCase() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const preview = isDevelopmentPreview();
-  const previewCase = demoFinancingRequests.find((item) => item._id === id) || demoFinancingRequests[1];
-  const [financingCase, setFinancingCase] = useState(preview ? clone(previewCase) : null);
-  const [documents, setDocuments] = useState(
-    preview ? clone(demoProjectDocuments.filter((item) => item.financingRequest === previewCase._id)) : []
-  );
+  const [financingCase, setFinancingCase] = useState(null);
+  const [documents, setDocuments] = useState([]);
   const [activeTab, setActiveTab] = useState("assessment");
-  const [assessment, setAssessment] = useState(normalizeAssessment(previewCase.assessment));
-  const [lineItems, setLineItems] = useState(buildDefaultLineItems(previewCase));
+  const [assessment, setAssessment] = useState(normalizeAssessment());
+  const [lineItems, setLineItems] = useState([]);
   const [quoteMeta, setQuoteMeta] = useState({
-    title: `${previewCase.systemCapacity || "Solar"} project quotation`,
-    systemName: previewCase.systemName || "",
-    systemCapacity: previewCase.systemCapacity || "",
-    siteAddress: previewCase.customer?.location || "",
-    propertyType: previewCase.inspection?.property || "",
+    title: "Solar project quotation",
+    systemName: "",
+    systemCapacity: "",
+    siteAddress: "",
+    propertyType: "",
     cableDistance: "",
     mountingMethod: "",
     scope: "Supply, install, test, commission, monitor, and maintain the complete solar power system described in this quotation.",
-    equityPercentage: getFinancingPartner(previewCase.financeInstitution).equityPercentage,
+    equityPercentage: 20,
     discount: 0,
     tax: 0,
     validUntil: "",
     terms: "Customer approval is required before the bank credit application becomes available. Delivery and installation begin only after the equity deposit and bank disbursement are confirmed.",
     notes: "",
   });
-  const [loading, setLoading] = useState(!preview);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (preview) return;
     const loadWorkspace = async () => {
       try {
         const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
@@ -172,6 +164,11 @@ function AdminFinancingCase() {
         } else {
           setQuoteMeta((current) => ({
             ...current,
+            title: `${data.loanRequest.systemCapacity || "Solar"} project quotation`,
+            systemName: data.loanRequest.systemName || data.loanRequest.items?.[0]?.name || "",
+            systemCapacity: data.loanRequest.systemCapacity || data.loanRequest.items?.[0]?.capacity || "",
+            siteAddress: data.loanRequest.customer?.location || "",
+            propertyType: data.loanRequest.inspection?.property || "",
             equityPercentage: getFinancingPartner(data.loanRequest.financeInstitution).equityPercentage,
           }));
         }
@@ -182,7 +179,7 @@ function AdminFinancingCase() {
       }
     };
     loadWorkspace();
-  }, [id, preview]);
+  }, [id]);
 
   const latestQuotation = documents.find((document) => document.type === "quotation") || null;
   const assessmentPassed = financingCase?.assessment?.status === "passed" || assessment.status === "passed";
@@ -227,25 +224,17 @@ function AdminFinancingCase() {
         },
       };
 
-      if (preview) {
-        const passed = completeInspection && completeLoadAudit && completeDueDiligence;
-        const updated = { ...financingCase, assessment: { ...payload, status: passed ? "passed" : "in-progress" }, status: passed ? "due-diligence-passed" : financingCase.status };
-        setFinancingCase(updated);
-        setAssessment(updated.assessment);
-        setMessage(passed ? "All pre-credit checks passed. Quotation preparation is unlocked." : "Preview assessment saved.");
-      } else {
-        const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
-        const response = await fetch(`${API_BASE_URL}/api/loan-requests/${id}/assessment`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify(payload),
-        });
-        const data = await response.json();
-        if (!response.ok || !data.status) throw new Error(data.message || "Assessment could not be saved.");
-        setFinancingCase(data.loanRequest);
-        setAssessment(normalizeAssessment(data.loanRequest.assessment));
-        setMessage(data.message);
-      }
+      const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
+      const response = await fetch(`${API_BASE_URL}/api/loan-requests/${id}/assessment`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.status) throw new Error(data.message || "Assessment could not be saved.");
+      setFinancingCase(data.loanRequest);
+      setAssessment(normalizeAssessment(data.loanRequest.assessment));
+      setMessage(data.message);
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -280,47 +269,17 @@ function AdminFinancingCase() {
         terms: quoteMeta.terms,
         notes: quoteMeta.notes,
       };
-      if (preview) {
-        if (!assessmentPassed) throw new Error("Complete and pass all pre-credit checks first.");
-        if (totals.total <= 0) throw new Error("Add the complete project costs before generating the quotation.");
-        const version = documents.filter((document) => document.type === "quotation").length + 1;
-        const quotation = {
-          _id: `preview-quote-${Date.now()}`,
-          reference: `BRQ-${financingCase.reference.replace("BRF-", "")}-V${version}`,
-          financingRequest: financingCase._id,
-          type: "quotation",
-          version,
-          status: "draft",
-          title: payload.title,
-          customer: financingCase.customer,
-          project: payload.project,
-          lineItems: lineItems.map((item) => ({ ...item, amount: Number(item.quantity || 0) * Number(item.unitPrice || 0) })),
-          ...totals,
-          equityPercentage,
-          discount: Number(quoteMeta.discount),
-          tax: Number(quoteMeta.tax),
-          terms: quoteMeta.terms,
-          notes: quoteMeta.notes,
-          validUntil: quoteMeta.validUntil || null,
-          customerDecision: { status: "pending" },
-          createdAt: new Date().toISOString(),
-        };
-        setDocuments((items) => [quotation, ...items]);
-        setFinancingCase((item) => ({ ...item, status: "quotation-draft", finalProjectCost: totals.total, quotation: { status: "draft", reference: quotation.reference, version } }));
-        setMessage("Quotation draft generated in preview mode.");
-      } else {
-        const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
-        const response = await fetch(`${API_BASE_URL}/api/loan-requests/${id}/quotation`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify(payload),
-        });
-        const data = await response.json();
-        if (!response.ok || !data.status) throw new Error(data.message || "Quotation could not be generated.");
-        setDocuments((items) => [data.quotation, ...items]);
-        setFinancingCase(data.loanRequest);
-        setMessage(data.message);
-      }
+      const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
+      const response = await fetch(`${API_BASE_URL}/api/loan-requests/${id}/quotation`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.status) throw new Error(data.message || "Quotation could not be generated.");
+      setDocuments((items) => [data.quotation, ...items]);
+      setFinancingCase(data.loanRequest);
+      setMessage(data.message);
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -333,23 +292,16 @@ function AdminFinancingCase() {
     setSaving(true);
     setMessage("");
     try {
-      if (preview) {
-        const sentAt = new Date().toISOString();
-        setDocuments((items) => items.map((item) => item._id === latestQuotation._id ? { ...item, status: "sent", sentAt } : item));
-        setFinancingCase((item) => ({ ...item, status: "quotation-sent", quotation: { ...item.quotation, status: "sent", sentAt } }));
-        setMessage("Quotation marked as emailed to the customer in preview mode.");
-      } else {
-        const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
-        const response = await fetch(`${API_BASE_URL}/api/loan-requests/${id}/quotation/${latestQuotation._id}/send`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await response.json();
-        if (!response.ok || !data.status) throw new Error(data.message || "Quotation could not be sent.");
-        setDocuments((items) => items.map((item) => item._id === data.quotation._id ? data.quotation : item));
-        setFinancingCase(data.loanRequest);
-        setMessage(data.message);
-      }
+      const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
+      const response = await fetch(`${API_BASE_URL}/api/loan-requests/${id}/quotation/${latestQuotation._id}/send`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (!response.ok || !data.status) throw new Error(data.message || "Quotation could not be sent.");
+      setDocuments((items) => items.map((item) => item._id === data.quotation._id ? data.quotation : item));
+      setFinancingCase(data.loanRequest);
+      setMessage(data.message);
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -361,23 +313,15 @@ function AdminFinancingCase() {
     setSaving(true);
     setMessage("");
     try {
-      if (preview) {
-        const sentAt = new Date().toISOString();
-        setDocuments((items) => items.map((item) => item._id === projectDocument._id
-          ? { ...item, sentAt, emailDelivery: { status: "sent", sentAt, error: "" } }
-          : item));
-        setMessage("Invoice marked as emailed to the customer in preview mode.");
-      } else {
-        const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
-        const response = await fetch(`${API_BASE_URL}/api/loan-requests/${id}/documents/${projectDocument._id}/send`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await response.json();
-        if (!response.ok || !data.status) throw new Error(data.message || "Invoice could not be sent.");
-        setDocuments((items) => items.map((item) => item._id === data.document._id ? data.document : item));
-        setMessage(data.message);
-      }
+      const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
+      const response = await fetch(`${API_BASE_URL}/api/loan-requests/${id}/documents/${projectDocument._id}/send`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (!response.ok || !data.status) throw new Error(data.message || "Invoice could not be sent.");
+      setDocuments((items) => items.map((item) => item._id === data.document._id ? data.document : item));
+      setMessage(data.message);
     } catch (error) {
       setMessage(error.message);
     } finally {

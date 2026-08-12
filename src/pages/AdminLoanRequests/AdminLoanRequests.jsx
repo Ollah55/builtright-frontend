@@ -15,7 +15,6 @@ import {
 } from "react-icons/fi";
 import AdminLayout from "../../components/AdminLayout/AdminLayout";
 import {
-  demoFinancingRequests,
   FINANCING_STAGES,
   formatMoney,
   getFinancingStage,
@@ -26,7 +25,6 @@ import {
   normalizeFinancingStatus,
   statusTone,
 } from "../../lib/operations";
-import { isDevelopmentPreview } from "../../lib/previewMode";
 import "./adminloanrequests.css";
 
 const API_BASE_URL = "https://builtright-backend-1.onrender.com";
@@ -129,9 +127,8 @@ function FinancingTimeline({ status }) {
 
 function AdminLoanRequests() {
   const navigate = useNavigate();
-  const [loanRequests, setLoanRequests] = useState(demoFinancingRequests);
+  const [loanRequests, setLoanRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [usingPreviewData, setUsingPreviewData] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedId, setSelectedId] = useState(null);
@@ -140,14 +137,6 @@ function AdminLoanRequests() {
 
   useEffect(() => {
     const loadLoanRequests = async () => {
-      const isLocalPreview = isDevelopmentPreview();
-
-      if (isLocalPreview) {
-        setLoading(false);
-        setUsingPreviewData(true);
-        return;
-      }
-
       const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
       try {
         const response = await fetch(`${API_BASE_URL}/api/loan-requests`, {
@@ -155,13 +144,9 @@ function AdminLoanRequests() {
         });
         const data = await response.json();
         if (!response.ok || !data.status) throw new Error(data.message || "Could not load financing cases.");
-        if (Array.isArray(data.loanRequests) && data.loanRequests.length > 0) {
-          setLoanRequests(data.loanRequests.map(normalizeRequest));
-          setUsingPreviewData(false);
-        }
+        setLoanRequests(Array.isArray(data.loanRequests) ? data.loanRequests.map(normalizeRequest) : []);
       } catch (error) {
-        console.info("Using financing preview data:", error.message);
-        setUsingPreviewData(true);
+        setMessage(error.message || "Could not load financing cases.");
       } finally {
         setLoading(false);
       }
@@ -198,24 +183,19 @@ function AdminLoanRequests() {
     setSaving(true);
     setMessage("");
     try {
-      if (!request.isDemo && !usingPreviewData) {
-        const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
-        const response = await fetch(`${API_BASE_URL}/api/loan-requests/${request._id}/status`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ status: nextStatus }),
-        });
-        const data = await response.json();
-        if (!response.ok || !data.status) throw new Error(data.message || "Status update failed.");
-        setLoanRequests((items) => items.map((item) => (item._id === request._id ? normalizeRequest(data.loanRequest) : item)));
-        setMessage("Financing stage updated and added to the case history.");
-      } else {
-        setLoanRequests((items) => items.map((item) => (item._id === request._id ? { ...item, status: nextStatus, nextAction: getNextFinancingStage(nextStatus)?.label || "Review case" } : item)));
-        setMessage("Preview stage updated. It will persist after the operations API is connected.");
-      }
+      const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
+      const response = await fetch(`${API_BASE_URL}/api/loan-requests/${request._id}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.status) throw new Error(data.message || "Status update failed.");
+      setLoanRequests((items) => items.map((item) => (item._id === request._id ? normalizeRequest(data.loanRequest) : item)));
+      setMessage("Financing stage updated and added to the case history.");
     } catch (error) {
       setMessage(error.message || "The stage could not be updated.");
     } finally {
@@ -238,13 +218,6 @@ function AdminLoanRequests() {
       subtitle="Manage BuiltRight assessment, quotation, payment, financing, and installation. Every financing project requires BuiltRight installation."
       actions={<button className="ops-button secondary" type="button"><FiFileText /> Export case register</button>}
     >
-      {usingPreviewData && (
-        <div className="finance-preview-banner">
-          <span />
-          <p><strong>Interface preview:</strong> representative cases are shown while the live operations schema is being prepared.</p>
-        </div>
-      )}
-
       {message && <div className="finance-message" role="status">{message}</div>}
 
       <section className="finance-toolbar">
@@ -281,6 +254,12 @@ function AdminLoanRequests() {
                 </button>
               );
             })}
+            {!loading && filteredRequests.length === 0 && (
+              <div className="customer-financing-empty">
+                <h3>No financing cases found</h3>
+                <p>New customer submissions will appear here. Controlled tests belong in the Operations Test Centre.</p>
+              </div>
+            )}
           </div>
         </div>
       </section>

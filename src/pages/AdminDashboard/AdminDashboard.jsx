@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FiAlertTriangle,
@@ -15,9 +15,6 @@ import {
 } from "react-icons/fi";
 import AdminLayout from "../../components/AdminLayout/AdminLayout";
 import {
-  demoAlerts,
-  demoDevices,
-  demoFinancingRequests,
   getFinancingStage,
   integrationReadiness,
   statusTone,
@@ -25,23 +22,46 @@ import {
 import "./adminDashboard.css";
 
 const stageSummary = [
-  { label: "New requests", value: 6, tone: "neutral" },
-  { label: "Inspection", value: 4, tone: "warning" },
-  { label: "Quotation", value: 3, tone: "teal" },
-  { label: "Bank review", value: 5, tone: "violet" },
-  { label: "Approved", value: 2, tone: "success" },
-  { label: "Disbursed", value: 1, tone: "success" },
+  { label: "New requests", key: "newRequests", tone: "neutral" },
+  { label: "Inspection", key: "inspection", tone: "warning" },
+  { label: "Quotation", key: "quotation", tone: "teal" },
+  { label: "Bank review", key: "bankReview", tone: "violet" },
+  { label: "Approved", key: "approved", tone: "success" },
+  { label: "Disbursed", key: "disbursed", tone: "success" },
 ];
+
+const API_BASE_URL = "https://builtright-backend-1.onrender.com";
 
 function AdminDashboard() {
   const navigate = useNavigate();
-  const onlineDevices = demoDevices.filter((device) => device.connectivity === "online").length;
-  const tamperAlerts = demoDevices.filter((device) => device.tamper).length;
+  const [dashboard, setDashboard] = useState({ stats: {}, stageSummary: {}, recentLoanRequests: [], devices: [], deviceAlerts: [] });
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    const loadDashboard = async () => {
+      try {
+        const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
+        const response = await fetch(`${API_BASE_URL}/api/admin/dashboard-stats`, { headers: { Authorization: `Bearer ${token}` } });
+        const data = await response.json();
+        if (!response.ok || !data.status) throw new Error(data.message || "Could not load dashboard.");
+        setDashboard(data);
+      } catch (error) {
+        setMessage(error.message || "Could not load dashboard data.");
+      }
+    };
+    loadDashboard();
+  }, []);
+
+  const devices = dashboard.devices || [];
+  const recentLoanRequests = dashboard.recentLoanRequests || [];
+  const alerts = dashboard.deviceAlerts || [];
+  const onlineDevices = devices.filter((device) => device.connectivity === "online").length;
+  const tamperAlerts = devices.filter((device) => device.tamper?.status && device.tamper.status !== "clear").length;
 
   const metrics = [
     {
       label: "Active financing",
-      value: "21",
+      value: String(dashboard.stats.totalLoanRequests || 0),
       note: "Across the full review pipeline",
       icon: FiCreditCard,
       tone: "teal",
@@ -49,7 +69,7 @@ function AdminDashboard() {
     },
     {
       label: "Inspections due",
-      value: "4",
+      value: String(dashboard.stats.inspectionsDue || 0),
       note: "2 scheduled within 48 hours",
       icon: FiFileText,
       tone: "amber",
@@ -57,7 +77,7 @@ function AdminDashboard() {
     },
     {
       label: "Active projects",
-      value: "8",
+      value: String(dashboard.stats.activeProjects || 0),
       note: "Delivery through commissioning",
       icon: FiTool,
       tone: "navy",
@@ -66,7 +86,7 @@ function AdminDashboard() {
     {
       label: "Device alerts",
       value: String(tamperAlerts),
-      note: "Pilot device requires attention",
+      note: `${alerts.length} open or acknowledged alert${alerts.length === 1 ? "" : "s"}`,
       icon: FiAlertTriangle,
       tone: "red",
       trend: "Open incident",
@@ -84,6 +104,7 @@ function AdminDashboard() {
         </>
       }
     >
+      {message && <div className="finance-message" role="status">{message}</div>}
       <section className="overview-context-strip">
         <div>
           <span className="context-dot" />
@@ -126,7 +147,7 @@ function AdminDashboard() {
                   <span className={`stage-dot ${stage.tone}`} />
                   <p>{stage.label}</p>
                 </div>
-                <strong>{stage.value}</strong>
+                <strong>{dashboard.stageSummary?.[stage.key] || 0}</strong>
                 <div className="pipeline-stage-bar"><span style={{ width: `${Math.max(22, 100 - index * 13)}%` }} /></div>
               </div>
             ))}
@@ -144,20 +165,21 @@ function AdminDashboard() {
               <p className="ops-section-kicker">Attention queue</p>
               <h2>What needs action</h2>
             </div>
-            <span className="count-badge">{demoAlerts.length}</span>
+            <span className="count-badge">{alerts.length}</span>
           </div>
 
           <div className="attention-list">
-            {demoAlerts.map((alert) => (
-              <button type="button" key={alert.id} onClick={() => navigate(alert.route)}>
-                <span className={`attention-severity ${alert.severity}`} />
+            {alerts.map((alert) => (
+              <button type="button" key={alert._id} onClick={() => navigate("/admin/devices")}>
+                <span className={`attention-severity ${alert.severity || "warning"}`} />
                 <span className="attention-copy">
-                  <strong>{alert.title}</strong>
-                  <small>{alert.detail}</small>
+                  <strong>{alert.title || alert.type}</strong>
+                  <small>{alert.detail || "Device alert requires review."}</small>
                 </span>
-                <time>{alert.time}</time>
+                <time>{alert.occurredAt ? new Date(alert.occurredAt).toLocaleDateString("en-NG") : "Recent"}</time>
               </button>
             ))}
+            {alerts.length === 0 && <p className="ops-empty-note">No live device alerts.</p>}
           </div>
         </article>
       </section>
@@ -176,17 +198,18 @@ function AdminDashboard() {
             <div className="work-queue-row work-queue-header" role="row">
               <span>Customer</span><span>System</span><span>Stage</span><span>Next action</span>
             </div>
-            {demoFinancingRequests.map((request) => {
+            {recentLoanRequests.map((request) => {
               const stage = getFinancingStage(request.status);
               return (
                 <button type="button" className="work-queue-row" role="row" key={request._id} onClick={() => navigate("/admin/loan-requests")}>
-                  <span><strong>{request.customer.fullName}</strong><small>{request.reference}</small></span>
-                  <span><strong>{request.systemCapacity}</strong><small>{request.customer.location}</small></span>
+                  <span><strong>{request.customer?.fullName || "Customer not recorded"}</strong><small>{request.reference}</small></span>
+                  <span><strong>{request.systemCapacity || request.items?.[0]?.capacity || "Sizing pending"}</strong><small>{request.customer?.location || "Location pending"}</small></span>
                   <span><i className={`status-pill ${statusTone(request.status)}`}>{stage.label}</i></span>
                   <span><strong>{request.nextAction}</strong><FiArrowUpRight /></span>
                 </button>
               );
             })}
+            {recentLoanRequests.length === 0 && <p className="ops-empty-note">No live financing cases yet.</p>}
           </div>
         </article>
 
@@ -200,18 +223,19 @@ function AdminDashboard() {
           </div>
 
           <div className="device-health-list">
-            {demoDevices.map((device) => (
-              <button type="button" key={device.id} onClick={() => navigate("/admin/devices")}>
+            {devices.map((device) => (
+              <button type="button" key={device._id} onClick={() => navigate("/admin/devices")}>
                 <span className={`device-connectivity ${device.connectivity}`}>
                   {device.connectivity === "online" ? <FiWifi /> : <FiWifiOff />}
                 </span>
                 <span>
-                  <strong>{device.deviceNumber}</strong>
-                  <small><FiMapPin /> {device.site}</small>
+                  <strong>{device.reference}</strong>
+                  <small><FiMapPin /> {device.site?.address || "Site not recorded"}</small>
                 </span>
-                <i className={`status-pill ${device.tamper ? "danger" : "success"}`}>{device.tamper ? "Tamper" : device.state}</i>
+                <i className={`status-pill ${device.tamper?.status && device.tamper.status !== "clear" ? "danger" : "success"}`}>{device.tamper?.status && device.tamper.status !== "clear" ? "Tamper" : device.inverterState}</i>
               </button>
             ))}
+            {devices.length === 0 && <p className="ops-empty-note">No live devices registered.</p>}
           </div>
           <button type="button" className="ops-button secondary full" onClick={() => navigate("/admin/devices")}><FiCpu /> Open device centre</button>
         </article>

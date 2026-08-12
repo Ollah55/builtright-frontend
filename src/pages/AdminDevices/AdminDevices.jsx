@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   FiAlertTriangle,
   FiCheckCircle,
@@ -14,7 +14,6 @@ import {
   FiX,
 } from "react-icons/fi";
 import AdminLayout from "../../components/AdminLayout/AdminLayout";
-import { demoDevices } from "../../lib/operations";
 import { providerState, sendAshGridDeviceControl } from "../../services/providerAdapters";
 import "./adminDevices.css";
 
@@ -26,18 +25,59 @@ const deviceFilters = [
   { id: "grace-period", label: "Grace period" },
 ];
 
+const API_BASE_URL = "https://builtright-backend-1.onrender.com";
+
+function normalizeDevice(device) {
+  const graceStartedAt = device.gracePeriod?.startedAt ? new Date(device.gracePeriod.startedAt) : null;
+  const graceDays = graceStartedAt ? Math.max(0, Math.min(10, Math.floor((Date.now() - graceStartedAt.getTime()) / 86400000))) : 0;
+  return {
+    ...device,
+    id: device._id,
+    deviceNumber: device.reference,
+    customer: device.customerSnapshot?.fullName || "Unassigned customer",
+    project: device.projectReference || "No project reference",
+    site: device.site?.address || "Site not recorded",
+    state: device.inverterState || "unknown",
+    payment: device.paymentStanding || "unknown",
+    graceDays,
+    tamper: device.tamper?.status && device.tamper.status !== "clear",
+    installed: device.installedAt ? new Date(device.installedAt).toLocaleDateString("en-NG") : "Not installed",
+    lastSeen: device.lastSeenAt ? new Date(device.lastSeenAt).toLocaleString("en-NG") : "Never",
+  };
+}
+
 function AdminDevices() {
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedId, setSelectedId] = useState(demoDevices[0].id);
+  const [selectedId, setSelectedId] = useState("");
+  const [deviceRecords, setDeviceRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [controlIntent, setControlIntent] = useState(null);
   const [confirmationText, setConfirmationText] = useState("");
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
 
+  const loadDevices = async () => {
+    try {
+      const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
+      const response = await fetch(`${API_BASE_URL}/api/admin/devices`, { headers: { Authorization: `Bearer ${token}` } });
+      const data = await response.json();
+      if (!response.ok || !data.status) throw new Error(data.message || "Could not load devices.");
+      const normalized = (data.devices || []).map(normalizeDevice);
+      setDeviceRecords(normalized);
+      setSelectedId((current) => current || normalized[0]?.id || "");
+    } catch (error) {
+      setMessage(error.message || "Could not load devices.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { loadDevices(); }, []);
+
   const devices = useMemo(() => {
     const search = searchTerm.toLowerCase().trim();
-    return demoDevices.filter((device) => {
+    return deviceRecords.filter((device) => {
       const matchesFilter =
         filter === "all" ||
         device.connectivity === filter ||
@@ -46,16 +86,29 @@ function AdminDevices() {
       const matchesSearch = !search || [device.id, device.deviceNumber, device.customer, device.project, device.site].some((value) => value.toLowerCase().includes(search));
       return matchesFilter && matchesSearch;
     });
-  }, [filter, searchTerm]);
+  }, [deviceRecords, filter, searchTerm]);
 
-  const selectedDevice = demoDevices.find((device) => device.id === selectedId) || demoDevices[0];
+  const selectedDevice = deviceRecords.find((device) => device.id === selectedId) || deviceRecords[0] || {
+    id: "",
+    deviceNumber: "No device selected",
+    customer: "No live devices registered",
+    project: "",
+    site: "",
+    state: "unknown",
+    connectivity: "unknown",
+    payment: "unknown",
+    graceDays: 0,
+    tamper: false,
+    installed: "",
+    lastSeen: "",
+  };
   const canDisable =
     selectedDevice.state !== "off" &&
     selectedDevice.payment === "default-eligible" &&
     selectedDevice.graceDays >= 10 &&
     selectedDevice.connectivity === "online";
   const disableReason =
-    selectedDevice.payment === "current"
+      selectedDevice.payment === "current"
       ? "Disablement is locked because this customer is current."
       : selectedDevice.graceDays < 10
         ? `Disablement is locked until the 10-day grace period is complete (${selectedDevice.graceDays}/10 days).`
@@ -116,17 +169,17 @@ function AdminDevices() {
       {message && <div className="finance-message" role="status">{message}</div>}
 
       <section className="device-stat-grid">
-        <article><span className="online"><FiWifi /></span><div><p>Online devices</p><strong>{demoDevices.filter((device) => device.connectivity === "online").length}</strong><small>Last checked 30 sec ago</small></div></article>
-        <article><span className="offline"><FiWifiOff /></span><div><p>Offline devices</p><strong>{demoDevices.filter((device) => device.connectivity === "offline").length}</strong><small>Needs investigation</small></div></article>
-        <article><span className="danger"><FiAlertTriangle /></span><div><p>Open tamper alerts</p><strong>{demoDevices.filter((device) => device.tamper).length}</strong><small>Pilot device AGX-0003</small></div></article>
-        <article><span className="warning"><FiClock /></span><div><p>Grace period</p><strong>{demoDevices.filter((device) => device.payment === "grace-period").length}</strong><small>4 of 10 days elapsed</small></div></article>
+        <article><span className="online"><FiWifi /></span><div><p>Online devices</p><strong>{deviceRecords.filter((device) => device.connectivity === "online").length}</strong><small>Live provider state</small></div></article>
+        <article><span className="offline"><FiWifiOff /></span><div><p>Offline devices</p><strong>{deviceRecords.filter((device) => device.connectivity === "offline").length}</strong><small>Needs investigation</small></div></article>
+        <article><span className="danger"><FiAlertTriangle /></span><div><p>Open tamper alerts</p><strong>{deviceRecords.filter((device) => device.tamper).length}</strong><small>Provider alerts only</small></div></article>
+        <article><span className="warning"><FiClock /></span><div><p>Grace period</p><strong>{deviceRecords.filter((device) => device.payment === "grace-period").length}</strong><small>Based on recorded default dates</small></div></article>
       </section>
 
       <section className="device-workspace">
         <div className="device-register ops-card">
           <div className="device-register-toolbar">
             <div className="finance-search"><FiSearch /><input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Search device, customer, site or project" /></div>
-            <button type="button" aria-label="Refresh device list"><FiRefreshCw /></button>
+            <button type="button" aria-label="Refresh device list" onClick={loadDevices}><FiRefreshCw /></button>
           </div>
 
           <div className="device-filter-tabs">
@@ -141,6 +194,7 @@ function AdminDevices() {
                 <span className="device-list-state"><i className={`status-pill ${device.tamper ? "danger" : device.connectivity === "online" ? "success" : "warning"}`}>{device.tamper ? "Tamper" : device.connectivity}</i><small>{device.lastSeen}</small></span>
               </button>
             ))}
+            {!loading && devices.length === 0 && <p className="ops-empty-note">No live devices match this filter.</p>}
           </div>
         </div>
 

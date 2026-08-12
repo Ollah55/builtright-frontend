@@ -13,6 +13,7 @@ import {
   FiSearch,
   FiShoppingBag,
   FiTool,
+  FiZap,
   FiUsers,
   FiX,
 } from "react-icons/fi";
@@ -40,7 +41,10 @@ const navGroups = [
   },
   {
     label: "System",
-    items: [{ to: "/admin/integrations", label: "Integrations", icon: FiLink }],
+    items: [
+      { to: "/admin/integrations", label: "Integrations", icon: FiLink },
+      { to: "/admin/test-centre", label: "Test Centre", icon: FiZap },
+    ],
   },
 ];
 

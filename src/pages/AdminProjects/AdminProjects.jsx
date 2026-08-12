@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FiArrowUpRight,
   FiCalendar,
@@ -13,8 +14,10 @@ import {
   FiUser,
 } from "react-icons/fi";
 import AdminLayout from "../../components/AdminLayout/AdminLayout";
-import { demoProjects } from "../../lib/operations";
+import { getStageIndex } from "../../lib/operations";
 import "./adminProjects.css";
+
+const API_BASE_URL = "https://builtright-backend-1.onrender.com";
 
 const projectLanes = [
   { id: "all", label: "All projects" },
@@ -35,30 +38,86 @@ const milestones = [
 
 const laneProgress = { finance: 2, delivery: 3, installation: 4, commissioning: 5 };
 
+function toProject(request) {
+  const status = request.status || "submitted";
+  const lane = status === "completed"
+    ? "commissioning"
+    : ["installation-scheduled", "installation-in-progress"].includes(status)
+      ? "installation"
+      : status === "order-created"
+        ? "delivery"
+        : "finance";
+  const stage = status.split("-").map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`).join(" ");
+  return {
+    id: request.reference || request._id,
+    requestId: request._id,
+    customer: request.customer?.fullName || "Customer not recorded",
+    location: request.customer?.location || "Site not recorded",
+    system: request.systemCapacity || request.systemName || request.items?.[0]?.name || "System pending",
+    stage,
+    lane,
+    delivery: request.deliveryStatus || (getStageIndex(status) >= getStageIndex("order-created") ? "Processing" : "Not released"),
+    installation: request.installationStatus || (status === "completed" ? "Completed" : status === "installation-in-progress" ? "In progress" : status === "installation-scheduled" ? "Scheduled" : "Not scheduled"),
+    owner: request.installerAssignment?.installerName || "Awaiting assignment",
+    updated: request.updatedAt ? new Date(request.updatedAt).toLocaleString("en-NG", { dateStyle: "medium", timeStyle: "short" }) : "Not updated",
+  };
+}
+
 function AdminProjects() {
+  const navigate = useNavigate();
   const [lane, setLane] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [projectRecords, setProjectRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
+        const response = await fetch(`${API_BASE_URL}/api/loan-requests`, { headers: { Authorization: `Bearer ${token}` } });
+        const data = await response.json();
+        if (!response.ok || !data.status) throw new Error(data.message || "Could not load projects.");
+        setProjectRecords((data.loanRequests || [])
+          .filter((request) => getStageIndex(request.status) >= getStageIndex("quotation-approved"))
+          .map(toProject));
+      } catch (error) {
+        setMessage(error.message || "Could not load projects.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProjects();
+  }, []);
 
   const projects = useMemo(() => {
     const search = searchTerm.toLowerCase().trim();
-    return demoProjects.filter((project) => {
+    return projectRecords.filter((project) => {
       const matchesLane = lane === "all" || project.lane === lane;
       const matchesSearch = !search || [project.id, project.customer, project.location, project.system].some((value) => value.toLowerCase().includes(search));
       return matchesLane && matchesSearch;
     });
-  }, [lane, searchTerm]);
+  }, [lane, projectRecords, searchTerm]);
+
+  const summary = {
+    inspections: projectRecords.filter((project) => project.owner !== "Awaiting assignment").length,
+    release: projectRecords.filter((project) => project.lane === "finance").length,
+    delivery: projectRecords.filter((project) => project.lane === "delivery").length,
+    onsite: projectRecords.filter((project) => ["installation", "commissioning"].includes(project.lane)).length,
+  };
 
   return (
     <AdminLayout
       title="Solar projects"
       subtitle="Coordinate the work that begins after site inspection and verified financing: quotation, order release, delivery, installation, testing, and commissioning."
-      actions={<button type="button" className="ops-button primary"><FiCalendar /> Schedule inspection</button>}
+      actions={<button type="button" className="ops-button primary" onClick={() => navigate("/admin/loan-requests")}><FiCalendar /> Open assessment queue</button>}
     >
+      {message && <div className="finance-message" role="status">{message}</div>}
       <section className="project-summary-grid">
-        <article><span><FiFileText /></span><div><p>Inspections this week</p><strong>6</strong><small>2 awaiting assignment</small></div></article>
-        <article><span><FiPackage /></span><div><p>Ready for release</p><strong>3</strong><small>Requires disbursement check</small></div></article>
-        <article><span><FiTruck /></span><div><p>In delivery</p><strong>2</strong><small>1 due today</small></div></article>
-        <article><span><FiTool /></span><div><p>On site</p><strong>3</strong><small>Installation or testing</small></div></article>
+        <article><span><FiFileText /></span><div><p>Assigned projects</p><strong>{summary.inspections}</strong><small>With a responsible installer</small></div></article>
+        <article><span><FiPackage /></span><div><p>Finance release</p><strong>{summary.release}</strong><small>Requires payment or disbursement progress</small></div></article>
+        <article><span><FiTruck /></span><div><p>In delivery</p><strong>{summary.delivery}</strong><small>Orders released for fulfilment</small></div></article>
+        <article><span><FiTool /></span><div><p>On site or complete</p><strong>{summary.onsite}</strong><small>Installation through commissioning</small></div></article>
       </section>
 
       <section className="project-toolbar">
@@ -100,11 +159,14 @@ function AdminProjects() {
 
               <footer className="project-card-footer">
                 <span><FiClock /> Updated {project.updated}</span>
-                <button type="button">Open project <FiArrowUpRight /></button>
+                <button type="button" onClick={() => navigate(`/admin/loan-requests/${project.requestId}`)}>Open project <FiArrowUpRight /></button>
               </footer>
             </article>
           );
         })}
+        {!loading && projects.length === 0 && (
+          <article className="project-card"><h2>No operational projects yet</h2><p>Projects appear here after a customer approves the final quotation.</p></article>
+        )}
       </section>
     </AdminLayout>
   );

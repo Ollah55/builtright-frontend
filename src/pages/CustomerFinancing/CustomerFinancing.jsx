@@ -10,9 +10,7 @@ import {
   getStageIndex,
   normalizeFinancingStatus,
   statusTone,
-  demoFinancingRequests,
 } from "../../lib/operations";
-import { isDevelopmentPreview } from "../../lib/previewMode";
 import "./customerFinancing.css";
 
 const API_BASE_URL = "https://builtright-backend-1.onrender.com";
@@ -40,14 +38,6 @@ function CustomerFinancing() {
 
   useEffect(() => {
     const loadLoanRequests = async () => {
-      const isLocalPreview = isDevelopmentPreview();
-
-      if (isLocalPreview) {
-        setLoanRequests(demoFinancingRequests);
-        setLoading(false);
-        return;
-      }
-
       try {
         const token = localStorage.getItem("customerToken");
         const response = await fetch(`${API_BASE_URL}/api/customer/loan-requests`, {

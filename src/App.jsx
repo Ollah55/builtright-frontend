@@ -28,6 +28,7 @@ import AdminProjects from "./pages/AdminProjects/AdminProjects";
 import AdminDevices from "./pages/AdminDevices/AdminDevices";
 import AdminIntegrations from "./pages/AdminIntegrations/AdminIntegrations";
 import AdminInstallers from "./pages/AdminInstallers/AdminInstallers";
+import AdminTestCentre from "./pages/AdminTestCentre/AdminTestCentre";
 import InstallerLogin from "./pages/InstallerLogin/InstallerLogin";
 import InstallerActivate from "./pages/InstallerActivate/InstallerActivate";
 import InstallerAssignments from "./pages/InstallerAssignments/InstallerAssignments";
@@ -270,6 +271,11 @@ function AppContent() {
               <AdminIntegrations />
             </ProtectedAdminRoute>
           }
+        />
+
+        <Route
+          path="/admin/test-centre"
+          element={<ProtectedAdminRoute><AdminTestCentre /></ProtectedAdminRoute>}
         />
 
         <Route
