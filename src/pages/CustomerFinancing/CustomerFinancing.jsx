@@ -35,6 +35,8 @@ function CustomerFinancing() {
   const [loanRequests, setLoanRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [paymentProofs, setPaymentProofs] = useState({});
+  const [uploadingPaymentId, setUploadingPaymentId] = useState("");
 
   useEffect(() => {
     const loadLoanRequests = async () => {
@@ -62,6 +64,33 @@ function CustomerFinancing() {
     };
     loadLoanRequests();
   }, []);
+
+  const uploadInspectionPaymentProof = async (request) => {
+    const proof = paymentProofs[request._id];
+    if (!proof) {
+      setMessage("Choose your inspection-fee payment proof before confirming payment.");
+      return;
+    }
+    try {
+      setUploadingPaymentId(request._id);
+      setMessage("");
+      const formData = new FormData();
+      formData.append("proof", proof);
+      const response = await fetch(`${API_BASE_URL}/api/customer/loan-requests/${request._id}/inspection-payment-proof`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${localStorage.getItem("customerToken")}` },
+        body: formData,
+      });
+      const data = await response.json();
+      if (!response.ok || !data.status) throw new Error(data.message || "Could not upload payment proof.");
+      setLoanRequests((items) => items.map((item) => item._id === request._id ? data.loanRequest : item));
+      setMessage(data.message);
+    } catch (error) {
+      setMessage(error.message || "Could not upload payment proof.");
+    } finally {
+      setUploadingPaymentId("");
+    }
+  };
 
   return (
     <CustomerLayout>
@@ -97,6 +126,7 @@ function CustomerFinancing() {
               const bankApplicationUrl = request.bankApplication?.redirectUrl;
               const quotationApproved = status === "quotation-approved" || currentIndex > getStageIndex("quotation-approved");
               const quotationAvailable = currentIndex >= getStageIndex("quotation-draft");
+              const inspectionFeeStatus = request.inspection?.feeStatus || "not-requested";
               const nextAction =
                 status === "quotation-sent"
                   ? "Review and approve your final quotation"
@@ -128,6 +158,11 @@ function CustomerFinancing() {
                     <div><span>Final project quotation</span><strong>{formatMoney(request.finalProjectCost)}</strong><small>{quotationApproved ? "Approved by you" : request.finalProjectCost ? "Review required" : "Pending assessment"}</small></div>
                     <div><span>Bank application</span><strong>{request.bankApplication?.status || "Not available yet"}</strong><small>{bankApplicationUrl ? "Secure link ready" : "Opens after quote approval"}</small></div>
                   </div>
+
+                  {["payment-requested", "proof-submitted", "payment-confirmed"].includes(inspectionFeeStatus) && <section className="customer-inspection-payment">
+                    <div><span>Inspection fee</span><strong>{formatMoney(request.inspection?.feeAmount)}</strong><small>{inspectionFeeStatus === "proof-submitted" ? "Payment proof submitted — awaiting installer confirmation" : inspectionFeeStatus === "payment-confirmed" ? "Payment confirmed — inspection in progress" : "Pay to FCMB · 2008839924 · BuiltRight Services Ltd"}</small></div>
+                    {inspectionFeeStatus === "payment-requested" && <div className="customer-payment-proof-form"><label>Upload payment proof<input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" onChange={(event) => setPaymentProofs((current) => ({ ...current, [request._id]: event.target.files?.[0] || null }))} /></label><button type="button" disabled={uploadingPaymentId === request._id} onClick={() => uploadInspectionPaymentProof(request)}>{uploadingPaymentId === request._id ? "Uploading..." : "I have paid — submit proof"}</button></div>}
+                  </section>}
 
                   <section className="customer-next-step">
                     <FiClock />

@@ -58,6 +58,17 @@
 .customer-next-step span { font-size: 0.57rem; font-weight: 800; text-transform: uppercase; }
 .customer-next-step strong { font-size: 0.68rem; }
 
+.customer-inspection-payment { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 12px; padding: 13px; border: 1px solid #b9dfd8; border-radius: 11px; background: #effaf7; }
+.customer-inspection-payment > div:first-child { display: grid; gap: 3px; }
+.customer-inspection-payment span { color: #168f82; font-size: .57rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.customer-inspection-payment strong { color: #143630; font-size: .84rem; }
+.customer-inspection-payment small { color: #58716b; font-size: .61rem; }
+.customer-payment-proof-form { display: flex; align-items: flex-end; gap: 9px; }
+.customer-payment-proof-form label { display: grid; gap: 5px; color: #38584f; font-size: .62rem; font-weight: 800; }
+.customer-payment-proof-form input { max-width: 190px; font-size: .61rem; }
+.customer-payment-proof-form button { border: 0; border-radius: 8px; padding: 9px 10px; color: #fff; background: var(--primary-green); font-size: .62rem; font-weight: 900; cursor: pointer; }
+.customer-payment-proof-form button:disabled { opacity: .6; cursor: wait; }
+
 .customer-financing-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 15px; padding-top: 13px; border-top: 1px solid #edf1ef; }
 .customer-financing-footer > span { color: #74817d; font-size: 0.61rem; }
 .customer-financing-footer button { display: inline-flex; align-items: center; gap: 6px; border: 0; color: var(--primary-green); background: transparent; font-size: 0.65rem; font-weight: 900; cursor: pointer; }
@@ -80,4 +91,6 @@
   .customer-finance-timeline > div::before { display: none; }
   .customer-financing-summary { grid-template-columns: 1fr; }
   .customer-financing-footer-actions { width: 100%; justify-content: space-between; }
+  .customer-inspection-payment, .customer-payment-proof-form { align-items: stretch; flex-direction: column; }
+  .customer-payment-proof-form input { max-width: none; }
 }
