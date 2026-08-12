@@ -14,11 +14,49 @@
 .installer-admin-list header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.35rem; border-bottom: 1px solid var(--ops-border); }
 .installer-admin-list header h2 { margin: .2rem 0 0; color: var(--ops-ink); }
 .installer-admin-list header > span { color: var(--ops-teal); font-size: .7rem; font-weight: 900; }
-.installer-admin-row { display: grid; grid-template-columns: 2fr 1fr 1fr .7fr; gap: 12px; align-items: center; padding: .95rem 1.35rem; border-bottom: 1px solid #edf3f1; font-size: .75rem; }
+.installer-admin-row { display: grid; grid-template-columns: 2fr 1fr 1fr .7fr .75fr; gap: 12px; align-items: center; padding: .95rem 1.35rem; border-bottom: 1px solid #edf3f1; font-size: .75rem; }
+.installer-row-button { background: #fff; }
+.installer-row-button:hover { background: #f4faf8; }
+.installer-work-trigger { display: grid; gap: 4px; border: 0; color: inherit; background: transparent; text-align: left; cursor: pointer; }
+.installer-work-trigger:hover strong { color: var(--ops-teal); }
+.installer-row-actions { display: flex !important; align-items: center; justify-content: flex-end; gap: 7px; }
+.installer-view-work, .installer-delete { border: 0; background: transparent; cursor: pointer; font: inherit; }
+.installer-view-work { color: var(--ops-teal); font-size: .68rem; font-weight: 900; white-space: nowrap; }
+.installer-delete { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 7px; color: #b32127; background: #fff0f0; }
+.installer-delete:hover { background: #ffe0e1; }
+.installer-delete:disabled { opacity: .5; cursor: wait; }
 .installer-admin-row.head { color: var(--ops-muted); background: #f8fbfa; font-size: .66rem; font-weight: 900; text-transform: uppercase; }
 .installer-admin-row strong { color: var(--ops-ink); }
 .installer-admin-row small { display: flex; align-items: center; gap: 4px; margin-top: 4px; color: var(--ops-muted); }
 .installer-admin-row .active, .installer-admin-row .invited { width: max-content; padding: .32rem .5rem; border-radius: 99px; color: #087b70; background: #e6f6f2; font-size: .66rem; font-weight: 900; }
 .installer-admin-row .invited { color: #936006; background: #fff4dc; }
 .installer-admin-empty { padding: 1.5rem; color: var(--ops-muted); text-align: center; }
-@media (max-width: 900px) { .installer-admin-grid { grid-template-columns: 1fr; } .installer-admin-card form { grid-template-columns: 1fr; align-items: stretch; } .installer-admin-row { grid-template-columns: 1.7fr 1fr; } .installer-admin-row.head span:nth-child(3), .installer-admin-row.head span:nth-child(4), .installer-admin-row > span:nth-child(3), .installer-admin-row > strong { display: none; } }
+.installer-workboard-layer { position: fixed; inset: 0; z-index: 1200; display: flex; justify-content: flex-end; background: rgba(11, 32, 35, .42); }
+.installer-workboard { width: min(760px, 100vw); height: 100vh; display: grid; grid-template-rows: auto 1fr; background: #f7fbfa; box-shadow: -16px 0 48px rgba(11, 32, 35, .25); }
+.installer-workboard > header { display: flex; justify-content: space-between; gap: 16px; padding: 1.4rem 1.5rem; background: #fff; border-bottom: 1px solid var(--ops-border); }
+.installer-workboard > header p { margin: 0 0 .2rem; color: var(--ops-red); font-size: .66rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.installer-workboard > header h2 { margin: 0; color: var(--ops-ink); }
+.installer-workboard > header span { display: block; margin-top: .3rem; color: var(--ops-muted); font-size: .72rem; }
+.installer-workboard > header button { width: 34px; height: 34px; border: 0; border-radius: 50%; color: var(--ops-ink); background: #eef5f3; cursor: pointer; }
+.installer-workboard-scroll { overflow: auto; padding: 1.25rem; }
+.installer-workboard-empty { padding: 2rem; color: var(--ops-muted); text-align: center; }
+.installer-assignment-card { margin-bottom: 13px; padding: 1.1rem; border: 1px solid #dbeae6; border-radius: 14px; background: #fff; }
+.installer-assignment-head { display: flex; justify-content: space-between; gap: 12px; }
+.installer-assignment-head span { color: var(--ops-red); font-size: .67rem; font-weight: 900; }
+.installer-assignment-head h3 { margin: .28rem 0; color: var(--ops-ink); font-size: 1rem; }
+.installer-assignment-head p { display: flex; gap: 5px; align-items: center; margin: 0; color: var(--ops-muted); font-size: .72rem; }
+.installer-assignment-head i { height: max-content; padding: .33rem .5rem; border-radius: 99px; color: #087b70; background: #e6f6f2; font-size: .64rem; font-style: normal; font-weight: 900; text-transform: capitalize; }
+.installer-customer-contact { display: flex; flex-wrap: wrap; gap: 9px; margin: .85rem 0; }
+.installer-customer-contact a { padding: .4rem .55rem; border-radius: 7px; color: var(--ops-teal); background: #eef8f6; font-size: .69rem; font-weight: 800; text-decoration: none; }
+.installer-assignment-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.installer-assignment-grid > div { display: grid; grid-template-columns: 22px 1fr; gap: 2px 7px; padding: .7rem; border-radius: 9px; background: #f7fbfa; }
+.installer-assignment-grid svg { grid-row: span 3; margin-top: 2px; color: var(--ops-teal); }
+.installer-assignment-grid span { color: var(--ops-muted); font-size: .6rem; font-weight: 900; text-transform: uppercase; }
+.installer-assignment-grid strong { overflow: hidden; color: var(--ops-ink); font-size: .72rem; text-overflow: ellipsis; white-space: nowrap; }
+.installer-assignment-grid small { color: var(--ops-muted); font-size: .65rem; }
+.installer-history { margin-top: .85rem; padding-top: .8rem; border-top: 1px solid #e7f0ed; }
+.installer-history > strong { color: var(--ops-ink); font-size: .72rem; }
+.installer-history p { margin: .48rem 0 0; color: var(--ops-muted); font-size: .68rem; }
+.installer-history b { color: var(--ops-teal); text-transform: capitalize; }
+.installer-history small { display: block; margin-top: 2px; color: #92aaa4; }
+@media (max-width: 900px) { .installer-admin-grid { grid-template-columns: 1fr; } .installer-admin-card form { grid-template-columns: 1fr; align-items: stretch; } .installer-admin-row { grid-template-columns: 1.7fr 1fr; } .installer-admin-row.head span:nth-child(3), .installer-admin-row.head span:nth-child(4), .installer-admin-row > span:nth-child(3), .installer-admin-row > strong { display: none; } .installer-assignment-grid { grid-template-columns: 1fr; } }
