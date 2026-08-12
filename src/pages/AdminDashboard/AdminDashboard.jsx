@@ -65,7 +65,7 @@ function AdminDashboard() {
       note: "Across the full review pipeline",
       icon: FiCreditCard,
       tone: "teal",
-      trend: "+4 this week",
+      trend: `${dashboard.stageSummary?.newRequests || 0} new intake cases`,
     },
     {
       label: "Inspections due",
@@ -73,7 +73,7 @@ function AdminDashboard() {
       note: "2 scheduled within 48 hours",
       icon: FiFileText,
       tone: "amber",
-      trend: "Needs scheduling",
+      trend: dashboard.stats.inspectionsDue ? "Needs scheduling" : "No inspections due",
     },
     {
       label: "Active projects",
@@ -81,7 +81,7 @@ function AdminDashboard() {
       note: "Delivery through commissioning",
       icon: FiTool,
       tone: "navy",
-      trend: "3 installations",
+      trend: `${dashboard.stageSummary?.disbursed || 0} in fulfilment`,
     },
     {
       label: "Device alerts",
@@ -89,7 +89,7 @@ function AdminDashboard() {
       note: `${alerts.length} open or acknowledged alert${alerts.length === 1 ? "" : "s"}`,
       icon: FiAlertTriangle,
       tone: "red",
-      trend: "Open incident",
+      trend: alerts.length ? "Review required" : "No open incidents",
     },
   ];
 
