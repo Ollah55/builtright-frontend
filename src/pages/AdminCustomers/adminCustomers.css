@@ -87,3 +87,22 @@
   text-align: center;
   color: #666;
 }
+
+.admin-reset-operations-btn {
+  border: 1px solid #e8b9bd;
+  background: #fff4f4;
+  color: #a51f28;
+  border-radius: 10px;
+  padding: 10px 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.admin-reset-operations-btn:hover:not(:disabled) {
+  background: #fce5e6;
+}
+
+.admin-reset-operations-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
