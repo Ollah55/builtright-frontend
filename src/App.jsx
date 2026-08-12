@@ -50,6 +50,7 @@ import WhatsappFloat from "./components/WhatsappFloat/WhatsappFloat";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute/ProtectedAdminRoute";
 import ProtectedInstallerRoute from "./components/ProtectedInstallerRoute/ProtectedInstallerRoute";
+import SiteSeo from "./components/SiteSeo/SiteSeo";
 
 // Context
 import { useCart } from "./context/useCart";
@@ -97,6 +98,7 @@ function AppContent() {
   return (
     <>
       <ScrollToTop />
+      <SiteSeo pathname={location.pathname} />
 
       {!isPortalPage && (
         <Navbar

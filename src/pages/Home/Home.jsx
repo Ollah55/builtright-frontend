@@ -12,7 +12,6 @@ import consumer from "../../assets/consumer.jpg";
 import cost from "../../assets/cost.jpg";
 import maintenanceservice from "../../assets/maintenanceservice.png";
 import Training from "../../assets/Training.png";
-import { Helmet } from "react-helmet-async";
 
 function Home() {
   const [slide, setSlide] = useState(0);
@@ -78,22 +77,6 @@ function Home() {
   );
 
   elements.forEach((el) => observer.observe(el));
-
-  <Helmet>
-  <title>
-    Solar Installation & Facility Management in Lagos | BuiltRight Services Ltd
-  </title>
-
-  <meta
-    name="description"
-    content="BuiltRight offers solar installation, inverter solutions, and facility management services in Lagos Nigeria. Reliable power and maintenance solutions for homes and businesses."
-  />
-
-  <meta
-    name="keywords"
-    content="solar installation Lagos, inverter installation Lagos, facility management Lagos, property maintenance Lagos, energy solutions Nigeria"
-  />
-</Helmet>
 
   return () => observer.disconnect();
 }, []);

@@ -1,4 +1,12 @@
 User-agent: *
 Allow: /
 
+Disallow: /admin
+Disallow: /installer
+Disallow: /customer
+Disallow: /auth
+Disallow: /checkout
+Disallow: /financing
+Disallow: /payment-success
+
 Sitemap: https://www.builtrightltd.com/sitemap.xml
