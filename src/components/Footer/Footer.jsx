@@ -1,6 +1,6 @@
 import React from "react";
 import "./footer.css";
-import { FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
+import { FaFacebookF, FaInstagram, FaTiktok, FaTwitter } from "react-icons/fa";
 import brandLogo from "../../assets/logoooo.png";
 
 function Footer() {
@@ -54,14 +54,17 @@ function Footer() {
   
 
   {/* SOCIALS */}
- <div className="footer-socials">
-  <a href="#" target="_blank" rel="noopener noreferrer">
+ <div className="footer-socials" aria-label="BuiltRight social media links">
+  <a className="social-facebook" href="https://www.facebook.com/share/1DKLiANFfD/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" aria-label="BuiltRight on Facebook">
     <FaFacebookF size={18} />
   </a>
-  <a href="#" target="_blank" rel="noopener noreferrer">
+  <a className="social-instagram" href="https://www.instagram.com/builtrightenergy?igsh=bWkzNTdkdmMwdGo%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" aria-label="BuiltRight Energy on Instagram">
     <FaInstagram size={18} />
   </a>
-  <a href="#" target="_blank" rel="noopener noreferrer">
+  <a className="social-tiktok" href="https://www.tiktok.com/@builtright.energy?_r=1&_t=ZS-98pBXxLeSsX" target="_blank" rel="noopener noreferrer" aria-label="BuiltRight Energy on TikTok">
+    <FaTiktok size={18} />
+  </a>
+  <a className="social-x" href="https://x.com/builtrightafrik?s=11" target="_blank" rel="noopener noreferrer" aria-label="BuiltRight Afrik on X">
     <FaTwitter size={18} />
   </a>
 </div>
