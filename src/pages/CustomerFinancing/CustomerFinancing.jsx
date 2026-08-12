@@ -129,7 +129,7 @@ function CustomerFinancing() {
               const inspectionFeeStatus = request.inspection?.feeStatus || "not-requested";
               const nextAction =
                 status === "quotation-sent"
-                  ? "Review and approve your final quotation"
+                  ? "Review and accept your final quotation"
                   : quotationApproved && bankApplicationUrl
                     ? "Continue to the bank's secure credit application"
                     : quotationApproved

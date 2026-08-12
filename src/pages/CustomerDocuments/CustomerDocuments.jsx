@@ -214,7 +214,7 @@ function CustomerDocuments() {
             <footer className="document-modal-actions">
               <button type="button" className="secondary" onClick={() => downloadProjectDocument(selectedDocument)}><FiDownload /> Download PDF</button>
               {selectedDocument.type === "quotation" && selectedDocument.status === "sent" && !requestingChanges && <button type="button" className="secondary" onClick={() => setRequestingChanges(true)}>Request changes</button>}
-              {selectedDocument.type === "quotation" && selectedDocument.status === "sent" && !requestingChanges && <button type="button" className="primary" disabled={!approvalChecked || saving} onClick={approveQuotation}><FiCheck /> {saving ? "Recording..." : "Approve quotation"}</button>}
+              {selectedDocument.type === "quotation" && selectedDocument.status === "sent" && !requestingChanges && <button type="button" className="primary" disabled={!approvalChecked || saving} onClick={approveQuotation}><FiCheck /> {saving ? "Recording..." : "Accept quotation"}</button>}
               {requestingChanges && <button type="button" className="primary" disabled={!changeNote.trim() || saving} onClick={submitChangeRequest}>{saving ? "Sending..." : "Send change request"}</button>}
             </footer>
           </section>
