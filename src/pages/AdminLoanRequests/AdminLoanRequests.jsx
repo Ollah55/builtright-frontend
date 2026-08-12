@@ -71,6 +71,8 @@ function normalizeRequest(request) {
     status: normalizeFinancingStatus(request.status),
     systemName: request.systemName || firstItem?.name || "Selected solar system",
     systemCapacity: request.systemCapacity || firstItem?.capacity || "Sizing to be confirmed",
+    paymentRoute: request.paymentMethod === "outright" ? "Outright payment" : "Bank financing",
+    installationProvider: request.installationProvider || "BuiltRight Services Ltd",
     nextAction: request.nextAction || getNextFinancingStage(request.status)?.label || "Review case",
     updatedAt: request.updatedAt || request.createdAt,
     customer: {
@@ -233,7 +235,7 @@ function AdminLoanRequests() {
   return (
     <AdminLayout
       title="Financing cases"
-      subtitle="Move each request through BuiltRight review, site inspection, final quotation, bank decision, deposit, and verified disbursement."
+      subtitle="Manage BuiltRight assessment, quotation, payment, financing, and installation. Every financing project requires BuiltRight installation."
       actions={<button className="ops-button secondary" type="button"><FiFileText /> Export case register</button>}
     >
       {usingPreviewData && (
@@ -263,7 +265,7 @@ function AdminLoanRequests() {
         <div className="finance-table-wrap">
           <div className="finance-table">
             <div className="finance-table-row finance-table-header">
-              <span>Reference and customer</span><span>System</span><span>Project value</span><span>Current stage</span><span>Next action</span><span />
+              <span>Reference and customer</span><span>System</span><span>Payment route</span><span>Project value</span><span>Current stage</span><span>Next action</span><span />
             </div>
             {filteredRequests.map((request) => {
               const stage = getFinancingStage(request.status);
@@ -271,6 +273,7 @@ function AdminLoanRequests() {
                 <button type="button" className="finance-table-row" key={request._id} onClick={() => setSelectedId(request._id)}>
                   <span className="finance-customer-cell"><strong>{request.reference}</strong><p>{request.customer?.fullName}</p><small>{request.customer?.location}</small></span>
                   <span><strong>{request.systemCapacity}</strong><small>{request.systemName}</small></span>
+                  <span><strong>{request.paymentRoute}</strong><small>{request.productSource || "BuiltRight Marketplace"}</small></span>
                   <span><strong>{formatMoney(request.finalProjectCost || request.estimatedAmount)}</strong><small>{request.finalProjectCost ? "Final quotation" : "Selected system price only"}</small></span>
                   <span><i className={`status-pill ${statusTone(request.status)}`}>{stage.label}</i></span>
                   <span><strong>{request.nextAction}</strong><small>{request.updatedAt ? new Date(request.updatedAt).toLocaleDateString("en-GB") : "Not updated"}</small></span>
@@ -294,7 +297,7 @@ function AdminLoanRequests() {
               <section className="finance-summary-grid">
                 <div><FiUser /><span>Customer</span><strong>{selectedRequest.customer.fullName}</strong><small>{selectedRequest.customer.phone}</small></div>
                 <div><FiMapPin /><span>Project site</span><strong>{selectedRequest.customer.location}</strong><small>{selectedRequest.inspection?.property || "Property details pending"}</small></div>
-                <div><FiCreditCard /><span>Solar system</span><strong>{selectedRequest.systemCapacity}</strong><small>{selectedRequest.systemName}</small></div>
+                <div><FiCreditCard /><span>Solar system</span><strong>{selectedRequest.systemCapacity}</strong><small>{selectedRequest.systemName} · {selectedRequest.installationProvider}</small></div>
                 <div><FiClock /><span>Next action</span><strong>{selectedRequest.nextAction}</strong><small>Case owner: Operations</small></div>
               </section>
 
@@ -325,9 +328,9 @@ function AdminLoanRequests() {
                   <small>{selectedRequest.inspection?.assignee || "Technician not assigned"}</small>
                 </div>
                 <div className="drawer-section compact-section">
-                  <div className="drawer-section-head"><div><p>Bank handoff</p><h3>{selectedRequest.bankApplication?.status || "Not started"}</h3></div><FiCreditCard /></div>
-                  <span>{selectedRequest.bankApplication?.provider || "Provider pending"}</span>
-                  <small>Reference: {selectedRequest.bankApplication?.externalReference || "Pending"}</small>
+                  <div className="drawer-section-head"><div><p>{selectedRequest.paymentMethod === "outright" ? "Payment" : "Bank handoff"}</p><h3>{selectedRequest.paymentMethod === "outright" ? "Outright payment" : (selectedRequest.bankApplication?.status || "Not started")}</h3></div><FiCreditCard /></div>
+                  <span>{selectedRequest.paymentMethod === "outright" ? "Final invoice due after quote approval" : (selectedRequest.bankApplication?.provider || "Provider pending")}</span>
+                  <small>{selectedRequest.paymentMethod === "outright" ? "BuiltRight installation follows payment confirmation" : `Reference: ${selectedRequest.bankApplication?.externalReference || "Pending"}`}</small>
                 </div>
               </section>
             </div>

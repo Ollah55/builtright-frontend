@@ -124,6 +124,7 @@ function CustomerFinancing() {
               const currentIndex = getStageIndex(status);
               const firstItem = request.items?.[0];
               const bankApplicationUrl = request.bankApplication?.redirectUrl;
+              const isOutright = request.paymentMethod === "outright";
               const quotationApproved = status === "quotation-approved" || currentIndex > getStageIndex("quotation-approved");
               const quotationAvailable = currentIndex >= getStageIndex("quotation-draft");
               const inspectionFeeStatus = request.inspection?.feeStatus || "not-requested";
@@ -133,7 +134,7 @@ function CustomerFinancing() {
                   : quotationApproved && bankApplicationUrl
                     ? "Continue to the bank's secure credit application"
                     : quotationApproved
-                      ? "Your quotation is approved; BuiltRight is preparing the bank application link"
+                      ? (isOutright ? "Your quotation is approved; BuiltRight will issue your final payment invoice" : "Your quotation is approved; BuiltRight is preparing the bank application link")
                       : status === "rejected"
                         ? "BuiltRight will contact you about available next steps"
                         : nextStage?.customerLabel || "Your project is complete";
@@ -156,7 +157,7 @@ function CustomerFinancing() {
                     <div><span>Selected system</span><strong>{firstItem?.capacity || request.systemCapacity || firstItem?.name || request.systemName || "To be confirmed"}</strong><small>{request.productSource || "BuiltRight Marketplace"}</small></div>
                     <div><span>Selected system price</span><strong>{formatMoney(request.estimatedAmount)}</strong><small>Excludes installation and materials</small></div>
                     <div><span>Final project quotation</span><strong>{formatMoney(request.finalProjectCost)}</strong><small>{quotationApproved ? "Approved by you" : request.finalProjectCost ? "Review required" : "Pending assessment"}</small></div>
-                    <div><span>Bank application</span><strong>{request.bankApplication?.status || "Not available yet"}</strong><small>{bankApplicationUrl ? "Secure link ready" : "Opens after quote approval"}</small></div>
+                    <div><span>{isOutright ? "Payment route" : "Bank application"}</span><strong>{isOutright ? "Outright payment" : (request.bankApplication?.status || "Not available yet")}</strong><small>{isOutright ? "Invoice follows quotation approval" : (bankApplicationUrl ? "Secure link ready" : "Opens after quote approval")}</small></div>
                   </div>
 
                   {["payment-requested", "proof-submitted", "payment-confirmed"].includes(inspectionFeeStatus) && <section className="customer-inspection-payment">

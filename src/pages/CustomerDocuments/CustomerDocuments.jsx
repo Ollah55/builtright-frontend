@@ -178,15 +178,17 @@ function CustomerDocuments() {
           <section className="customer-document-grid">
             {filteredDocuments.map((document) => {
               const bankUrl = document.financing?.bankApplication?.redirectUrl;
+              const isOutright = document.financing?.paymentMethod === "outright";
               return (
                 <article className="customer-document-card" key={document._id}>
                   <header><div><span>{document.type}</span><h2>{document.reference}</h2></div><i className={`document-status ${document.status}`}>{document.status}</i></header>
                   <h3>{document.title}</h3>
                   <p>{document.project?.systemCapacity || "Solar project"} · {document.project?.siteAddress || document.customer?.location || "Project site"}</p>
-                  <dl><div><dt>Total project cost</dt><dd>{formatMoney(document.total)}</dd></div>{document.type === "quotation" && <><div><dt>Customer equity</dt><dd>{formatMoney(document.equityAmount)}</dd></div><div><dt>Bank finance request</dt><dd>{formatMoney(document.bankFinanceAmount)}</dd></div></>}</dl>
+                  <dl><div><dt>Total project cost</dt><dd>{formatMoney(document.total)}</dd></div>{document.type === "quotation" && (isOutright ? <div><dt>Payment route</dt><dd>Full outright payment</dd></div> : <><div><dt>Customer equity</dt><dd>{formatMoney(document.equityAmount)}</dd></div><div><dt>Bank finance request</dt><dd>{formatMoney(document.bankFinanceAmount)}</dd></div></>)}</dl>
                   {document.type === "quotation" && document.status === "sent" && <div className="document-action-note pending"><strong>Your decision is required</strong><span>Review the complete cost breakdown before approving.</span></div>}
                   {document.type === "quotation" && document.status === "approved" && bankUrl && <a className="customer-bank-link" href={bankUrl} target="_blank" rel="noreferrer">Continue to bank credit application <FiArrowUpRight /></a>}
-                  {document.type === "quotation" && document.status === "approved" && !bankUrl && <div className="document-action-note"><strong>Bank link pending</strong><span>Your approval is recorded. The application button will appear when the bank provides its hosted URL.</span></div>}
+                  {document.type === "quotation" && document.status === "approved" && isOutright && <div className="document-action-note"><strong>Invoice being prepared</strong><span>Your approval is recorded. BuiltRight will issue the final outright-payment invoice for the confirmed project cost.</span></div>}
+                  {document.type === "quotation" && document.status === "approved" && !bankUrl && !isOutright && <div className="document-action-note"><strong>Bank link pending</strong><span>Your approval is recorded. The application button will appear when the bank provides its hosted URL.</span></div>}
                   <footer><button type="button" onClick={() => setSelectedId(document._id)}>View details</button><button type="button" onClick={() => downloadProjectDocument(document)}><FiDownload /> Download PDF</button></footer>
                 </article>
               );
@@ -203,7 +205,7 @@ function CustomerDocuments() {
             <div className="document-modal-project"><div><span>System</span><strong>{selectedDocument.project?.systemCapacity || selectedDocument.project?.systemName}</strong></div><div><span>Project site</span><strong>{selectedDocument.project?.siteAddress || selectedDocument.customer?.location}</strong></div><div><span>Property</span><strong>{selectedDocument.project?.propertyType || "Recorded during inspection"}</strong></div></div>
             <div className="document-modal-lines"><div className="header"><span>Description</span><span>Qty</span><span>Amount</span></div>{selectedDocument.lineItems?.map((item, index) => <div key={`${item.description}-${index}`}><span>{item.description}</span><span>{item.quantity} {item.unit}</span><strong>{formatMoney(item.amount)}</strong></div>)}</div>
             <div className="document-modal-total"><span>Total project cost</span><strong>{formatMoney(selectedDocument.total)}</strong></div>
-            {selectedDocument.type === "quotation" && <div className="document-modal-finance"><div><span>Your equity ({selectedDocument.equityPercentage}%)</span><strong>{formatMoney(selectedDocument.equityAmount)}</strong></div><div><span>Requested bank finance</span><strong>{formatMoney(selectedDocument.bankFinanceAmount)}</strong></div></div>}
+            {selectedDocument.type === "quotation" && <div className="document-modal-finance">{selectedDocument.financing?.paymentMethod === "outright" ? <div><span>Payment route</span><strong>Full outright payment after invoice</strong></div> : <><div><span>Your equity ({selectedDocument.equityPercentage}%)</span><strong>{formatMoney(selectedDocument.equityAmount)}</strong></div><div><span>Requested bank finance</span><strong>{formatMoney(selectedDocument.bankFinanceAmount)}</strong></div></>}</div>}
             {selectedDocument.terms && <div className="document-modal-terms"><strong>Terms</strong><p>{selectedDocument.terms}</p></div>}
 
             {selectedDocument.type === "quotation" && selectedDocument.status === "sent" && !requestingChanges && (

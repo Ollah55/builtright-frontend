@@ -47,12 +47,15 @@ function Checkout() {
       return;
     }
 
-    if (hasUnpricedItems || totalAmount <= 0) {
-      setStatusMessage(
-        "Some products in your cart do not yet have confirmed prices. Please use Financing / Loan or contact us for a quote."
-      );
-      return;
-    }
+    navigate("/financing", {
+      state: {
+        customer,
+        cartItems,
+        totalAmount,
+        paymentMethod: "outright",
+      },
+    });
+    return;
 
     try {
       setIsPaying(true);
@@ -162,6 +165,7 @@ function Checkout() {
         customer,
         cartItems,
         totalAmount,
+        paymentMethod: "bank-financing",
       },
     });
   };
@@ -307,7 +311,7 @@ function Checkout() {
             onClick={handleOutrightPayment}
             disabled={isPaying || cartItems.length === 0 || !acceptedTerms}
           >
-            {isPaying ? "Processing..." : "Pay with Paystack"}
+            {isPaying ? "Processing..." : "Request outright-purchase quotation"}
           </button>
 
           <button
@@ -316,7 +320,7 @@ function Checkout() {
             onClick={handleFinancing}
             disabled={cartItems.length === 0 || !acceptedTerms}
           >
-            Financing / Loan
+            Apply for bank financing
           </button>
 
           {statusMessage && <p className="checkout-status">{statusMessage}</p>}

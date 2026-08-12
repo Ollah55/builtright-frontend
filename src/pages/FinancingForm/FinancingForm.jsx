@@ -19,6 +19,7 @@ function FinancingForm() {
     phone: passedState.customer?.phone || "",
     location: passedState.customer?.location || "",
     occupation: "",
+    paymentMethod: passedState.paymentMethod || "bank-financing",
     financeInstitution: "RichGreen Microfinance Bank",
     productSource: cartItems.length > 0 ? "BuiltRight Marketplace" : "External Vendor",
     vendorName: "",
@@ -33,6 +34,7 @@ function FinancingForm() {
   const [submittedReference, setSubmittedReference] = useState("");
 
   const isExternalVendor = formData.productSource === "External Vendor";
+  const isOutright = formData.paymentMethod === "outright";
   const selectedPartner = getFinancingPartner(formData.financeInstitution);
   const items = isExternalVendor
     ? [{
@@ -77,7 +79,7 @@ function FinancingForm() {
       return;
     }
     if (!isExternalVendor && items.length === 0) {
-      setStatusMessage("Please add a solar system from the BuiltRight shop before requesting financing.");
+      setStatusMessage("Please add a solar system from the BuiltRight shop before submitting your project request.");
       return;
     }
     if (isExternalVendor && (!formData.vendorName || !formData.vendorContact || !formData.vendorProductDetails)) {
@@ -104,10 +106,11 @@ function FinancingForm() {
           items,
           estimatedAmount,
           productSource: formData.productSource,
-          financeInstitution: selectedPartner.name,
+          paymentMethod: formData.paymentMethod,
+          financeInstitution: isOutright ? "" : selectedPartner.name,
           interestRate: "",
           loanTenor: "",
-          depositRequired: `${selectedPartner.equityPercentage}% of approved total project cost`,
+          depositRequired: isOutright ? "100% of the approved final project cost" : `${selectedPartner.equityPercentage}% of approved total project cost`,
           vendorName: formData.vendorName,
           vendorContact: formData.vendorContact,
           vendorProductDetails: formData.vendorProductDetails,
@@ -121,7 +124,7 @@ function FinancingForm() {
 
       const reference = data.loanRequest?.reference || `BRF-${String(data.loanRequest?._id || "NEW").slice(-5).toUpperCase()}`;
       setSubmittedReference(reference);
-      setStatusMessage(`Request ${reference} submitted. BuiltRight will now arrange inspection, load audit, and due diligence.`);
+      setStatusMessage(`Request ${reference} submitted. BuiltRight will now arrange inspection, load audit, and due diligence before your final ${isOutright ? "outright-payment" : "financing"} quotation.`);
     } catch (error) {
       setStatusMessage(error.message || "Something went wrong while submitting your request.");
     } finally {
@@ -132,25 +135,25 @@ function FinancingForm() {
   return (
     <div className="financing-page">
       <Helmet>
-        <title>Submit Financing Request | BuiltRight</title>
-        <meta name="description" content="Submit a BuiltRight solar financing request for assessment, final quotation, customer approval, and a bank-hosted credit application." />
+        <title>Start Solar Project Request | BuiltRight</title>
+        <meta name="description" content="Start a BuiltRight solar project request for assessment, final quotation, outright payment, or bank financing." />
       </Helmet>
 
       <section className="financing-hero">
         <div className="financing-hero-content">
-          <p className="section-label">Solar financing</p>
+          <p className="section-label">Solar project request</p>
           <h1>Start with the right project assessment</h1>
           <p>Tell us the solar system you prefer. BuiltRight will complete inspection, load audit, and due diligence before preparing the final project quotation for your approval.</p>
         </div>
       </section>
 
       <section className="loan-process-section">
-        <div className="loan-process-head"><p className="section-label">How it works</p><h2>Assessment before bank application</h2></div>
+        <div className="loan-process-head"><p className="section-label">How it works</p><h2>Assessment before payment or bank application</h2></div>
         <div className="loan-process-grid">
           <article className="loan-step-card"><span>01</span><h3>Submit request</h3><p>Select your preferred system and provide the project location and contact details.</p></article>
           <article className="loan-step-card"><span>02</span><h3>Assess the project</h3><p>BuiltRight completes site inspection, load audit, technical checks, and due diligence.</p></article>
-          <article className="loan-step-card"><span>03</span><h3>Approve quotation</h3><p>Review the full system, materials, installation scope, total cost, and your selected bank's equity amount.</p></article>
-          <article className="loan-step-card"><span>04</span><h3>Apply with the bank</h3><p>After approval, the secure bank button opens for KYC, credit checks, account opening, and payment.</p></article>
+          <article className="loan-step-card"><span>03</span><h3>Approve quotation</h3><p>Review the full system, materials, BuiltRight installation scope, and total project cost.</p></article>
+          <article className="loan-step-card"><span>04</span><h3>Complete payment route</h3><p>Pay the final BuiltRight invoice outright, or continue to the secure bank journey after approval.</p></article>
         </div>
       </section>
 
@@ -159,7 +162,7 @@ function FinancingForm() {
           <h2>Request summary</h2>
           <div className="source-summary-box">
             <h3>{formData.productSource}</h3>
-            <p>{isExternalVendor ? "BuiltRight will review the third-party system and confirm whether it is suitable for the proposed project." : "Your selected BuiltRight system begins as a preference; final sizing is confirmed during assessment."}</p>
+            <p>{isExternalVendor ? "BuiltRight will review the third-party system and confirm whether it is suitable. Where financing is selected, BuiltRight must complete the installation." : "Your selected BuiltRight system begins as a preference; final sizing is confirmed during assessment."}</p>
           </div>
 
           <div className="finance-terms-box">
@@ -217,7 +220,7 @@ function FinancingForm() {
         </aside>
 
         <section className="financing-form-card">
-          <h2>Submit financing request</h2>
+          <h2>Start your solar project</h2>
           <form onSubmit={handleSubmit}>
             <div className="form-row">
               <input type="text" name="fullName" placeholder="Full name*" value={formData.fullName} onChange={handleChange} required />
@@ -237,7 +240,17 @@ function FinancingForm() {
               </select>
             </div>
 
-            <div className="selected-bank-terms">
+            <div className="form-group">
+              <label>Payment route</label>
+              <select name="paymentMethod" value={formData.paymentMethod} onChange={handleChange}>
+                <option value="bank-financing">Bank financing — BuiltRight installation required</option>
+                <option value="outright">Outright payment after final quotation</option>
+              </select>
+            </div>
+
+            <div className="external-vendor-notice"><p><strong>BuiltRight assessment and installation:</strong> Every request begins with inspection, load audit, and due diligence. For every financing request, BuiltRight is the required installer, including where the customer selected equipment from an external vendor.</p></div>
+
+            {!isOutright && <div className="selected-bank-terms">
               <label htmlFor="financeInstitution">Preferred financial institution</label>
               <select id="financeInstitution" name="financeInstitution" value={formData.financeInstitution} onChange={handleChange}>
                 {financingPartners.map((partner) => <option key={partner.id} value={partner.name}>{partner.name}</option>)}
@@ -248,7 +261,9 @@ function FinancingForm() {
                 <div><span>Maximum tenor</span><strong>{selectedPartner.maximumTenor}</strong></div>
               </div>
               <p>Bank application is not required yet. Once your assessment passes and you approve the final quotation, your profile will display {selectedPartner.name}'s hosted application button and BuiltRight will share the approved quotation with the bank.</p>
-            </div>
+            </div>}
+
+            {isOutright && <div className="selected-bank-terms"><strong>Outright payment</strong><p>Your final quotation will be prepared only after assessment. Once you approve it, BuiltRight will issue an invoice for the complete confirmed project cost. Installation begins after payment confirmation.</p></div>}
 
             {isExternalVendor && (
               <div className="external-vendor-section">
@@ -256,18 +271,18 @@ function FinancingForm() {
                 <div className="form-group"><label>Vendor name*</label><input type="text" name="vendorName" value={formData.vendorName} onChange={handleChange} placeholder="Vendor or supplier name" /></div>
                 <div className="form-group"><label>Vendor contact*</label><input type="text" name="vendorContact" value={formData.vendorContact} onChange={handleChange} placeholder="Phone, WhatsApp, or email" /></div>
                 <div className="form-group"><label>Product/system details*</label><textarea name="vendorProductDetails" value={formData.vendorProductDetails} onChange={handleChange} placeholder="Describe the system, specifications, or vendor offer" rows="5" /></div>
-                <div className="external-vendor-notice"><p>Third-party products remain subject to BuiltRight's technical assessment and the original supplier's warranty and product responsibilities.</p></div>
-                <label className="consent-check"><input type="checkbox" name="liabilityAccepted" checked={formData.liabilityAccepted} onChange={handleChange} /><span>I understand that third-party product obligations remain with the original vendor or manufacturer unless BuiltRight agrees otherwise in writing.</span></label>
+                <div className="external-vendor-notice"><p>Third-party products remain subject to BuiltRight's technical assessment and the original supplier's warranty and product responsibilities. If financing is selected, BuiltRight must complete the installation.</p></div>
+                <label className="consent-check"><input type="checkbox" name="liabilityAccepted" checked={formData.liabilityAccepted} onChange={handleChange} /><span>I understand that the external vendor remains responsible for its product warranty, while BuiltRight assesses and quotes the project. For financing, BuiltRight is the required installer.</span></label>
               </div>
             )}
 
             <textarea name="notes" placeholder="Property details, preferred backup hours, critical appliances, or other notes" rows="5" value={formData.notes} onChange={handleChange} />
             <label className="consent-check">
               <input type="checkbox" name="consentToShare" checked={formData.consentToShare} onChange={handleChange} />
-              <span>I authorize BuiltRight to contact me, conduct the project assessment, prepare my quotation, and share my approved quotation and necessary application information with the financing bank.</span>
+              <span>I authorize BuiltRight to contact me, conduct the project assessment, and prepare my quotation.{isOutright ? " I understand payment is due only after I approve the final quotation." : " I authorize BuiltRight to share my approved quotation and necessary application information with the financing bank."}</span>
             </label>
 
-            <button type="submit" disabled={isSubmitting || Boolean(submittedReference)}>{isSubmitting ? "Submitting..." : submittedReference ? "Request submitted" : "Submit financing request"}</button>
+            <button type="submit" disabled={isSubmitting || Boolean(submittedReference)}>{isSubmitting ? "Submitting..." : submittedReference ? "Request submitted" : isOutright ? "Submit outright-purchase request" : "Submit financing request"}</button>
             {statusMessage && <p className="financing-status" role="status">{statusMessage}</p>}
             {submittedReference && <button type="button" className="financing-secondary-action" onClick={() => navigate("/customer/financing")}>Track my financing request</button>}
           </form>
