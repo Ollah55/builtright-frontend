@@ -18,7 +18,13 @@ function AdminTestCentre() {
       ...options,
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`, ...(options.headers || {}) },
     });
-    const result = await response.json();
+    const raw = await response.text();
+    let result;
+    try {
+      result = raw ? JSON.parse(raw) : {};
+    } catch {
+      throw new Error(`Operations API returned an invalid response (${response.status}). Please retry shortly.`);
+    }
     if (!response.ok || !result.status) throw new Error(result.message || "Operations test request failed.");
     return result;
   };
