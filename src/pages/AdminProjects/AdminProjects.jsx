@@ -70,6 +70,7 @@ function AdminProjects() {
   const [projectRecords, setProjectRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [deletingId, setDeletingId] = useState("");
 
   useEffect(() => {
     const loadProjects = async () => {
@@ -89,6 +90,26 @@ function AdminProjects() {
     };
     loadProjects();
   }, []);
+
+  const deleteProject = async (project) => {
+    if (!window.confirm(`Permanently delete project ${project.id}? Linked quotations, invoices, orders, devices, alerts, and commands will also be removed.`)) return;
+    try {
+      setDeletingId(project.requestId);
+      const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
+      const response = await fetch(`${API_BASE_URL}/api/loan-requests/${project.requestId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (!response.ok || !data.status) throw new Error(data.message || "Could not delete project.");
+      setProjectRecords((records) => records.filter((item) => item.requestId !== project.requestId));
+      setMessage(data.message);
+    } catch (error) {
+      setMessage(error.message || "Could not delete project.");
+    } finally {
+      setDeletingId("");
+    }
+  };
 
   const projects = useMemo(() => {
     const search = searchTerm.toLowerCase().trim();
@@ -159,7 +180,10 @@ function AdminProjects() {
 
               <footer className="project-card-footer">
                 <span><FiClock /> Updated {project.updated}</span>
-                <button type="button" onClick={() => navigate(`/admin/loan-requests/${project.requestId}`)}>Open project <FiArrowUpRight /></button>
+                <div className="project-card-actions">
+                  <button type="button" onClick={() => navigate(`/admin/loan-requests/${project.requestId}`)}>Open project <FiArrowUpRight /></button>
+                  <button type="button" className="project-delete-btn" disabled={deletingId === project.requestId} onClick={() => deleteProject(project)}>{deletingId === project.requestId ? "Deleting..." : "Delete"}</button>
+                </div>
               </footer>
             </article>
           );

@@ -175,3 +175,7 @@
   .project-milestones { grid-template-columns: repeat(3, 1fr); gap: 14px 4px; }
   .project-milestones > div::before { display: none; }
 }
+.project-card-actions{display:flex;align-items:center;gap:8px}
+.project-delete-btn{border:1px solid #edc1c5;background:#fff4f4;color:#a51f28;border-radius:8px;padding:8px 10px;font-size:.68rem;font-weight:800;cursor:pointer}
+.project-delete-btn:hover:not(:disabled){background:#fce5e6}
+.project-delete-btn:disabled{opacity:.55;cursor:wait}
