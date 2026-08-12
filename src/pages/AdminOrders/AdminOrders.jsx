@@ -90,6 +90,22 @@ function AdminOrders() {
       setMessage(error.message || "Failed to update order status.");
     }
   };
+
+  const deleteOrder = async (order) => {
+    if (!window.confirm(`Permanently delete ${order.orderNumber || order.reference}? Linked invoice records will also be removed.`)) return;
+    try {
+      const response = await fetch(`https://builtright-backend-1.onrender.com/api/admin/orders/${order._id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (!response.ok || !data.status) throw new Error(data.message || "Failed to delete order.");
+      setOrders((previous) => previous.filter((item) => item._id !== order._id));
+      setMessage(data.message);
+    } catch (error) {
+      setMessage(error.message || "Failed to delete order.");
+    }
+  };
 const downloadInvoice = async (order) => {
   const doc = new jsPDF();
 
@@ -309,6 +325,13 @@ const downloadInvoice = async (order) => {
                 onClick={() => downloadInvoice(order)}
                 >
                 Download Invoice
+                </button>
+                <button
+                  type="button"
+                  className="admin-order-delete-btn"
+                  onClick={() => deleteOrder(order)}
+                >
+                  Permanently Delete Order
                 </button>
               </div>
             ))}

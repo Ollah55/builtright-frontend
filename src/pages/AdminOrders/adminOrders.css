@@ -233,3 +233,19 @@
     max-width: 100%;
   }
 }
+
+.admin-order-delete-btn {
+  width: 100%;
+  margin-top: 8px;
+  border: 1px solid #f0c4c7;
+  background: #fff4f4;
+  color: #a51f28;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.admin-order-delete-btn:hover {
+  background: #fce5e6;
+}

@@ -39,7 +39,7 @@ function AdminCustomers() {
   }, [token]);
 const deleteCustomer = async (id) => {
   const confirmDelete = window.confirm(
-    "Are you sure you want to delete this customer?"
+    "Permanently delete this customer and all linked financing requests, orders, quotations, invoices, devices, alerts, and commands? This cannot be undone."
   );
 
   if (!confirmDelete) return;
