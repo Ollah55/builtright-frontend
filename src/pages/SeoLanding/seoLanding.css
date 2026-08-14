@@ -1,0 +1,179 @@
+.seo-landing-page {
+  min-height: 100vh;
+  background: #fff;
+  color: #1d1d1d;
+}
+
+.seo-landing-hero {
+  min-height: 62vh;
+  padding: 7rem 7% 5rem;
+  display: flex;
+  align-items: center;
+  color: #fff;
+  background:
+    linear-gradient(90deg, rgba(17, 17, 17, 0.92), rgba(17, 17, 17, 0.62)),
+    url("../../assets/background.jpg") center/cover no-repeat;
+}
+
+.seo-landing-hero.training {
+  background:
+    linear-gradient(90deg, rgba(21, 146, 132, 0.9), rgba(17, 17, 17, 0.7)),
+    url("../../assets/background.jpg") center/cover no-repeat;
+}
+
+.seo-landing-hero-content,
+.seo-landing-section-inner {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+}
+
+.seo-landing-hero-content {
+  max-width: 900px;
+}
+
+.seo-landing-hero h1 {
+  max-width: 900px;
+  margin: 0.75rem 0 1rem;
+  font-size: clamp(2.35rem, 5vw, 4.6rem);
+  line-height: 1.05;
+}
+
+.seo-landing-hero p {
+  max-width: 800px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.85;
+  font-size: 1.08rem;
+}
+
+.seo-landing-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+.seo-landing-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0.8rem 1.25rem;
+  border-radius: 10px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.seo-landing-primary {
+  background: var(--accent-red);
+  color: #fff;
+}
+
+.seo-landing-secondary {
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+}
+
+.seo-landing-section {
+  padding: 5rem 7%;
+}
+
+.seo-landing-section.alt {
+  background: #fafaf8;
+}
+
+.seo-landing-section h2 {
+  max-width: 800px;
+  margin: 0.6rem 0 1rem;
+  color: #111;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.15;
+}
+
+.seo-landing-section-intro {
+  max-width: 820px;
+  color: #5d5d5d;
+  line-height: 1.85;
+}
+
+.seo-landing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin-top: 2.25rem;
+}
+
+.seo-landing-card {
+  padding: 1.6rem;
+  border: 1px solid #e8e8e8;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.04);
+}
+
+.seo-landing-card h3 {
+  margin: 0 0 0.65rem;
+  color: #111;
+  font-size: 1.2rem;
+}
+
+.seo-landing-card p,
+.seo-landing-card li {
+  color: #5d5d5d;
+  line-height: 1.75;
+}
+
+.seo-landing-card ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.seo-landing-callout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 2rem;
+  border-radius: 20px;
+  background: #111;
+  color: #fff;
+}
+
+.seo-landing-callout h2 {
+  margin: 0 0 0.55rem;
+  color: #fff;
+  font-size: clamp(1.65rem, 3vw, 2.35rem);
+}
+
+.seo-landing-callout p {
+  max-width: 700px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.75;
+}
+
+.seo-landing-callout a {
+  flex: 0 0 auto;
+  padding: 0.85rem 1.2rem;
+  border-radius: 10px;
+  background: var(--accent-red);
+  color: #fff;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@media (max-width: 800px) {
+  .seo-landing-hero,
+  .seo-landing-section {
+    padding-left: 5%;
+    padding-right: 5%;
+  }
+
+  .seo-landing-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .seo-landing-callout {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

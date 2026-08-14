@@ -21,6 +21,14 @@ const publicPages = {
     title: "Solar & Energy Solutions Nigeria | BuiltRight Energy",
     description: "Plan reliable solar power with BuiltRight energy audits, inverter systems, battery storage, solar installation, and maintenance support in Nigeria.",
   },
+  "/solar-installation-lagos": {
+    title: "Solar Installation in Lagos | Inverter & Solar Systems | BuiltRight",
+    description: "BuiltRight provides solar and inverter installation in Lagos for homes, businesses, schools, hotels, and facilities, starting with a site inspection and load audit.",
+  },
+  "/solar-training-lagos": {
+    title: "Solar Installation Training in Lagos | BuiltRight Technical Training",
+    description: "Learn practical solar installation, inverter, battery, testing, maintenance, and energy-audit skills through BuiltRight technical workforce training in Lagos.",
+  },
   "/contact": {
     title: "Contact BuiltRight Services | Lagos Nigeria",
     description: "Contact BuiltRight Services Ltd in Ogba, Lagos for facility management, maintenance, solar installation, energy audits, and project support.",
@@ -70,6 +78,32 @@ function SiteSeo({ pathname }) {
       "https://www.tiktok.com/@builtright.energy",
       "https://x.com/builtrightafrik",
     ],
+  } : pathname === "/solar-installation-lagos" ? {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: "Solar installation in Lagos",
+    serviceType: "Solar and inverter installation",
+    provider: {
+      "@type": "LocalBusiness",
+      name: "BuiltRight Services Ltd",
+      url: SITE_URL,
+    },
+    areaServed: {
+      "@type": "City",
+      name: "Lagos",
+    },
+    url: `${SITE_URL}${pathname}`,
+  } : pathname === "/solar-training-lagos" ? {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    name: "Solar installation training in Lagos",
+    description,
+    provider: {
+      "@type": "Organization",
+      name: "BuiltRight Services Ltd",
+      url: SITE_URL,
+    },
+    url: `${SITE_URL}${pathname}`,
   } : null;
 
   return (

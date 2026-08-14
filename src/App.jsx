@@ -6,6 +6,8 @@ import Home from "./pages/Home/Home";
 import About from "./pages/About/About";
 import Services from "./pages/Services/Services";
 import EnergySolutions from "./pages/EnergySolutions/EnergySolutions";
+import SolarInstallationLagos from "./pages/SolarInstallationLagos/SolarInstallationLagos";
+import SolarTrainingLagos from "./pages/SolarTrainingLagos/SolarTrainingLagos";
 import Contact from "./pages/Contact/Contact";
 import Shop from "./pages/Shop/Shop";
 import CategoryProducts from "./pages/CategoryProducts/CategoryProducts";
@@ -113,6 +115,8 @@ function AppContent() {
         <Route path="/about" element={<About />} />
         <Route path="/services" element={<Services />} />
         <Route path="/energy" element={<EnergySolutions />} />
+        <Route path="/solar-installation-lagos" element={<SolarInstallationLagos />} />
+        <Route path="/solar-training-lagos" element={<SolarTrainingLagos />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/auth" element={<Auth />} />
 

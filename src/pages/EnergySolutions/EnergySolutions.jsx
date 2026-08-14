@@ -55,6 +55,26 @@ function EnergySolutions() {
         </div>
       </section>
 
+      <section className="energy-trust-section fade-in">
+        <div className="energy-trust-grid">
+          <div className="energy-trust-card">
+            <h3>Solar Installation in Lagos</h3>
+            <p>See how BuiltRight handles inspection, load audit, quotation, installation, and support.</p>
+            <Link to="/solar-installation-lagos" className="energy-primary-btn">View Installation Guide</Link>
+          </div>
+          <div className="energy-trust-card">
+            <h3>Solar Installation Training</h3>
+            <p>Explore practical technical workforce training for installers, technicians, and facility teams.</p>
+            <Link to="/solar-training-lagos" className="energy-secondary-light-btn">View Training Guide</Link>
+          </div>
+          <div className="energy-trust-card">
+            <h3>Outright or Financing</h3>
+            <p>Start with an assessment and choose the payment path that fits your home or business.</p>
+            <Link to="/financing" className="energy-secondary-light-btn">Start a Request</Link>
+          </div>
+        </div>
+      </section>
+
       {/* TRUST */}
       <section className="energy-trust-section fade-in">
         <div className="energy-trust-grid">
