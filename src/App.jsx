@@ -9,6 +9,7 @@ import EnergySolutions from "./pages/EnergySolutions/EnergySolutions";
 import SolarInstallationLagos from "./pages/SolarInstallationLagos/SolarInstallationLagos";
 import SolarTrainingLagos from "./pages/SolarTrainingLagos/SolarTrainingLagos";
 import Contact from "./pages/Contact/Contact";
+import PrivacyPolicy from "./pages/PrivacyPolicy/PrivacyPolicy";
 import Shop from "./pages/Shop/Shop";
 import CategoryProducts from "./pages/CategoryProducts/CategoryProducts";
 import ProductDetails from "./pages/ProductDetails/ProductDetails";
@@ -118,6 +119,7 @@ function AppContent() {
         <Route path="/solar-installation-lagos" element={<SolarInstallationLagos />} />
         <Route path="/solar-training-lagos" element={<SolarTrainingLagos />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/auth" element={<Auth />} />
 
         {/* Shop Pages */}

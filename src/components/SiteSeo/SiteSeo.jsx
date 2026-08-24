@@ -33,6 +33,10 @@ const publicPages = {
     title: "Contact BuiltRight Services | Lagos Nigeria",
     description: "Contact BuiltRight Services Ltd in Ogba, Lagos for facility management, maintenance, solar installation, energy audits, and project support.",
   },
+  "/privacy-policy": {
+    title: "Privacy Policy | BuiltRight Energy",
+    description: "Read the BuiltRight Energy privacy policy covering personal information, solar enquiries, financing, training and customer services.",
+  },
   "/shop": {
     title: "Shop Solar Inverters & Energy Systems | BuiltRight Nigeria",
     description: "Browse BuiltRight solar systems, inverters, batteries, and energy products for homes and businesses in Nigeria.",
