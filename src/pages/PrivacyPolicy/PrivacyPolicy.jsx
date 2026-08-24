@@ -107,7 +107,6 @@ function PrivacyPolicy() {
         <header className="privacy-policy-hero">
           <p className="privacy-policy-kicker">BuiltRight Energy</p>
           <h1>Privacy Policy</h1>
-          <p className="privacy-policy-effective">Effective Date: 24 August 2026</p>
         </header>
 
         <article className="privacy-policy-content">
