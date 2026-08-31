@@ -47,7 +47,7 @@ const publicPages = {
   },
 };
 
-const privatePrefixes = ["/admin", "/installer", "/customer", "/auth", "/checkout", "/financing", "/payment-success"];
+const privatePrefixes = ["/admin", "/installer", "/learner", "/customer", "/auth", "/checkout", "/financing", "/payment-success"];
 
 function getPageMetadata(pathname) {
   const page = publicPages[pathname] || (pathname.startsWith("/shop/") ? publicPages["/shop"] : publicPages["/"]);

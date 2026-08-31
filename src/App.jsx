@@ -32,9 +32,13 @@ import AdminDevices from "./pages/AdminDevices/AdminDevices";
 import AdminIntegrations from "./pages/AdminIntegrations/AdminIntegrations";
 import AdminInstallers from "./pages/AdminInstallers/AdminInstallers";
 import AdminTestCentre from "./pages/AdminTestCentre/AdminTestCentre";
+import AdminLearners from "./pages/AdminLearners/AdminLearners";
 import InstallerLogin from "./pages/InstallerLogin/InstallerLogin";
 import InstallerActivate from "./pages/InstallerActivate/InstallerActivate";
 import InstallerAssignments from "./pages/InstallerAssignments/InstallerAssignments";
+import LearnerLogin from "./pages/LearnerLogin/LearnerLogin";
+import LearnerActivate from "./pages/LearnerActivate/LearnerActivate";
+import LearnerPortal from "./pages/LearnerPortal/LearnerPortal";
 
 // Customer Pages
 import CustomerDashboard from "./pages/CustomerDashboard/CustomerDashboard";
@@ -53,6 +57,7 @@ import WhatsappFloat from "./components/WhatsappFloat/WhatsappFloat";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute/ProtectedAdminRoute";
 import ProtectedInstallerRoute from "./components/ProtectedInstallerRoute/ProtectedInstallerRoute";
+import ProtectedLearnerRoute from "./components/ProtectedLearnerRoute/ProtectedLearnerRoute";
 import SiteSeo from "./components/SiteSeo/SiteSeo";
 
 // Context
@@ -69,7 +74,7 @@ function App() {
 function AppContent() {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith("/admin");
-  const isPortalPage = isAdminPage || location.pathname.startsWith("/installer");
+  const isPortalPage = isAdminPage || location.pathname.startsWith("/installer") || location.pathname.startsWith("/learner");
 
   const [isCartOpen, setIsCartOpen] = useState(false);
 
@@ -199,6 +204,9 @@ function AppContent() {
         <Route path="/installer/login" element={<InstallerLogin />} />
         <Route path="/installer/activate" element={<InstallerActivate />} />
         <Route path="/installer/assignments" element={<ProtectedInstallerRoute><InstallerAssignments /></ProtectedInstallerRoute>} />
+        <Route path="/learner/login" element={<LearnerLogin />} />
+        <Route path="/learner/activate" element={<LearnerActivate />} />
+        <Route path="/learner/portal" element={<ProtectedLearnerRoute><LearnerPortal /></ProtectedLearnerRoute>} />
 
         <Route
           path="/admin/dashboard"
@@ -289,6 +297,11 @@ function AppContent() {
         <Route
           path="/admin/installers"
           element={<ProtectedAdminRoute><AdminInstallers /></ProtectedAdminRoute>}
+        />
+
+        <Route
+          path="/admin/learners"
+          element={<ProtectedAdminRoute><AdminLearners /></ProtectedAdminRoute>}
         />
       </Routes>
 
