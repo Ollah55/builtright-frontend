@@ -39,6 +39,7 @@ import InstallerAssignments from "./pages/InstallerAssignments/InstallerAssignme
 import LearnerLogin from "./pages/LearnerLogin/LearnerLogin";
 import LearnerActivate from "./pages/LearnerActivate/LearnerActivate";
 import LearnerPortal from "./pages/LearnerPortal/LearnerPortal";
+import LearnerLiveClass from "./pages/LearnerLiveClass/LearnerLiveClass";
 
 // Customer Pages
 import CustomerDashboard from "./pages/CustomerDashboard/CustomerDashboard";
@@ -207,6 +208,7 @@ function AppContent() {
         <Route path="/learner/login" element={<LearnerLogin />} />
         <Route path="/learner/activate" element={<LearnerActivate />} />
         <Route path="/learner/portal" element={<ProtectedLearnerRoute><LearnerPortal /></ProtectedLearnerRoute>} />
+        <Route path="/learner/live-class" element={<ProtectedLearnerRoute><LearnerLiveClass /></ProtectedLearnerRoute>} />
 
         <Route
           path="/admin/dashboard"
