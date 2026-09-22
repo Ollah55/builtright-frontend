@@ -6,6 +6,7 @@ import {
   FiChevronRight,
   FiCpu,
   FiCreditCard,
+  FiDollarSign,
   FiGrid,
   FiLink,
   FiLogOut,
@@ -45,6 +46,7 @@ const navGroups = [
     items: [
       { to: "/admin/integrations", label: "Integrations", icon: FiLink },
       { to: "/admin/test-centre", label: "Test Centre", icon: FiZap },
+      { to: "/admin/accountant", label: "Accountant access", icon: FiDollarSign },
     ],
   },
 ];

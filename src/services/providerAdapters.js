@@ -46,12 +46,23 @@ export async function createBankApplication(payload) {
   });
 }
 
-export async function sendAshGridDeviceControl({ customerDeviceId, control, reason, confirmation }) {
+export async function sendAshGridDeviceControl({ customerDeviceId, deviceNumber, control, reason, confirmation }) {
   if (!providerState.ashGridX.configured) {
     throw new ProviderNotConfiguredError("AshGridX");
   }
   return providerRequest("/api/integrations/ashgridx/device/control", {
     method: "POST",
-    body: JSON.stringify({ customerDeviceId, control, reason, confirmation }),
+    body: JSON.stringify({ customerDeviceId, deviceNumber, control, reason, confirmation }),
+  });
+}
+
+export async function getAshGridDeviceStatus(deviceId) {
+  return providerRequest(`/api/admin/devices/${encodeURIComponent(deviceId)}/status`);
+}
+
+export async function simulateAshGridEvent(deviceId, event = "BYPASS") {
+  return providerRequest(`/api/admin/devices/${encodeURIComponent(deviceId)}/simulate-event`, {
+    method: "POST",
+    body: JSON.stringify({ event }),
   });
 }

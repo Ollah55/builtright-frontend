@@ -14,7 +14,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import AdminLayout from "../../components/AdminLayout/AdminLayout";
-import { providerState, sendAshGridDeviceControl } from "../../services/providerAdapters";
+import { providerState, sendAshGridDeviceControl, simulateAshGridEvent } from "../../services/providerAdapters";
 import "./adminDevices.css";
 
 const deviceFilters = [
@@ -33,7 +33,8 @@ function normalizeDevice(device) {
   return {
     ...device,
     id: device._id,
-    deviceNumber: device.reference,
+    deviceNumber: device.deviceNumber || device.reference,
+    customerDeviceId: device.customerDeviceId || device.providerDeviceId || "",
     customer: device.customerSnapshot?.fullName || "Unassigned customer",
     project: device.projectReference || "No project reference",
     site: device.site?.address || "Site not recorded",
@@ -56,6 +57,10 @@ function AdminDevices() {
   const [confirmationText, setConfirmationText] = useState("");
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [simulating, setSimulating] = useState(false);
+  const [registerModalOpen, setRegisterModalOpen] = useState(false);
+  const [registering, setRegistering] = useState(false);
+  const [registerForm, setRegisterForm] = useState({ deviceNumber: "", customerDeviceId: "", serialNumber: "", siteAddress: "" });
 
   const loadDevices = async () => {
     try {
@@ -137,7 +142,8 @@ function AdminDevices() {
     setSending(true);
     try {
       await sendAshGridDeviceControl({
-        customerDeviceId: selectedDevice.id,
+        customerDeviceId: selectedDevice.customerDeviceId,
+        deviceNumber: selectedDevice.deviceNumber,
         control: controlIntent,
         reason: controlIntent === "off" ? "Authorized BuiltRight admin action" : "Payment cleared and activation authorized",
         confirmation: confirmationText,
@@ -151,11 +157,55 @@ function AdminDevices() {
     }
   };
 
+  const simulateTamper = async () => {
+    if (!selectedDevice.id) return;
+    setSimulating(true);
+    try {
+      await simulateAshGridEvent(selectedDevice.id, "BYPASS");
+      setMessage(`Test BYPASS/tamper event recorded for ${selectedDevice.deviceNumber}.`);
+      await loadDevices();
+    } catch (error) {
+      setMessage(error.message || "Could not record the test event.");
+    } finally {
+      setSimulating(false);
+    }
+  };
+
+  const registerDevice = async (event) => {
+    event.preventDefault();
+    if (!registerForm.deviceNumber.trim()) return;
+    setRegistering(true);
+    try {
+      const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
+      const response = await fetch(`${API_BASE_URL}/api/admin/devices`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          reference: registerForm.deviceNumber.trim().toUpperCase(),
+          providerDeviceId: registerForm.customerDeviceId.trim() || undefined,
+          customerDeviceId: registerForm.customerDeviceId.trim() || undefined,
+          serialNumber: registerForm.serialNumber.trim(),
+          site: { address: registerForm.siteAddress.trim() },
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.status) throw new Error(data.message || "Could not register device.");
+      setRegisterForm({ deviceNumber: "", customerDeviceId: "", serialNumber: "", siteAddress: "" });
+      setMessage(`Device ${registerForm.deviceNumber.toUpperCase()} was registered for the pilot.`);
+      setRegistering(false);
+      setRegisterModalOpen(false);
+      await loadDevices();
+    } catch (error) {
+      setMessage(error.message || "Could not register device.");
+      setRegistering(false);
+    }
+  };
+
   return (
     <AdminLayout
       title="Device control centre"
       subtitle="Assign multiple AshGridX devices to financed projects, monitor connectivity and tamper signals, and keep every control action auditable."
-      actions={<button type="button" className="ops-button primary"><FiCpu /> Add device assignment</button>}
+      actions={<button type="button" className="ops-button primary" onClick={() => setRegisterModalOpen(true)}><FiCpu /> Add device assignment</button>}
     >
       <section className="device-policy-banner">
         <FiShield />
@@ -205,7 +255,7 @@ function AdminDevices() {
           </div>
 
           {selectedDevice.tamper && (
-            <div className="tamper-incident"><FiAlertTriangle /><div><strong>Tamper signal requires investigation</strong><p>The pilot device is offline. Confirm whether this is a cable disconnection, maintenance event, power loss, or network outage.</p></div></div>
+            <div className="tamper-incident"><FiAlertTriangle /><div><strong>AshGridX BYPASS signal requires investigation</strong><p>A cable disconnection/protection bypass was reported for this device. Confirm the inverter and wiring at the assigned site.</p></div></div>
           )}
 
           <div className="device-detail-grid">
@@ -215,6 +265,7 @@ function AdminDevices() {
             <div><span>Installed</span><strong>{selectedDevice.installed}</strong></div>
             <div><span>Connectivity</span><strong className={selectedDevice.connectivity}>{selectedDevice.connectivity}</strong></div>
             <div><span>Last seen</span><strong>{selectedDevice.lastSeen}</strong></div>
+            <div><span>AshGridX customerDeviceId</span><strong>{selectedDevice.customerDeviceId || "Pending onboarding"}</strong></div>
           </div>
 
           <section className="device-payment-card">
@@ -230,9 +281,9 @@ function AdminDevices() {
           {!canDisable && selectedDevice.state !== "off" && <p className="device-control-lock"><FiShield /> {disableReason}</p>}
 
           <section className="device-audit-preview">
-            <div className="device-audit-head"><p>Recent device activity</p><button type="button">Full audit log</button></div>
+            <div className="device-audit-head"><p>Recent device activity</p><button type="button" onClick={simulateTamper} disabled={!selectedDevice.id || simulating}>{simulating ? "Recording..." : "Test tamper event"}</button></div>
             <div><span className="success"><FiCheckCircle /></span><p><strong>Device state checked</strong><small>System reported {selectedDevice.state} - {selectedDevice.lastSeen}</small></p></div>
-            {selectedDevice.tamper && <div><span className="danger"><FiAlertTriangle /></span><p><strong>Possible tamper event</strong><small>Awaiting verified AshGridX event definition</small></p></div>}
+            {selectedDevice.tamper && <div><span className="danger"><FiAlertTriangle /></span><p><strong>AshGridX BYPASS / cable disconnection</strong><small>Provider tamper event recorded; investigate the assigned site.</small></p></div>}
             <div><span><FiClock /></span><p><strong>Assignment reviewed</strong><small>BuiltRight operations - 11 Aug 2026</small></p></div>
           </section>
         </aside>
@@ -256,6 +307,23 @@ function AdminDevices() {
               <button type="button" className={controlIntent === "off" ? "ops-button danger" : "ops-button primary"} disabled={!providerState.ashGridX.configured || sending || confirmationText !== selectedDevice.id} onClick={submitControl}>{sending ? "Sending..." : providerState.ashGridX.configured ? `Confirm ${controlIntent}` : "Connection required"}</button>
             </div>
           </div>
+        </div>
+      )}
+
+      {registerModalOpen && (
+        <div className="device-modal-layer" onMouseDown={(event) => { if (event.target === event.currentTarget) setRegisterModalOpen(false); }}>
+          <form className="device-control-modal" onSubmit={registerDevice}>
+            <button type="button" className="modal-close" onClick={() => setRegisterModalOpen(false)} aria-label="Close"><FiX /></button>
+            <span className="control-modal-icon on"><FiCpu /></span>
+            <p className="ops-section-kicker">Pilot onboarding</p>
+            <h2>Register AshGridX device</h2>
+            <p>Use the BuiltRight deviceNumber on every webhook and add the AshGridX customerDeviceId when it is issued during onboarding.</p>
+            <label className="device-command-confirmation">BuiltRight deviceNumber<input required value={registerForm.deviceNumber} onChange={(event) => setRegisterForm({ ...registerForm, deviceNumber: event.target.value })} placeholder="BR-ASH-001" /></label>
+            <label className="device-command-confirmation">AshGridX customerDeviceId<input value={registerForm.customerDeviceId} onChange={(event) => setRegisterForm({ ...registerForm, customerDeviceId: event.target.value })} placeholder="Issued by AshGridX" /></label>
+            <label className="device-command-confirmation">Serial number<input value={registerForm.serialNumber} onChange={(event) => setRegisterForm({ ...registerForm, serialNumber: event.target.value })} /></label>
+            <label className="device-command-confirmation">Installation site<input value={registerForm.siteAddress} onChange={(event) => setRegisterForm({ ...registerForm, siteAddress: event.target.value })} placeholder="Customer property address" /></label>
+            <div className="device-modal-actions"><button type="button" className="ops-button secondary" onClick={() => setRegisterModalOpen(false)}>Cancel</button><button type="submit" className="ops-button primary" disabled={registering}>{registering ? "Registering..." : "Register device"}</button></div>
+          </form>
         </div>
       )}
     </AdminLayout>

@@ -40,6 +40,11 @@ import LearnerLogin from "./pages/LearnerLogin/LearnerLogin";
 import LearnerActivate from "./pages/LearnerActivate/LearnerActivate";
 import LearnerPortal from "./pages/LearnerPortal/LearnerPortal";
 import LearnerLiveClass from "./pages/LearnerLiveClass/LearnerLiveClass";
+import AdminAccountant from "./pages/Accounting/AdminAccountant";
+import AccountantLogin from "./pages/Accounting/AccountantLogin";
+import AccountantActivate from "./pages/Accounting/AccountantActivate";
+import AccountingPortal from "./pages/Accounting/AccountingPortal";
+import ProtectedAccountantRoute from "./components/ProtectedAccountantRoute/ProtectedAccountantRoute";
 
 // Customer Pages
 import CustomerDashboard from "./pages/CustomerDashboard/CustomerDashboard";
@@ -75,7 +80,7 @@ function App() {
 function AppContent() {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith("/admin");
-  const isPortalPage = isAdminPage || location.pathname.startsWith("/installer") || location.pathname.startsWith("/learner");
+  const isPortalPage = isAdminPage || location.pathname.startsWith("/installer") || location.pathname.startsWith("/learner") || location.pathname.startsWith("/accounting");
 
   const [isCartOpen, setIsCartOpen] = useState(false);
 
@@ -209,6 +214,10 @@ function AppContent() {
         <Route path="/learner/activate" element={<LearnerActivate />} />
         <Route path="/learner/portal" element={<ProtectedLearnerRoute><LearnerPortal /></ProtectedLearnerRoute>} />
         <Route path="/learner/live-class" element={<ProtectedLearnerRoute><LearnerLiveClass /></ProtectedLearnerRoute>} />
+        <Route path="/accounting/login" element={<AccountantLogin />} />
+        <Route path="/accounting/activate" element={<AccountantActivate />} />
+        <Route path="/accounting/dashboard" element={<ProtectedAccountantRoute><AccountingPortal /></ProtectedAccountantRoute>} />
+        <Route path="/admin/accountant" element={<ProtectedAdminRoute><AdminAccountant /></ProtectedAdminRoute>} />
 
         <Route
           path="/admin/dashboard"

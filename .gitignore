@@ -1,5 +1,6 @@
 node_modules/
 server/
+tmp/backend-learner-deploy/
 dist/
 .env
 
