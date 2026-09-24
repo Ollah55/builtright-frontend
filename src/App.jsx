@@ -43,6 +43,7 @@ import LearnerLiveClass from "./pages/LearnerLiveClass/LearnerLiveClass";
 import AdminAccountant from "./pages/Accounting/AdminAccountant";
 import AccountantLogin from "./pages/Accounting/AccountantLogin";
 import AccountantActivate from "./pages/Accounting/AccountantActivate";
+import AccountantResetPassword from "./pages/Accounting/AccountantResetPassword";
 import AccountingPortal from "./pages/Accounting/AccountingPortal";
 import ProtectedAccountantRoute from "./components/ProtectedAccountantRoute/ProtectedAccountantRoute";
 
@@ -216,6 +217,7 @@ function AppContent() {
         <Route path="/learner/live-class" element={<ProtectedLearnerRoute><LearnerLiveClass /></ProtectedLearnerRoute>} />
         <Route path="/accounting/login" element={<AccountantLogin />} />
         <Route path="/accounting/activate" element={<AccountantActivate />} />
+        <Route path="/accounting/reset-password" element={<AccountantResetPassword />} />
         <Route path="/accounting/dashboard" element={<ProtectedAccountantRoute><AccountingPortal /></ProtectedAccountantRoute>} />
         <Route path="/admin/accountant" element={<ProtectedAdminRoute><AdminAccountant /></ProtectedAdminRoute>} />
 

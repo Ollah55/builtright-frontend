@@ -1,0 +1,21 @@
+.acct-password-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.acct-access .acct-password-toggle {
+  min-width: 68px;
+  padding: 8px 12px;
+  border: 1px solid #159284;
+  background: #fff;
+  color: #126f66;
+}
+
+.acct-help {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #f1f8f6;
+  color: #526b66;
+  font-size: 13px;
+}
