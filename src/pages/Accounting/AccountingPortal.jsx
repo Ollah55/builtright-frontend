@@ -512,25 +512,6 @@ export default function AccountingPortal() {
       setBusy(false);
     }
   };
-  const reverseJournal = async (journal) => {
-    const date = window.prompt(
-      `Reversal date for ${journal.reference} (YYYY-MM-DD):`,
-    );
-    if (!date) return;
-    setBusy(true);
-    try {
-      await accountingApi(`/accounting/journals/${journal._id}/reverse`, {
-        method: "POST",
-        body: { date },
-      });
-      setMessage("Reversal posted. Original entry remains in the audit trail.");
-      await refresh();
-    } catch (error) {
-      handleError(error);
-    } finally {
-      setBusy(false);
-    }
-  };
   const applyFilters = async (event) => {
     event.preventDefault();
     setBusy(true);
@@ -1663,15 +1644,7 @@ export default function AccountingPortal() {
                                   type="button"
                                   onClick={() => correctJournal(journal)}
                                 >
-                                  Correct
-                                </button>
-                                <button
-                                  type="button"
-                                  className="acct-outline"
-                                  disabled={busy}
-                                  onClick={() => reverseJournal(journal)}
-                                >
-                                  Reverse
+                                  Edit / correct
                                 </button>
                               </>
                             )
@@ -1688,8 +1661,10 @@ export default function AccountingPortal() {
                 </table>
               </div>
               <p className="acct-note">
-                Showing the latest 500 entries. Corrections preserve the
-                original posted entry for a complete audit trail.
+                Showing the latest 500 entries. Posted journals cannot be
+                cancelled from this screen. Edit / correct preserves the
+                original entry, records the required accounting reversal and
+                posts the replacement for a complete audit trail.
               </p>
             </section>
           </>
