@@ -35,6 +35,13 @@ const emptyAsset = () => ({
   status: "active",
   notes: "",
 });
+const emptyBalanceControl = () => ({
+  account: "",
+  openingBalance: "",
+  offsetAccount: "",
+  actualClosingBalance: "",
+  actualClosingAsOf: "",
+});
 const types = ["asset", "liability", "equity", "revenue", "expense"];
 const assetCategories = [
   "Unassigned",
@@ -50,6 +57,7 @@ const headings = {
   overview: "Overview",
   accounts: "Chart of accounts",
   assets: "Fixed assets",
+  balances: "Opening & closing balances",
   journals: "Journal",
   ledger: "General ledger",
   reports: "Financial statements",
@@ -200,6 +208,7 @@ export default function AccountingPortal() {
   const [startDate, setStartDate] = useState("");
   const [accounts, setAccounts] = useState([]);
   const [assets, setAssets] = useState([]);
+  const [balanceControls, setBalanceControls] = useState([]);
   const [journals, setJournals] = useState([]);
   const [reports, setReports] = useState(null);
   const [ledger, setLedger] = useState(null);
@@ -213,6 +222,7 @@ export default function AccountingPortal() {
     description: "",
   });
   const [assetForm, setAssetForm] = useState(emptyAsset);
+  const [balanceForm, setBalanceForm] = useState(emptyBalanceControl);
   const [editingAssetId, setEditingAssetId] = useState("");
   const [journalForm, setJournalForm] = useState(emptyJournal);
   const [editingId, setEditingId] = useState("");
@@ -232,10 +242,11 @@ export default function AccountingPortal() {
   );
   const load = useCallback(async () => {
     try {
-      const [me, chart, register, entries, report] = await Promise.all([
+      const [me, chart, register, balances, entries, report] = await Promise.all([
         accountingApi("/accounting/me"),
         accountingApi("/accounting/accounts"),
         accountingApi("/accounting/assets"),
+        accountingApi("/accounting/balance-controls"),
         accountingApi("/accounting/journals"),
         accountingApi("/accounting/reports"),
       ]);
@@ -243,6 +254,7 @@ export default function AccountingPortal() {
       setStartDate(me.startDate || "");
       setAccounts(chart.accounts);
       setAssets(register.assets);
+      setBalanceControls(balances.controls || []);
       setJournals(entries.journals);
       setReports(report);
     } catch (error) {
@@ -309,6 +321,46 @@ export default function AccountingPortal() {
         method: "PATCH",
         body: { isActive: !account.isActive },
       });
+      await refresh();
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const selectBalanceAccount = (accountId) => {
+    const control = balanceControls.find(
+      (item) => String(item.account?._id) === accountId,
+    );
+    setBalanceForm({
+      account: accountId,
+      openingBalance:
+        control?.openingBalanceKobo === null ||
+        control?.openingBalanceKobo === undefined
+          ? ""
+          : plainNaira(control.openingBalanceKobo),
+      offsetAccount: control?.offsetAccount?._id || "",
+      actualClosingBalance:
+        control?.actualClosingBalanceKobo === null ||
+        control?.actualClosingBalanceKobo === undefined
+          ? ""
+          : plainNaira(control.actualClosingBalanceKobo),
+      actualClosingAsOf: control?.actualClosingAsOf
+        ? new Date(control.actualClosingAsOf).toISOString().slice(0, 10)
+        : "",
+    });
+  };
+  const saveBalanceControl = async (event) => {
+    event.preventDefault();
+    if (!balanceForm.account) return setMessage("Select an account.");
+    setBusy(true);
+    setMessage("");
+    try {
+      const data = await accountingApi(
+        `/accounting/balance-controls/${balanceForm.account}`,
+        { method: "PUT", body: balanceForm },
+      );
+      setMessage(data.message);
       await refresh();
     } catch (error) {
       handleError(error);
@@ -530,6 +582,30 @@ export default function AccountingPortal() {
     () => assets.filter((item) => item.status === "active").length,
     [assets],
   );
+  const balanceSheetAccounts = useMemo(
+    () =>
+      accounts.filter(
+        (account) =>
+          account.isActive && !["revenue", "expense"].includes(account.type),
+      ),
+    [accounts],
+  );
+  const selectedBalanceControl = balanceControls.find(
+    (control) => String(control.account?._id) === balanceForm.account,
+  );
+  const selectedBalanceAccount = accounts.find(
+    (account) => String(account._id) === balanceForm.account,
+  );
+  const latestBookBalance = selectedBalanceControl
+    ? selectedBalanceControl.bookClosingKobo
+    : reports?.accountBalances?.find(
+        (row) => row.code === selectedBalanceAccount?.code,
+      )?.balanceKobo || 0;
+  const closingVarianceKobo =
+    selectedBalanceControl?.actualClosingBalanceKobo === null ||
+    selectedBalanceControl?.actualClosingBalanceKobo === undefined
+      ? null
+      : selectedBalanceControl.actualClosingBalanceKobo - latestBookBalance;
   const reportSubtitle = `Company-wide • ${reports?.from || startDate || "inception"} to ${reports?.to || "latest posted entry"} • NGN`;
   const statementDate = `As of ${filters.asOf || "latest posted entry"} • NGN`;
   const statementRows = (rows) =>
@@ -819,6 +895,231 @@ export default function AccountingPortal() {
                       <tr>
                         <td colSpan="6">
                           No accounts yet. Add your first account above.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </>
+        )}
+        {tab === "balances" && (
+          <>
+            <section className="acct-panel">
+              <h2>Management opening and statement closing balances</h2>
+              <p>
+                Enter the confirmed opening balance when management provides
+                it. The system posts a balanced opening entry dated 31 August
+                2026 and recalculates the ledger and financial statements.
+              </p>
+              <p className="acct-note">
+                The ₦5,073,700 received for Mr Ajose&apos;s solar project remains
+                recorded as a customer advance. It is a project transaction,
+                not BuiltRight&apos;s management-confirmed opening balance.
+              </p>
+              <form onSubmit={saveBalanceControl}>
+                <div className="acct-inline-form">
+                  <label>
+                    Account
+                    <select
+                      value={balanceForm.account}
+                      onChange={(event) =>
+                        selectBalanceAccount(event.target.value)
+                      }
+                      required
+                    >
+                      <option value="">Select account</option>
+                      {balanceSheetAccounts.map((account) => (
+                        <option key={account._id} value={account._id}>
+                          {account.code} · {account.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    Confirmed opening balance (₦)
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={balanceForm.openingBalance}
+                      onChange={(event) =>
+                        setBalanceForm({
+                          ...balanceForm,
+                          openingBalance: event.target.value,
+                        })
+                      }
+                      placeholder="Awaiting management figure"
+                    />
+                  </label>
+                  <label>
+                    Balancing account
+                    <select
+                      value={balanceForm.offsetAccount}
+                      onChange={(event) =>
+                        setBalanceForm({
+                          ...balanceForm,
+                          offsetAccount: event.target.value,
+                        })
+                      }
+                      required={Number(balanceForm.openingBalance) > 0}
+                    >
+                      <option value="">Select balancing account</option>
+                      {balanceSheetAccounts
+                        .filter(
+                          (account) =>
+                            String(account._id) !== balanceForm.account,
+                        )
+                        .map((account) => (
+                          <option key={account._id} value={account._id}>
+                            {account.code} · {account.name}
+                          </option>
+                        ))}
+                    </select>
+                  </label>
+                </div>
+                <div className="acct-inline-form">
+                  <label>
+                    Actual closing balance (₦)
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={balanceForm.actualClosingBalance}
+                      onChange={(event) =>
+                        setBalanceForm({
+                          ...balanceForm,
+                          actualClosingBalance: event.target.value,
+                        })
+                      }
+                      placeholder="Optional statement figure"
+                    />
+                  </label>
+                  <label>
+                    Closing balance as at
+                    <input
+                      type="date"
+                      value={balanceForm.actualClosingAsOf}
+                      onChange={(event) =>
+                        setBalanceForm({
+                          ...balanceForm,
+                          actualClosingAsOf: event.target.value,
+                        })
+                      }
+                      required={balanceForm.actualClosingBalance !== ""}
+                    />
+                  </label>
+                </div>
+                <div className="acct-form-actions">
+                  <button disabled={busy || !balanceForm.account}>
+                    {busy ? "Saving…" : "Save balances"}
+                  </button>
+                </div>
+              </form>
+              <p className="acct-note">
+                Leave the opening field blank until management confirms it.
+                Clearing a previously saved opening figure reverses that entry
+                while retaining the audit trail. The actual closing figure is
+                used for reconciliation; the book closing balance is always
+                calculated from posted entries.
+              </p>
+            </section>
+
+            {balanceForm.account && (
+              <div className="acct-stats">
+                <article>
+                  <span>Opening balance</span>
+                  <strong>
+                    {selectedBalanceControl?.openingBalanceKobo == null
+                      ? "Awaiting figure"
+                      : naira(selectedBalanceControl.openingBalanceKobo)}
+                  </strong>
+                </article>
+                <article>
+                  <span>Book closing balance</span>
+                  <strong>{naira(latestBookBalance)}</strong>
+                </article>
+                <article>
+                  <span>Actual closing balance</span>
+                  <strong>
+                    {selectedBalanceControl?.actualClosingBalanceKobo == null
+                      ? "Not entered"
+                      : naira(
+                          selectedBalanceControl.actualClosingBalanceKobo,
+                        )}
+                  </strong>
+                </article>
+                <article>
+                  <span>Reconciliation difference</span>
+                  <strong>
+                    {closingVarianceKobo === null
+                      ? "Not available"
+                      : naira(closingVarianceKobo)}
+                  </strong>
+                </article>
+              </div>
+            )}
+
+            <section className="acct-panel">
+              <h2>Saved balance controls</h2>
+              <div className="acct-table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Account</th>
+                      <th>Opening</th>
+                      <th>Balancing account</th>
+                      <th>Actual closing</th>
+                      <th>As at</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {balanceControls.map((control) => (
+                      <tr key={control._id}>
+                        <td>
+                          {control.account?.code} · {control.account?.name}
+                        </td>
+                        <td>
+                          {control.openingBalanceKobo == null
+                            ? "Awaiting figure"
+                            : naira(control.openingBalanceKobo)}
+                        </td>
+                        <td>
+                          {control.offsetAccount
+                            ? `${control.offsetAccount.code} · ${control.offsetAccount.name}`
+                            : "—"}
+                        </td>
+                        <td>
+                          {control.actualClosingBalanceKobo == null
+                            ? "—"
+                            : naira(control.actualClosingBalanceKobo)}
+                        </td>
+                        <td>
+                          {control.actualClosingAsOf
+                            ? new Date(control.actualClosingAsOf)
+                                .toISOString()
+                                .slice(0, 10)
+                            : "—"}
+                        </td>
+                        <td>
+                          <button
+                            type="button"
+                            className="acct-text-button"
+                            onClick={() =>
+                              selectBalanceAccount(control.account?._id)
+                            }
+                          >
+                            Edit
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {!balanceControls.length && (
+                      <tr>
+                        <td colSpan="6">
+                          No management balance figures have been entered.
                         </td>
                       </tr>
                     )}
