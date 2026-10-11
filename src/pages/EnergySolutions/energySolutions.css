@@ -1,12 +1,20 @@
 .energy-page {
   min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
   background: #fff;
   color: #222;
+  overflow-x: clip;
 }
 
 .container {
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.energy-page :where(.energy-trust-grid, .energy-offer-grid, .benefits-grid, .band-a-grid, .process-steps, .third-party-grid) > * {
+  min-width: 0;
 }
 
 /* HERO */
@@ -366,7 +374,7 @@
 
 /* CALCULATOR */
 .energy-calculator-section {
-  padding: 5rem 7%;
+  padding: 0;
   background: #fff;
 }
 
@@ -469,6 +477,11 @@
     padding-right: 5%;
   }
 
+  .energy-calculator-section {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
   .energy-hero {
     min-height: 72vh;
     padding-top: 5rem;
@@ -501,14 +514,25 @@
     padding: 1.5rem;
   }
 
+  .band-a-savings-box {
+    width: 100%;
+  }
+
   .third-party-actions {
     justify-content: center;
   }
 }
 
 @media (max-width: 480px) {
+  .energy-hero {
+    min-height: auto;
+    padding-top: 4.5rem;
+    padding-bottom: 3.5rem;
+  }
+
   .energy-hero h1 {
-    font-size: 2.25rem;
+    font-size: clamp(2rem, 10vw, 2.25rem);
+    overflow-wrap: anywhere;
   }
 
   .energy-hero p,
@@ -524,5 +548,15 @@
   .energy-trust-row span {
     width: 100%;
     text-align: center;
+  }
+
+  .energy-card,
+  .benefit-card,
+  .step,
+  .band-a-card,
+  .third-party-card,
+  .band-a-savings-box {
+    border-radius: 18px;
+    padding: 1.25rem;
   }
 }

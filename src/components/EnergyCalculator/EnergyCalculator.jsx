@@ -36,6 +36,12 @@ function getApplianceWatts(name) {
   return found ? found.watts : 0;
 }
 
+function toNumber(value) {
+  if (value === "" || value === null || value === undefined) return 0;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : 0;
+}
+
 function EnergyCalculator() {
   const [rows, setRows] = useState(defaultRows);
   const [batteryBackupHours, setBatteryBackupHours] = useState(8);
@@ -57,7 +63,8 @@ function EnergyCalculator() {
 
         return {
           ...row,
-          [field]: Number(value) || 0,
+          // Keep a cleared field empty while the customer is editing it.
+          [field]: value,
         };
       })
     );
@@ -76,11 +83,17 @@ function EnergyCalculator() {
 
   const results = useMemo(() => {
     const breakdown = rows.map((row) => {
-      const dailyWh = row.watts * row.quantity * row.hours;
-      const runningWatts = row.watts * row.quantity;
+      const watts = toNumber(row.watts);
+      const quantity = toNumber(row.quantity);
+      const hours = toNumber(row.hours);
+      const dailyWh = watts * quantity * hours;
+      const runningWatts = watts * quantity;
 
       return {
         ...row,
+        watts,
+        quantity,
+        hours,
         dailyWh,
         runningWatts,
       };
@@ -96,7 +109,7 @@ function EnergyCalculator() {
     const recommendedInverterWatts = roundUp(peakRunningWatts * 1.25, 500);
 
     const avgHourlyLoad = totalDailyWh / 24;
-    const requiredBatteryWh = avgHourlyLoad * batteryBackupHours;
+    const requiredBatteryWh = avgHourlyLoad * toNumber(batteryBackupHours);
     const adjustedBatteryWh = requiredBatteryWh / 0.8;
     const batteryAh48V = adjustedBatteryWh / 48;
 
@@ -170,7 +183,7 @@ function EnergyCalculator() {
               <tbody>
                 {rows.map((row, index) => (
                   <tr key={index}>
-                    <td>
+                    <td data-label="Appliance">
                       <select
                         value={row.appliance}
                         onChange={(e) =>
@@ -185,43 +198,51 @@ function EnergyCalculator() {
                       </select>
                     </td>
 
-                    <td>
+                    <td data-label="Watts">
                       <input
                         type="number"
                         min="1"
                         value={row.watts}
+                        inputMode="decimal"
+                        onFocus={(e) => e.target.select()}
                         onChange={(e) =>
                           updateRow(index, "watts", e.target.value)
                         }
                       />
                     </td>
 
-                    <td>
+                    <td data-label="Quantity">
                       <input
                         type="number"
                         min="0"
                         value={row.quantity}
+                        inputMode="numeric"
+                        onFocus={(e) => e.target.select()}
                         onChange={(e) =>
                           updateRow(index, "quantity", e.target.value)
                         }
                       />
                     </td>
 
-                    <td>
+                    <td data-label="Hours / Day">
                       <input
                         type="number"
                         min="0"
                         step="0.5"
                         value={row.hours}
+                        inputMode="decimal"
+                        onFocus={(e) => e.target.select()}
                         onChange={(e) =>
                           updateRow(index, "hours", e.target.value)
                         }
                       />
                     </td>
 
-                    <td>{row.watts * row.quantity * row.hours} Wh</td>
+                    <td data-label="Daily Use">
+                      {toNumber(row.watts) * toNumber(row.quantity) * toNumber(row.hours)} Wh
+                    </td>
 
-                    <td>
+                    <td data-label="Action">
                       <button
                         type="button"
                         className="remove-row-btn"
@@ -279,9 +300,9 @@ function EnergyCalculator() {
                 type="number"
                 min="1"
                 value={batteryBackupHours}
-                onChange={(e) =>
-                  setBatteryBackupHours(Number(e.target.value) || 1)
-                }
+                inputMode="decimal"
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => setBatteryBackupHours(e.target.value)}
               />
             </div>
           </div>
@@ -312,7 +333,9 @@ function EnergyCalculator() {
             <p className="result-value">
               {Math.ceil(results.batteryAh48V)} Ah @ 48V
             </p>
-            <span>Estimated for about {batteryBackupHours} hours backup</span>
+            <span>
+              Estimated for about {toNumber(batteryBackupHours)} hours backup
+            </span>
           </div>
 
           <div className="result-card">
