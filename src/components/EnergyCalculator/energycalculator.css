@@ -231,6 +231,23 @@
   line-height: 1.75;
   margin: 0;
 }
+
+.calculator-note strong {
+  display: block;
+  color: #222;
+  margin-bottom: 0.65rem;
+}
+
+.calculator-note ul {
+  margin: 0 0 0.9rem;
+  padding-left: 1.2rem;
+  color: #666;
+}
+
+.calculator-note li {
+  margin-bottom: 0.4rem;
+  line-height: 1.65;
+}
 .calculator-whatsapp {
   max-width: 1300px;
   margin: 1.2rem auto 0;

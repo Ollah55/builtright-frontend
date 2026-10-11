@@ -2,24 +2,33 @@ import React, { useMemo, useState } from "react";
 import "./energycalculator.css";
 
 const applianceOptions = [
-  { name: "LED Bulb", watts: 10 },
-  { name: "Ceiling Fan", watts: 75 },
-  { name: "Television", watts: 120 },
-  { name: "Decoder", watts: 25 },
-  { name: "Laptop", watts: 65 },
-  { name: "Desktop Computer", watts: 200 },
-  { name: "Refrigerator", watts: 150 },
-  { name: "Deep Freezer", watts: 250 },
-  { name: "Air Conditioner (1HP)", watts: 900 },
-  { name: "Air Conditioner (1.5HP)", watts: 1200 },
-  { name: "Microwave", watts: 1200 },
-  { name: "Blender", watts: 300 },
-  { name: "Washing Machine", watts: 500 },
-  { name: "Water Pump", watts: 750 },
-  { name: "Iron", watts: 1000 },
-  { name: "Phone Charger", watts: 10 },
-  { name: "Router", watts: 15 },
+  { name: "LED Bulb", watts: 10, surge: 1 },
+  { name: "Ceiling Fan", watts: 75, surge: 2 },
+  { name: "Television", watts: 120, surge: 1.2 },
+  { name: "Decoder", watts: 25, surge: 1 },
+  { name: "Laptop", watts: 65, surge: 1.2 },
+  { name: "Desktop Computer", watts: 200, surge: 1.5 },
+  { name: "Refrigerator", watts: 150, surge: 3 },
+  { name: "Deep Freezer", watts: 250, surge: 3 },
+  { name: "Air Conditioner (1HP)", watts: 900, surge: 3 },
+  { name: "Air Conditioner (1.5HP)", watts: 1200, surge: 3 },
+  { name: "Microwave", watts: 1200, surge: 1.2 },
+  { name: "Blender", watts: 300, surge: 2 },
+  { name: "Washing Machine", watts: 500, surge: 2.5 },
+  { name: "Water Pump", watts: 750, surge: 3 },
+  { name: "Iron", watts: 1000, surge: 1 },
+  { name: "Phone Charger", watts: 10, surge: 1 },
+  { name: "Router", watts: 15, surge: 1 },
 ];
+
+const sizingAssumptions = {
+  powerFactor: 0.8,
+  inverterHeadroom: 1.25,
+  usableBatteryFraction: 0.8,
+  inverterEfficiency: 0.9,
+  peakSunHours: 5,
+  solarSystemEfficiency: 0.75,
+};
 
 const defaultRows = [
   { appliance: "LED Bulb", watts: 10, quantity: 6, hours: 6 },
@@ -34,6 +43,11 @@ function roundUp(value, step) {
 function getApplianceWatts(name) {
   const found = applianceOptions.find((item) => item.name === name);
   return found ? found.watts : 0;
+}
+
+function getApplianceSurge(name) {
+  const found = applianceOptions.find((item) => item.name === name);
+  return found ? found.surge : 1;
 }
 
 function toNumber(value) {
@@ -88,6 +102,7 @@ function EnergyCalculator() {
       const hours = toNumber(row.hours);
       const dailyWh = watts * quantity * hours;
       const runningWatts = watts * quantity;
+      const surgeWatts = runningWatts * getApplianceSurge(row.appliance);
 
       return {
         ...row,
@@ -96,6 +111,7 @@ function EnergyCalculator() {
         hours,
         dailyWh,
         runningWatts,
+        surgeWatts,
       };
     });
 
@@ -106,25 +122,53 @@ function EnergyCalculator() {
       0
     );
 
-    const recommendedInverterWatts = roundUp(peakRunningWatts * 1.25, 500);
+    const largestStartupAddition = breakdown.reduce(
+      (largest, item) =>
+        Math.max(largest, Math.max(0, item.surgeWatts - item.runningWatts)),
+      0
+    );
+    const estimatedStartupWatts = peakRunningWatts + largestStartupAddition;
+    const inverterSizingWatts = Math.max(
+      peakRunningWatts * sizingAssumptions.inverterHeadroom,
+      estimatedStartupWatts
+    );
+    const recommendedInverterKVA =
+      roundUp(
+        inverterSizingWatts / sizingAssumptions.powerFactor,
+        500
+      ) / 1000;
 
-    const avgHourlyLoad = totalDailyWh / 24;
-    const requiredBatteryWh = avgHourlyLoad * toNumber(batteryBackupHours);
-    const adjustedBatteryWh = requiredBatteryWh / 0.8;
-    const batteryAh48V = adjustedBatteryWh / 48;
+    const requestedBackupHours = Math.min(
+      Math.max(toNumber(batteryBackupHours), 0),
+      24
+    );
+    const backupEnergyWh = breakdown.reduce(
+      (sum, item) =>
+        sum + item.runningWatts * Math.min(item.hours, requestedBackupHours),
+      0
+    );
+    const nominalBatteryKWh =
+      backupEnergyWh /
+      1000 /
+      sizingAssumptions.usableBatteryFraction /
+      sizingAssumptions.inverterEfficiency;
+    const recommendedBatteryKWh = roundUp(nominalBatteryKWh, 0.5);
 
-    const sunlightHours = 5;
-    const solarRequiredWatts = (totalDailyWh / sunlightHours) / 0.75;
-    const recommendedSolarWatts = roundUp(solarRequiredWatts, 100);
+    const solarRequiredKWp =
+      totalDailyKWh /
+      sizingAssumptions.peakSunHours /
+      sizingAssumptions.solarSystemEfficiency;
+    const recommendedSolarKWp = roundUp(solarRequiredKWp, 0.1);
 
     return {
       breakdown,
       totalDailyWh,
       totalDailyKWh,
       peakRunningWatts,
-      recommendedInverterWatts,
-      batteryAh48V,
-      recommendedSolarWatts,
+      estimatedStartupWatts,
+      recommendedInverterKVA,
+      recommendedBatteryKWh,
+      recommendedSolarKWp,
     };
   }, [rows, batteryBackupHours]);
 
@@ -138,15 +182,15 @@ function EnergyCalculator() {
     `Location: ${userDetails.location || "Not provided"}`,
     "",
     "Estimated Load Summary:",
-    `Total Daily Consumption: ${results.totalDailyWh.toLocaleString()} Wh/day (${results.totalDailyKWh.toFixed(2)} kWh/day)`,
-    `Recommended Inverter: ${results.recommendedInverterWatts.toLocaleString()} W`,
-    `Suggested Battery Bank: ${Math.ceil(results.batteryAh48V)} Ah @ 48V`,
-    `Suggested Solar Panels: ${results.recommendedSolarWatts.toLocaleString()} W`,
+    `Total Daily Consumption: ${results.totalDailyKWh.toFixed(2)} kWh/day`,
+    `Recommended Inverter: ${results.recommendedInverterKVA.toFixed(1)} kVA`,
+    `Suggested Battery Storage: ${results.recommendedBatteryKWh.toFixed(1)} kWh`,
+    `Suggested Solar Array: ${results.recommendedSolarKWp.toFixed(1)} kWp`,
     "",
     "Appliance Breakdown:",
     ...results.breakdown.map(
       (item) =>
-        `- ${item.appliance}: ${item.quantity} x ${item.watts}W for ${item.hours} hrs/day = ${item.dailyWh.toLocaleString()} Wh/day`
+        `- ${item.appliance}: ${item.quantity} x ${item.watts}W for ${item.hours} hrs/day = ${(item.dailyWh / 1000).toFixed(2)} kWh/day`
     ),
   ].join("\n")
 );
@@ -176,7 +220,7 @@ function EnergyCalculator() {
                   <th>Watts</th>
                   <th>Qty</th>
                   <th>Hours/Day</th>
-                  <th>Daily Use (Wh)</th>
+                  <th>Daily Use (kWh)</th>
                   <th></th>
                 </tr>
               </thead>
@@ -239,7 +283,13 @@ function EnergyCalculator() {
                     </td>
 
                     <td data-label="Daily Use">
-                      {toNumber(row.watts) * toNumber(row.quantity) * toNumber(row.hours)} Wh
+                      {(
+                        (toNumber(row.watts) *
+                          toNumber(row.quantity) *
+                          toNumber(row.hours)) /
+                        1000
+                      ).toFixed(2)}{" "}
+                      kWh
                     </td>
 
                     <td data-label="Action">
@@ -299,6 +349,7 @@ function EnergyCalculator() {
                 id="backupHours"
                 type="number"
                 min="1"
+                max="24"
                 value={batteryBackupHours}
                 inputMode="decimal"
                 onFocus={(e) => e.target.select()}
@@ -312,26 +363,27 @@ function EnergyCalculator() {
           <div className="result-card highlight">
             <h3>Total Daily Consumption</h3>
             <p className="result-value">
-              {results.totalDailyWh.toLocaleString()} Wh/day
+              {results.totalDailyKWh.toFixed(2)} kWh/day
             </p>
-            <span>{results.totalDailyKWh.toFixed(2)} kWh/day</span>
+            <span>{results.totalDailyWh.toLocaleString()} Wh/day</span>
           </div>
 
           <div className="result-card">
             <h3>Recommended Inverter</h3>
             <p className="result-value">
-              {results.recommendedInverterWatts.toLocaleString()} W
+              {results.recommendedInverterKVA.toFixed(1)} kVA
             </p>
             <span>
-              Based on estimated running load of{" "}
-              {results.peakRunningWatts.toLocaleString()} W
+              Running load {(results.peakRunningWatts / 1000).toFixed(2)} kW;
+              estimated startup load{" "}
+              {(results.estimatedStartupWatts / 1000).toFixed(2)} kW
             </span>
           </div>
 
           <div className="result-card">
-            <h3>Suggested Battery Bank</h3>
+            <h3>Suggested Battery Storage</h3>
             <p className="result-value">
-              {Math.ceil(results.batteryAh48V)} Ah @ 48V
+              {results.recommendedBatteryKWh.toFixed(1)} kWh
             </p>
             <span>
               Estimated for about {toNumber(batteryBackupHours)} hours backup
@@ -339,11 +391,14 @@ function EnergyCalculator() {
           </div>
 
           <div className="result-card">
-            <h3>Suggested Solar Panels</h3>
+            <h3>Suggested Solar Array</h3>
             <p className="result-value">
-              {results.recommendedSolarWatts.toLocaleString()} W
+              {results.recommendedSolarKWp.toFixed(1)} kWp
             </p>
-            <span>Estimated using 5 peak sun hours and system losses</span>
+            <span>
+              Estimated using {sizingAssumptions.peakSunHours} peak sun hours
+              and a 25% system-loss allowance
+            </span>
           </div>
         </div>
       </div>
@@ -359,17 +414,30 @@ function EnergyCalculator() {
                   {item.quantity} × {item.watts}W for {item.hours} hrs/day
                 </p>
               </div>
-              <span>{item.dailyWh.toLocaleString()} Wh/day</span>
+              <span>{(item.dailyWh / 1000).toFixed(2)} kWh/day</span>
             </div>
           ))}
         </div>
       </div>
 
       <div className="calculator-note">
+        <strong>Planning assumptions</strong>
+        <ul>
+          <li>Inverter sizing includes headroom, power factor, and startup surge.</li>
+          <li>
+            Battery sizing uses each appliance&apos;s stated hours within the
+            selected backup window, 80% usable capacity, and 90% inverter
+            efficiency.
+          </li>
+          <li>
+            Solar sizing uses 5 peak sun hours and a 25% allowance for system
+            losses.
+          </li>
+        </ul>
         <p>
-          These figures are estimates for planning purposes. Final system sizing
-          may vary depending on surge loads, battery chemistry, location,
-          appliance efficiency, and installation conditions.
+          These figures are preliminary planning estimates. BuiltRight will
+          confirm the final design after inspection and a professional load
+          audit.
         </p>
       </div>
 
