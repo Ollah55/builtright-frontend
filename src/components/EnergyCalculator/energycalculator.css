@@ -176,6 +176,15 @@
   line-height: 1.6;
 }
 
+.panel-count-options {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.panel-count-options span {
+  display: block;
+}
+
 .consumption-breakdown {
   margin-top: 2rem;
 }

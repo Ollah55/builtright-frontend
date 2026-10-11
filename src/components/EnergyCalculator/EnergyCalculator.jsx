@@ -22,13 +22,28 @@ const applianceOptions = [
 ];
 
 const sizingAssumptions = {
-  powerFactor: 0.8,
   inverterHeadroom: 1.25,
   usableBatteryFraction: 0.8,
   inverterEfficiency: 0.9,
-  peakSunHours: 5,
-  solarSystemEfficiency: 0.75,
+  bestCaseSunHours: 5.5,
+  bestCaseSolarEfficiency: 0.8,
+  conservativeSunHours: 4.5,
+  conservativeSolarEfficiency: 0.75,
 };
+
+const inverterConfigurations = [
+  { capacityKW: 1.5, label: "Single 1.5 kW inverter" },
+  { capacityKW: 2.5, label: "Single 2.5 kW inverter" },
+  { capacityKW: 3.8, label: "Single 3.8 kW inverter" },
+  { capacityKW: 5, label: "Single 5 kW inverter" },
+  { capacityKW: 6, label: "Single 6 kW inverter" },
+  { capacityKW: 7.6, label: "Dual 3.8 kW inverters" },
+  { capacityKW: 8, label: "Single 8 kW inverter" },
+  { capacityKW: 10, label: "Dual 5 kW inverters" },
+  { capacityKW: 12, label: "Dual 6 kW inverters" },
+  { capacityKW: 15, label: "Three 5 kW inverters" },
+  { capacityKW: 20, label: "Dual 10 kW inverters" },
+];
 
 const defaultRows = [
   { appliance: "LED Bulb", watts: 10, quantity: 6, hours: 6 },
@@ -54,6 +69,38 @@ function toNumber(value) {
   if (value === "" || value === null || value === undefined) return 0;
   const number = Number(value);
   return Number.isFinite(number) ? number : 0;
+}
+
+function getInverterConfiguration(requiredKW) {
+  if (requiredKW <= 0) {
+    return { capacityKW: 0, label: "No inverter size yet" };
+  }
+
+  const standardConfiguration = inverterConfigurations.find(
+    (configuration) => configuration.capacityKW >= requiredKW
+  );
+
+  if (standardConfiguration) return standardConfiguration;
+
+  const units = Math.ceil(requiredKW / 10);
+  return {
+    capacityKW: units * 10,
+    label: `${units} × 10 kW inverters`,
+  };
+}
+
+function getPanelCountRange(minimumWatts, maximumWatts, panelWatts) {
+  if (maximumWatts <= 0) return "0";
+
+  const minimumPanels = Math.max(1, Math.round(minimumWatts / panelWatts));
+  const maximumPanels = Math.max(
+    minimumPanels,
+    Math.round(maximumWatts / panelWatts)
+  );
+
+  return minimumPanels === maximumPanels
+    ? `${minimumPanels}`
+    : `${minimumPanels}–${maximumPanels}`;
 }
 
 function EnergyCalculator() {
@@ -132,11 +179,8 @@ function EnergyCalculator() {
       peakRunningWatts * sizingAssumptions.inverterHeadroom,
       estimatedStartupWatts
     );
-    const recommendedInverterKVA =
-      roundUp(
-        inverterSizingWatts / sizingAssumptions.powerFactor,
-        500
-      ) / 1000;
+    const requiredInverterKW = inverterSizingWatts / 1000;
+    const inverterConfiguration = getInverterConfiguration(requiredInverterKW);
 
     const requestedBackupHours = Math.min(
       Math.max(toNumber(batteryBackupHours), 0),
@@ -154,11 +198,28 @@ function EnergyCalculator() {
       sizingAssumptions.inverterEfficiency;
     const recommendedBatteryKWh = roundUp(nominalBatteryKWh, 0.5);
 
-    const solarRequiredKWp =
-      totalDailyKWh /
-      sizingAssumptions.peakSunHours /
-      sizingAssumptions.solarSystemEfficiency;
-    const recommendedSolarKWp = roundUp(solarRequiredKWp, 0.1);
+    const solarArrayMinimumWatts = roundUp(
+      totalDailyWh /
+        sizingAssumptions.bestCaseSunHours /
+        sizingAssumptions.bestCaseSolarEfficiency,
+      100
+    );
+    const solarArrayMaximumWatts = roundUp(
+      totalDailyWh /
+        sizingAssumptions.conservativeSunHours /
+        sizingAssumptions.conservativeSolarEfficiency,
+      100
+    );
+    const panelsAt550W = getPanelCountRange(
+      solarArrayMinimumWatts,
+      solarArrayMaximumWatts,
+      550
+    );
+    const panelsAt400W = getPanelCountRange(
+      solarArrayMinimumWatts,
+      solarArrayMaximumWatts,
+      400
+    );
 
     return {
       breakdown,
@@ -166,9 +227,12 @@ function EnergyCalculator() {
       totalDailyKWh,
       peakRunningWatts,
       estimatedStartupWatts,
-      recommendedInverterKVA,
+      inverterConfiguration,
       recommendedBatteryKWh,
-      recommendedSolarKWp,
+      solarArrayMinimumWatts,
+      solarArrayMaximumWatts,
+      panelsAt550W,
+      panelsAt400W,
     };
   }, [rows, batteryBackupHours]);
 
@@ -183,9 +247,10 @@ function EnergyCalculator() {
     "",
     "Estimated Load Summary:",
     `Total Daily Consumption: ${results.totalDailyKWh.toFixed(2)} kWh/day`,
-    `Recommended Inverter: ${results.recommendedInverterKVA.toFixed(1)} kVA`,
+    `Recommended Inverter: ${results.inverterConfiguration.label} (${results.inverterConfiguration.capacityKW.toFixed(1)} kW total)`,
     `Suggested Battery Storage: ${results.recommendedBatteryKWh.toFixed(1)} kWh`,
-    `Suggested Solar Array: ${results.recommendedSolarKWp.toFixed(1)} kWp`,
+    `Suggested Solar Array: ${results.solarArrayMinimumWatts.toLocaleString()} W to ${results.solarArrayMaximumWatts.toLocaleString()} W`,
+    `Panel guide: about ${results.panelsAt550W} ${results.panelsAt550W === "1" ? "panel" : "panels"} at 550 W each, or ${results.panelsAt400W} ${results.panelsAt400W === "1" ? "panel" : "panels"} at 400 W each`,
     "",
     "Appliance Breakdown:",
     ...results.breakdown.map(
@@ -371,12 +436,13 @@ function EnergyCalculator() {
           <div className="result-card">
             <h3>Recommended Inverter</h3>
             <p className="result-value">
-              {results.recommendedInverterKVA.toFixed(1)} kVA
+              {results.inverterConfiguration.label}
             </p>
             <span>
-              Running load {(results.peakRunningWatts / 1000).toFixed(2)} kW;
-              estimated startup load{" "}
-              {(results.estimatedStartupWatts / 1000).toFixed(2)} kW
+              {results.inverterConfiguration.capacityKW.toFixed(1)} kW total
+              capacity for a {(results.peakRunningWatts / 1000).toFixed(2)} kW
+              running load and an estimated{" "}
+              {(results.estimatedStartupWatts / 1000).toFixed(2)} kW startup load
             </span>
           </div>
 
@@ -393,12 +459,21 @@ function EnergyCalculator() {
           <div className="result-card">
             <h3>Suggested Solar Array</h3>
             <p className="result-value">
-              {results.recommendedSolarKWp.toFixed(1)} kWp
+              {results.solarArrayMinimumWatts.toLocaleString()}–
+              {results.solarArrayMaximumWatts.toLocaleString()} W
             </p>
-            <span>
-              Estimated using {sizingAssumptions.peakSunHours} peak sun hours
-              and a 25% system-loss allowance
-            </span>
+            <div className="panel-count-options">
+              <span>
+                About {results.panelsAt550W}{" "}
+                {results.panelsAt550W === "1" ? "panel" : "panels"} at 550 W
+                each
+              </span>
+              <span>
+                Or about {results.panelsAt400W}{" "}
+                {results.panelsAt400W === "1" ? "panel" : "panels"} at 400 W
+                each
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -423,15 +498,18 @@ function EnergyCalculator() {
       <div className="calculator-note">
         <strong>Planning assumptions</strong>
         <ul>
-          <li>Inverter sizing includes headroom, power factor, and startup surge.</li>
+          <li>
+            Inverter sizing includes operating headroom and startup surge, then
+            selects a practical single or multi-inverter configuration.
+          </li>
           <li>
             Battery sizing uses each appliance&apos;s stated hours within the
             selected backup window, 80% usable capacity, and 90% inverter
             efficiency.
           </li>
           <li>
-            Solar sizing uses 5 peak sun hours and a 25% allowance for system
-            losses.
+            The panel range uses 4.5–5.5 peak sun hours and 75–80% overall
+            system efficiency. The panel quantities are approximate.
           </li>
         </ul>
         <p>
