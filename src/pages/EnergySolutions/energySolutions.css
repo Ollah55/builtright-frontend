@@ -372,12 +372,6 @@
   margin-bottom: 1rem;
 }
 
-/* CALCULATOR */
-.energy-calculator-section {
-  padding: 0;
-  background: #fff;
-}
-
 /* THIRD PARTY FINANCING */
 .third-party-financing {
   padding: 5rem 7%;
@@ -470,16 +464,10 @@
   .energy-benefits,
   .band-a-cost-section,
   .energy-process,
-  .energy-calculator-section,
   .third-party-financing,
   .energy-cta {
     padding-left: 5%;
     padding-right: 5%;
-  }
-
-  .energy-calculator-section {
-    padding-left: 0;
-    padding-right: 0;
   }
 
   .energy-hero {

@@ -1,7 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import EnergyCalculator from "../../components/EnergyCalculator/EnergyCalculator";
 import "./energySolutions.css";
 
 function EnergySolutions() {
@@ -266,11 +265,6 @@ function EnergySolutions() {
             <p>We support installation, setup, maintenance, and long-term reliability.</p>
           </div>
         </div>
-      </section>
-
-      {/* CALCULATOR */}
-      <section className="energy-calculator-section fade-in">
-        <EnergyCalculator />
       </section>
 
       {/* THIRD PARTY FINANCING */}

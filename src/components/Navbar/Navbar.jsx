@@ -50,6 +50,10 @@ function Navbar({ onOpenCart, cartCount = 0 }) {
             Energy Solutions
           </NavLink>
 
+          <NavLink to="/energy-calculator" onClick={closeMenu}>
+            Calculator
+          </NavLink>
+
           <NavLink to="/shop" onClick={closeMenu}>
             Shop
           </NavLink>

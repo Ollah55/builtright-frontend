@@ -21,6 +21,10 @@ const publicPages = {
     title: "Solar & Energy Solutions Nigeria | BuiltRight Energy",
     description: "Plan reliable solar power with BuiltRight energy audits, inverter systems, battery storage, solar installation, and maintenance support in Nigeria.",
   },
+  "/energy-calculator": {
+    title: "Solar Energy Calculator Nigeria | BuiltRight Energy",
+    description: "Estimate your daily electricity use and receive indicative inverter, battery and solar-panel recommendations with the BuiltRight Energy Calculator.",
+  },
   "/solar-installation-lagos": {
     title: "Solar Installation in Lagos | Inverter & Solar Systems | BuiltRight",
     description: "BuiltRight provides solar and inverter installation in Lagos for homes, businesses, schools, hotels, and facilities, starting with a site inspection and load audit.",

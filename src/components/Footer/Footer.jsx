@@ -26,6 +26,7 @@ function Footer() {
             <li><a href="/about">About</a></li>
             <li><a href="/services">Services</a></li>
             <li><a href="/energy">Energy Solutions</a></li>
+            <li><a href="/energy-calculator">Energy Calculator</a></li>
             <li><a href="/contact">Contact</a></li>
             <li><a href="/privacy-policy">Privacy Policy</a></li>
           </ul>

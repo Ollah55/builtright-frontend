@@ -1,0 +1,8 @@
+.energy-calculator-page {
+  min-height: 70vh;
+  background: #fafaf8;
+}
+
+.energy-calculator-page .energy-calculator {
+  border-top: 0;
+}
