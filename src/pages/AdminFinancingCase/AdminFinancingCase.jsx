@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   FiArrowLeft,
   FiCheck,
@@ -11,6 +11,7 @@ import {
   FiTrash2,
 } from "react-icons/fi";
 import AdminLayout from "../../components/AdminLayout/AdminLayout";
+import SalesLayout from "../../components/SalesLayout/SalesLayout";
 import {
   formatMoney,
   getFinancingStage,
@@ -19,6 +20,7 @@ import {
   statusTone,
 } from "../../lib/operations";
 import { downloadProjectDocument } from "../../lib/projectDocumentPdf";
+import { downloadAssessmentReport } from "../../lib/assessmentReportPdf";
 import { getFinancingPartner } from "../../lib/financingPartners";
 import "./adminFinancingCase.css";
 
@@ -110,6 +112,12 @@ function buildDefaultLineItems(financingCase) {
 function AdminFinancingCase() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isSalesPortal = location.pathname.startsWith("/sales/");
+  const Layout = isSalesPortal ? SalesLayout : AdminLayout;
+  const portalToken = isSalesPortal
+    ? localStorage.getItem("salesToken")
+    : (localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken"));
   const [financingCase, setFinancingCase] = useState(null);
   const [documents, setDocuments] = useState([]);
   const [activeTab, setActiveTab] = useState("assessment");
@@ -138,7 +146,7 @@ function AdminFinancingCase() {
   useEffect(() => {
     const loadWorkspace = async () => {
       try {
-        const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
+        const token = portalToken;
         const response = await fetch(`${API_BASE_URL}/api/loan-requests/${id}/workspace`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -179,7 +187,7 @@ function AdminFinancingCase() {
       }
     };
     loadWorkspace();
-  }, [id]);
+  }, [id, portalToken]);
 
   const latestQuotation = documents.find((document) => document.type === "quotation") || null;
   const assessmentPassed = financingCase?.assessment?.status === "passed" || assessment.status === "passed";
@@ -224,7 +232,7 @@ function AdminFinancingCase() {
         },
       };
 
-      const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
+      const token = portalToken;
       const response = await fetch(`${API_BASE_URL}/api/loan-requests/${id}/assessment`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -269,7 +277,7 @@ function AdminFinancingCase() {
         terms: quoteMeta.terms,
         notes: quoteMeta.notes,
       };
-      const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
+      const token = portalToken;
       const response = await fetch(`${API_BASE_URL}/api/loan-requests/${id}/quotation`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -292,7 +300,7 @@ function AdminFinancingCase() {
     setSaving(true);
     setMessage("");
     try {
-      const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
+      const token = portalToken;
       const response = await fetch(`${API_BASE_URL}/api/loan-requests/${id}/quotation/${latestQuotation._id}/send`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
@@ -313,7 +321,7 @@ function AdminFinancingCase() {
     setSaving(true);
     setMessage("");
     try {
-      const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
+      const token = portalToken;
       const response = await fetch(`${API_BASE_URL}/api/loan-requests/${id}/documents/${projectDocument._id}/send`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
@@ -330,14 +338,14 @@ function AdminFinancingCase() {
   };
 
   if (loading || !financingCase) {
-    return <AdminLayout title="Financing case" subtitle="Loading assessment and project documents..."><section className="ops-card financing-workspace-loading">Loading case workspace...</section></AdminLayout>;
+    return <Layout title="Financing case" subtitle="Loading assessment and project documents..."><section className="ops-card financing-workspace-loading">Loading case workspace...</section></Layout>;
   }
 
   return (
-    <AdminLayout
+    <Layout
       title={`${financingCase.reference} · ${financingCase.customer?.fullName}`}
       subtitle="Complete the pre-credit assessment, build the full project quotation, and send it to the customer for approval before bank handoff."
-      actions={<button className="ops-button secondary" type="button" onClick={() => navigate("/admin/loan-requests")}><FiArrowLeft /> Back to financing</button>}
+      actions={<><button className="ops-button secondary" type="button" onClick={() => downloadAssessmentReport(financingCase)}><FiDownload /> Combined report</button><button className="ops-button secondary" type="button" onClick={() => navigate(isSalesPortal ? "/sales/projects" : "/admin/loan-requests")}><FiArrowLeft /> Back to projects</button></>}
     >
       <section className="case-workspace-summary ops-card">
         <div><span>Current stage</span><strong className={`status-pill ${statusTone(financingCase.status)}`}>{getFinancingStage(financingCase.status).label}</strong></div>
@@ -461,7 +469,7 @@ function AdminFinancingCase() {
           ))}
         </section>
       )}
-    </AdminLayout>
+    </Layout>
   );
 }
 

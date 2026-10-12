@@ -30,6 +30,7 @@ const navGroups = [
       { to: "/admin/projects", label: "Projects", icon: FiTool },
       { to: "/admin/devices", label: "Devices", icon: FiCpu },
       { to: "/admin/installers", label: "Installers", icon: FiTool },
+      { to: "/admin/sales-team", label: "Sales team", icon: FiUsers },
       { to: "/admin/learners", label: "Training learners", icon: FiUsers },
     ],
   },

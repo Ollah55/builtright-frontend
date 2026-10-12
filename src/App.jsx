@@ -33,6 +33,7 @@ import AdminIntegrations from "./pages/AdminIntegrations/AdminIntegrations";
 import AdminInstallers from "./pages/AdminInstallers/AdminInstallers";
 import AdminTestCentre from "./pages/AdminTestCentre/AdminTestCentre";
 import AdminLearners from "./pages/AdminLearners/AdminLearners";
+import AdminSalesTeam from "./pages/AdminSalesTeam/AdminSalesTeam";
 import InstallerLogin from "./pages/InstallerLogin/InstallerLogin";
 import InstallerActivate from "./pages/InstallerActivate/InstallerActivate";
 import InstallerAssignments from "./pages/InstallerAssignments/InstallerAssignments";
@@ -46,6 +47,10 @@ import AccountantActivate from "./pages/Accounting/AccountantActivate";
 import AccountantResetPassword from "./pages/Accounting/AccountantResetPassword";
 import AccountingPortal from "./pages/Accounting/AccountingPortal";
 import ProtectedAccountantRoute from "./components/ProtectedAccountantRoute/ProtectedAccountantRoute";
+import SalesLogin from "./pages/SalesLogin/SalesLogin";
+import SalesActivate from "./pages/SalesActivate/SalesActivate";
+import SalesProjects from "./pages/SalesProjects/SalesProjects";
+import ProtectedSalesRoute from "./components/ProtectedSalesRoute/ProtectedSalesRoute";
 
 // Customer Pages
 import CustomerDashboard from "./pages/CustomerDashboard/CustomerDashboard";
@@ -81,7 +86,7 @@ function App() {
 function AppContent() {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith("/admin");
-  const isPortalPage = isAdminPage || location.pathname.startsWith("/installer") || location.pathname.startsWith("/learner") || location.pathname.startsWith("/accounting");
+  const isPortalPage = isAdminPage || location.pathname.startsWith("/installer") || location.pathname.startsWith("/learner") || location.pathname.startsWith("/accounting") || location.pathname.startsWith("/sales");
 
   const [isCartOpen, setIsCartOpen] = useState(false);
 
@@ -219,6 +224,10 @@ function AppContent() {
         <Route path="/accounting/activate" element={<AccountantActivate />} />
         <Route path="/accounting/reset-password" element={<AccountantResetPassword />} />
         <Route path="/accounting/dashboard" element={<ProtectedAccountantRoute><AccountingPortal /></ProtectedAccountantRoute>} />
+        <Route path="/sales/login" element={<SalesLogin />} />
+        <Route path="/sales/activate" element={<SalesActivate />} />
+        <Route path="/sales/projects" element={<ProtectedSalesRoute><SalesProjects /></ProtectedSalesRoute>} />
+        <Route path="/sales/projects/:id" element={<ProtectedSalesRoute><AdminFinancingCase /></ProtectedSalesRoute>} />
         <Route path="/admin/accountant" element={<ProtectedAdminRoute><AdminAccountant /></ProtectedAdminRoute>} />
 
         <Route
@@ -315,6 +324,10 @@ function AppContent() {
         <Route
           path="/admin/learners"
           element={<ProtectedAdminRoute><AdminLearners /></ProtectedAdminRoute>}
+        />
+        <Route
+          path="/admin/sales-team"
+          element={<ProtectedAdminRoute><AdminSalesTeam /></ProtectedAdminRoute>}
         />
       </Routes>
 
