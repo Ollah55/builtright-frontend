@@ -21,7 +21,7 @@
 .installer-customer-grid strong { font-size: .86rem; }
 .installer-response-grid, .installer-report { padding: 1.35rem; }
 .installer-response-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 16px; }
-.installer-response-grid section { display: grid; gap: .75rem; padding: 1rem; border: 1px solid #d9e9e5; border-radius: 14px; background: #fafffd; }
+.installer-response-grid section, .installer-response-grid form { display: grid; gap: .75rem; padding: 1rem; border: 1px solid #d9e9e5; border-radius: 14px; background: #fafffd; }
 .installer-payment-status { display: grid; gap: .7rem; margin: 0 1.35rem; padding: 1rem; border: 1px solid #cbe7e0; border-radius: 14px; background: #effaf7; }
 .installer-payment-status h3 { margin: 0; color: #1d413a; }
 .installer-payment-status p { margin: 0; color: #58716b; font-size: .8rem; line-height: 1.5; }
