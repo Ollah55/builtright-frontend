@@ -3,6 +3,198 @@
   background: #fafaf8;
 }
 
+.equipment-price-guide {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: clamp(3.5rem, 7vw, 6.5rem) 0 1.5rem;
+}
+
+.equipment-price-guide__intro {
+  max-width: 820px;
+  margin-bottom: 3rem;
+}
+
+.equipment-price-guide__eyebrow,
+.equipment-price-group__heading span {
+  display: inline-block;
+  color: #159284;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.equipment-price-guide__intro h1 {
+  max-width: 760px;
+  margin: 0.7rem 0 1rem;
+  color: #17221f;
+  font-size: clamp(2.1rem, 5vw, 4rem);
+  line-height: 1.08;
+}
+
+.equipment-price-guide__intro p {
+  max-width: 760px;
+  margin: 0;
+  color: #56615e;
+  font-size: 1.03rem;
+  line-height: 1.75;
+}
+
+.equipment-price-guide__jump {
+  display: inline-flex;
+  margin-top: 1.4rem;
+  padding: 0.9rem 1.25rem;
+  border-radius: 10px;
+  background: #b32127;
+  color: #fff;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 10px 24px rgba(179, 33, 39, 0.18);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.equipment-price-guide__jump:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 13px 28px rgba(179, 33, 39, 0.24);
+}
+
+.equipment-price-group {
+  margin-bottom: 3rem;
+}
+
+.equipment-price-group__heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.equipment-price-group__heading h2 {
+  margin: 0.35rem 0 0;
+  color: #17221f;
+  font-size: clamp(1.55rem, 3vw, 2.25rem);
+}
+
+.equipment-price-group__heading p {
+  margin: 0;
+  color: #6a7471;
+}
+
+.equipment-price-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.equipment-price-grid--batteries {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.equipment-price-card {
+  display: flex;
+  min-height: 235px;
+  flex-direction: column;
+  padding: 1.35rem;
+  border: 1px solid rgba(21, 146, 132, 0.16);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(31, 55, 49, 0.07);
+}
+
+.equipment-price-card--battery {
+  min-height: 220px;
+}
+
+.equipment-price-card__type {
+  align-self: flex-start;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(21, 146, 132, 0.1);
+  color: #11786c;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.equipment-price-card h3 {
+  margin: 1rem 0 0.45rem;
+  color: #17221f;
+  font-size: 1.32rem;
+}
+
+.equipment-price-card p {
+  margin: 0 0 1.3rem;
+  color: #68736f;
+  line-height: 1.55;
+}
+
+.equipment-price-card strong {
+  margin-top: auto;
+  color: #b32127;
+  font-size: 1.03rem;
+  line-height: 1.4;
+}
+
+.equipment-price-card small {
+  margin-top: 0.35rem;
+  color: #7b8582;
+}
+
+.equipment-price-guide__secondary,
+.equipment-price-guide__notice {
+  padding: 1rem 1.15rem;
+  border-radius: 12px;
+  line-height: 1.6;
+}
+
+.equipment-price-guide__secondary {
+  margin-top: 1rem;
+  border: 1px solid rgba(21, 146, 132, 0.18);
+  background: rgba(21, 146, 132, 0.06);
+  color: #344440;
+}
+
+.equipment-price-guide__notice {
+  border-left: 4px solid #b32127;
+  background: #fff2f2;
+  color: #5f4142;
+}
+
+#solar-energy-calculator {
+  scroll-margin-top: 90px;
+}
+
 .energy-calculator-page .energy-calculator {
   border-top: 0;
+}
+
+@media (max-width: 1024px) {
+  .equipment-price-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .equipment-price-guide {
+    width: min(100% - 24px, 1180px);
+    padding-top: 2.6rem;
+  }
+
+  .equipment-price-group__heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .equipment-price-grid,
+  .equipment-price-grid--batteries {
+    grid-template-columns: 1fr;
+  }
+
+  .equipment-price-card,
+  .equipment-price-card--battery {
+    min-height: 0;
+  }
 }
