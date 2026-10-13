@@ -17,15 +17,22 @@
 }
 
 .logo-link {
-  display: flex;
-  align-items: center;
+  position: relative;
+  display: block;
+  width: 200px;
+  height: 64px;
+  overflow: hidden;
 }
 
 .logo-img {
-  height: 60px;
-  width: auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 280px;
+  max-width: none;
+  height: auto;
   display: block;
-  object-fit: contain;
+  transform: translate(-50%, -50%);
 }
 
 .nav-links {
@@ -280,17 +287,15 @@
   }
 
   .logo-link {
-    width: auto;
-    height: auto;
-    overflow: visible;
+    width: 125px;
+    height: 54px;
+    overflow: hidden;
   }
 
   .logo-img {
-    width: auto;
-    height: 52px;
-    max-width: 105px;
-    object-fit: contain;
-    object-position: center;
+    width: 177px;
+    max-width: none;
+    height: auto;
   }
 
   .navbar-container {
