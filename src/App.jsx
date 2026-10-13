@@ -1,64 +1,64 @@
-import React, { useEffect, useState } from "react";
+import React, { Suspense, lazy, useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 
 // Pages
 import Home from "./pages/Home/Home";
-import About from "./pages/About/About";
-import Services from "./pages/Services/Services";
-import EnergySolutions from "./pages/EnergySolutions/EnergySolutions";
-import EnergyCalculatorPage from "./pages/EnergyCalculatorPage/EnergyCalculatorPage";
-import SolarInstallationLagos from "./pages/SolarInstallationLagos/SolarInstallationLagos";
-import SolarTrainingLagos from "./pages/SolarTrainingLagos/SolarTrainingLagos";
-import Contact from "./pages/Contact/Contact";
-import PrivacyPolicy from "./pages/PrivacyPolicy/PrivacyPolicy";
-import Shop from "./pages/Shop/Shop";
-import CategoryProducts from "./pages/CategoryProducts/CategoryProducts";
-import ProductDetails from "./pages/ProductDetails/ProductDetails";
-import Checkout from "./pages/Checkout/Checkout";
-import FinancingForm from "./pages/FinancingForm/FinancingForm";
-import PaymentSuccess from "./pages/PaymentSuccess/PaymentSuccess";
-import Compare from "./pages/Compare/Compare";
-import Auth from "./pages/Auth/Auth";
+const About = lazy(() => import("./pages/About/About"));
+const Services = lazy(() => import("./pages/Services/Services"));
+const EnergySolutions = lazy(() => import("./pages/EnergySolutions/EnergySolutions"));
+const EnergyCalculatorPage = lazy(() => import("./pages/EnergyCalculatorPage/EnergyCalculatorPage"));
+const SolarInstallationLagos = lazy(() => import("./pages/SolarInstallationLagos/SolarInstallationLagos"));
+const SolarTrainingLagos = lazy(() => import("./pages/SolarTrainingLagos/SolarTrainingLagos"));
+const Contact = lazy(() => import("./pages/Contact/Contact"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy/PrivacyPolicy"));
+const Shop = lazy(() => import("./pages/Shop/Shop"));
+const CategoryProducts = lazy(() => import("./pages/CategoryProducts/CategoryProducts"));
+const ProductDetails = lazy(() => import("./pages/ProductDetails/ProductDetails"));
+const Checkout = lazy(() => import("./pages/Checkout/Checkout"));
+const FinancingForm = lazy(() => import("./pages/FinancingForm/FinancingForm"));
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess/PaymentSuccess"));
+const Compare = lazy(() => import("./pages/Compare/Compare"));
+const Auth = lazy(() => import("./pages/Auth/Auth"));
 
 // Admin Pages
-import AdminLogin from "./pages/AdminLogin/AdminLogin";
-import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
-import AdminProducts from "./pages/AdminProducts/AdminProducts";
-import AdminOrders from "./pages/AdminOrders/AdminOrders";
-import AdminCustomers from "./pages/AdminCustomers/AdminCustomers";
-import AdminLoanRequests from "./pages/AdminLoanRequests/AdminLoanRequests";
-import AdminFinancingCase from "./pages/AdminFinancingCase/AdminFinancingCase";
-import AdminProjects from "./pages/AdminProjects/AdminProjects";
-import AdminDevices from "./pages/AdminDevices/AdminDevices";
-import AdminIntegrations from "./pages/AdminIntegrations/AdminIntegrations";
-import AdminInstallers from "./pages/AdminInstallers/AdminInstallers";
-import AdminTestCentre from "./pages/AdminTestCentre/AdminTestCentre";
-import AdminLearners from "./pages/AdminLearners/AdminLearners";
-import AdminSalesTeam from "./pages/AdminSalesTeam/AdminSalesTeam";
-import InstallerLogin from "./pages/InstallerLogin/InstallerLogin";
-import InstallerActivate from "./pages/InstallerActivate/InstallerActivate";
-import InstallerAssignments from "./pages/InstallerAssignments/InstallerAssignments";
-import LearnerLogin from "./pages/LearnerLogin/LearnerLogin";
-import LearnerActivate from "./pages/LearnerActivate/LearnerActivate";
-import LearnerPortal from "./pages/LearnerPortal/LearnerPortal";
-import LearnerLiveClass from "./pages/LearnerLiveClass/LearnerLiveClass";
-import AdminAccountant from "./pages/Accounting/AdminAccountant";
-import AccountantLogin from "./pages/Accounting/AccountantLogin";
-import AccountantActivate from "./pages/Accounting/AccountantActivate";
-import AccountantResetPassword from "./pages/Accounting/AccountantResetPassword";
-import AccountingPortal from "./pages/Accounting/AccountingPortal";
+const AdminLogin = lazy(() => import("./pages/AdminLogin/AdminLogin"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard/AdminDashboard"));
+const AdminProducts = lazy(() => import("./pages/AdminProducts/AdminProducts"));
+const AdminOrders = lazy(() => import("./pages/AdminOrders/AdminOrders"));
+const AdminCustomers = lazy(() => import("./pages/AdminCustomers/AdminCustomers"));
+const AdminLoanRequests = lazy(() => import("./pages/AdminLoanRequests/AdminLoanRequests"));
+const AdminFinancingCase = lazy(() => import("./pages/AdminFinancingCase/AdminFinancingCase"));
+const AdminProjects = lazy(() => import("./pages/AdminProjects/AdminProjects"));
+const AdminDevices = lazy(() => import("./pages/AdminDevices/AdminDevices"));
+const AdminIntegrations = lazy(() => import("./pages/AdminIntegrations/AdminIntegrations"));
+const AdminInstallers = lazy(() => import("./pages/AdminInstallers/AdminInstallers"));
+const AdminTestCentre = lazy(() => import("./pages/AdminTestCentre/AdminTestCentre"));
+const AdminLearners = lazy(() => import("./pages/AdminLearners/AdminLearners"));
+const AdminSalesTeam = lazy(() => import("./pages/AdminSalesTeam/AdminSalesTeam"));
+const InstallerLogin = lazy(() => import("./pages/InstallerLogin/InstallerLogin"));
+const InstallerActivate = lazy(() => import("./pages/InstallerActivate/InstallerActivate"));
+const InstallerAssignments = lazy(() => import("./pages/InstallerAssignments/InstallerAssignments"));
+const LearnerLogin = lazy(() => import("./pages/LearnerLogin/LearnerLogin"));
+const LearnerActivate = lazy(() => import("./pages/LearnerActivate/LearnerActivate"));
+const LearnerPortal = lazy(() => import("./pages/LearnerPortal/LearnerPortal"));
+const LearnerLiveClass = lazy(() => import("./pages/LearnerLiveClass/LearnerLiveClass"));
+const AdminAccountant = lazy(() => import("./pages/Accounting/AdminAccountant"));
+const AccountantLogin = lazy(() => import("./pages/Accounting/AccountantLogin"));
+const AccountantActivate = lazy(() => import("./pages/Accounting/AccountantActivate"));
+const AccountantResetPassword = lazy(() => import("./pages/Accounting/AccountantResetPassword"));
+const AccountingPortal = lazy(() => import("./pages/Accounting/AccountingPortal"));
 import ProtectedAccountantRoute from "./components/ProtectedAccountantRoute/ProtectedAccountantRoute";
-import SalesLogin from "./pages/SalesLogin/SalesLogin";
-import SalesActivate from "./pages/SalesActivate/SalesActivate";
-import SalesProjects from "./pages/SalesProjects/SalesProjects";
+const SalesLogin = lazy(() => import("./pages/SalesLogin/SalesLogin"));
+const SalesActivate = lazy(() => import("./pages/SalesActivate/SalesActivate"));
+const SalesProjects = lazy(() => import("./pages/SalesProjects/SalesProjects"));
 import ProtectedSalesRoute from "./components/ProtectedSalesRoute/ProtectedSalesRoute";
 
 // Customer Pages
-import CustomerDashboard from "./pages/CustomerDashboard/CustomerDashboard";
-import CustomerFinancing from "./pages/CustomerFinancing/CustomerFinancing";
-import CustomerOrders from "./pages/CustomerOrders/CustomerOrders";
-import CustomerProfile from "./pages/CustomerProfile/CustomerProfile";
-import CustomerDocuments from "./pages/CustomerDocuments/CustomerDocuments";
+const CustomerDashboard = lazy(() => import("./pages/CustomerDashboard/CustomerDashboard"));
+const CustomerFinancing = lazy(() => import("./pages/CustomerFinancing/CustomerFinancing"));
+const CustomerOrders = lazy(() => import("./pages/CustomerOrders/CustomerOrders"));
+const CustomerProfile = lazy(() => import("./pages/CustomerProfile/CustomerProfile"));
+const CustomerDocuments = lazy(() => import("./pages/CustomerDocuments/CustomerDocuments"));
 
 // Components
 import Navbar from "./components/Navbar/Navbar";
@@ -128,6 +128,23 @@ function AppContent() {
         />
       )}
 
+      <Suspense
+        fallback={
+          <div
+            role="status"
+            aria-live="polite"
+            style={{
+              minHeight: "55vh",
+              display: "grid",
+              placeItems: "center",
+              color: "#159284",
+              fontWeight: 700,
+            }}
+          >
+            Loading...
+          </div>
+        }
+      >
       <Routes>
         {/* Public Pages */}
         <Route path="/" element={<Home />} />
@@ -332,6 +349,7 @@ function AppContent() {
           element={<ProtectedAdminRoute><AdminSalesTeam /></ProtectedAdminRoute>}
         />
       </Routes>
+      </Suspense>
 
       {!isPortalPage && (
         <>

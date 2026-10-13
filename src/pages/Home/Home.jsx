@@ -2,16 +2,16 @@ import React, { useState, useEffect, useRef } from "react";
 import "./home.css";
 
 // Hero images
-import maintenance from "../../assets/maintenance.png";
-import solar from "../../assets/solar.jpeg";
+import maintenance from "../../assets/maintenance-hero.webp";
+import solar from "../../assets/solar-hero.webp";
 
 // Service card images
-import facility from "../../assets/facility.jpg";
+import facility from "../../assets/facility-home.webp";
 import energy from "../../assets/energy.png";
 import consumer from "../../assets/consumer.jpg";
-import cost from "../../assets/cost.jpg";
+import cost from "../../assets/cost-home.webp";
 import maintenanceservice from "../../assets/maintenanceservice.png";
-import Training from "../../assets/Training.png";
+import Training from "../../assets/training-home.webp";
 
 function Home() {
   const [slide, setSlide] = useState(0);
@@ -119,12 +119,23 @@ function Home() {
     <div className="home">
       {/* HERO */}
       {/* HERO */}
-<section
-  className="hero"
-  style={{
-    backgroundImage: `url(${slide === 0 ? maintenance : solar})`,
-  }}
->
+<section className="hero">
+  <img
+    src={maintenance}
+    alt=""
+    aria-hidden="true"
+    className={`hero-background ${slide === 0 ? "active" : ""}`}
+    fetchPriority="high"
+    decoding="async"
+  />
+  <img
+    src={solar}
+    alt=""
+    aria-hidden="true"
+    className={`hero-background ${slide === 1 ? "active" : ""}`}
+    fetchPriority="high"
+    decoding="async"
+  />
   <div className="overlay"></div>
 
   <div className="hero-content">
@@ -348,11 +359,15 @@ function Home() {
 
         <div className="services-carousel" ref={carouselRef}>
           {services.map((service, index) => (
-            <div
-              className="service-slide"
-              key={index}
-              style={{ backgroundImage: `url(${service.image})` }}
-            >
+            <div className="service-slide" key={index}>
+              <img
+                className="service-slide-image"
+                src={service.image}
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+                decoding="async"
+              />
               <div className="service-overlay"></div>
 
               <div className="service-content">
