@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { FiBookOpen, FiLock, FiMail, FiPhone, FiPlus, FiRadio, FiTrash2, FiVideo } from "react-icons/fi";
 import AdminLayout from "../../components/AdminLayout/AdminLayout";
+import useLiveRefresh from "../../hooks/useLiveRefresh";
 import { readLearnerApiResponse } from "../../services/learnerApi";
 import "./adminLearners.css";
 import "./trainingSettings.css";
@@ -43,6 +44,7 @@ function AdminLearners() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+  useLiveRefresh(load);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/admin/training-settings`, { headers: headers() })

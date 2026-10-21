@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { FiCalendar, FiCheckCircle, FiClock, FiMail, FiMapPin, FiPlus, FiTool, FiTrash2, FiUserCheck, FiX } from "react-icons/fi";
 import AdminLayout from "../../components/AdminLayout/AdminLayout";
+import useLiveRefresh from "../../hooks/useLiveRefresh";
 import "./adminInstallers.css";
 
 const API_BASE_URL = "https://builtright-backend-1.onrender.com";
@@ -26,6 +27,7 @@ function AdminInstallers() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+  useLiveRefresh(load);
 
   const addInstaller = async (event) => {
     event.preventDefault();

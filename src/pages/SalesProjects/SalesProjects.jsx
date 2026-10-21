@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { FiDownload, FiFileText, FiUserPlus } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import SalesLayout from "../../components/SalesLayout/SalesLayout";
+import useLiveRefresh from "../../hooks/useLiveRefresh";
 import { downloadAssessmentReport } from "../../lib/assessmentReportPdf";
 import "./salesProjects.css";
 
@@ -43,6 +44,7 @@ function SalesProjects() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+  useLiveRefresh(load);
   const filtered = useMemo(() => projects.filter((project) => [project.reference, project.customer?.fullName, project.customer?.phone, project.customer?.location].some((value) => String(value || "").toLowerCase().includes(search.toLowerCase()))), [projects, search]);
   const setCustomer = (field, value) => setForm((current) => ({ ...current, customer: { ...current.customer, [field]: value } }));
   const formatMoney = (value) => Number(value || 0).toLocaleString("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 });

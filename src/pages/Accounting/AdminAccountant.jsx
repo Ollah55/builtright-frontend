@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import AdminLayout from "../../components/AdminLayout/AdminLayout";
+import useLiveRefresh from "../../hooks/useLiveRefresh";
 import { accountingApi, naira } from "../../services/accountingApi";
 import "./accounting.css";
 import "./fixedAssets.css";
@@ -47,6 +48,7 @@ export default function AdminAccountant() {
   useEffect(() => {
     load();
   }, [load]);
+  useLiveRefresh(load);
 
   const invite = async (event) => {
     event.preventDefault();

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { FiCalendar, FiCheck, FiLogOut, FiMapPin, FiPhone, FiPlus, FiSave, FiX } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import useLiveRefresh from "../../hooks/useLiveRefresh";
 import "./installerAssignments.css";
 
 const API_BASE_URL = "https://builtright-backend-1.onrender.com";
@@ -32,9 +33,9 @@ function InstallerAssignments() {
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState("");
 
-  const load = useCallback(async () => {
+  const load = useCallback(async ({ silent = false } = {}) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const response = await fetch(`${API_BASE_URL}/api/installer/assignments`, { headers: authHeaders() });
       const data = await response.json();
       if (!response.ok || !data.status) throw new Error(data.message || "Could not load assignments.");
@@ -47,6 +48,7 @@ function InstallerAssignments() {
   }, [navigate]);
 
   useEffect(() => { load(); }, [load]);
+  useLiveRefresh(load);
 
   const request = async (path, body) => {
     const response = await fetch(`${API_BASE_URL}${path}`, { method: "PATCH", headers: authHeaders(), body: JSON.stringify(body) });

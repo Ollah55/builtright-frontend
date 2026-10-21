@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FiArrowUpRight,
@@ -14,6 +14,7 @@ import {
   FiUser,
 } from "react-icons/fi";
 import AdminLayout from "../../components/AdminLayout/AdminLayout";
+import useLiveRefresh from "../../hooks/useLiveRefresh";
 import { getStageIndex } from "../../lib/operations";
 import "./adminProjects.css";
 
@@ -72,24 +73,24 @@ function AdminProjects() {
   const [message, setMessage] = useState("");
   const [deletingId, setDeletingId] = useState("");
 
-  useEffect(() => {
-    const loadProjects = async () => {
-      try {
-        const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
-        const response = await fetch(`${API_BASE_URL}/api/loan-requests`, { headers: { Authorization: `Bearer ${token}` } });
-        const data = await response.json();
-        if (!response.ok || !data.status) throw new Error(data.message || "Could not load projects.");
-        setProjectRecords((data.loanRequests || [])
-          .filter((request) => getStageIndex(request.status) >= getStageIndex("quotation-approved"))
-          .map(toProject));
-      } catch (error) {
-        setMessage(error.message || "Could not load projects.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadProjects();
+  const loadProjects = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
+      const response = await fetch(`${API_BASE_URL}/api/loan-requests`, { headers: { Authorization: `Bearer ${token}` } });
+      const data = await response.json();
+      if (!response.ok || !data.status) throw new Error(data.message || "Could not load projects.");
+      setProjectRecords((data.loanRequests || [])
+        .filter((request) => getStageIndex(request.status) >= getStageIndex("quotation-approved"))
+        .map(toProject));
+    } catch (error) {
+      setMessage(error.message || "Could not load projects.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => { loadProjects(); }, [loadProjects]);
+  useLiveRefresh(loadProjects);
 
   const deleteProject = async (project) => {
     if (!window.confirm(`Permanently delete project ${project.id}? Linked quotations, invoices, orders, devices, alerts, and commands will also be removed.`)) return;

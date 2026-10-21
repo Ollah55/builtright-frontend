@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FiAlertTriangle,
@@ -14,6 +14,7 @@ import {
   FiWifiOff,
 } from "react-icons/fi";
 import AdminLayout from "../../components/AdminLayout/AdminLayout";
+import useLiveRefresh from "../../hooks/useLiveRefresh";
 import {
   getFinancingStage,
   integrationReadiness,
@@ -37,20 +38,20 @@ function AdminDashboard() {
   const [dashboard, setDashboard] = useState({ stats: {}, stageSummary: {}, recentLoanRequests: [], devices: [], deviceAlerts: [] });
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    const loadDashboard = async () => {
-      try {
-        const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
-        const response = await fetch(`${API_BASE_URL}/api/admin/dashboard-stats`, { headers: { Authorization: `Bearer ${token}` } });
-        const data = await response.json();
-        if (!response.ok || !data.status) throw new Error(data.message || "Could not load dashboard.");
-        setDashboard(data);
-      } catch (error) {
-        setMessage(error.message || "Could not load dashboard data.");
-      }
-    };
-    loadDashboard();
+  const loadDashboard = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
+      const response = await fetch(`${API_BASE_URL}/api/admin/dashboard-stats`, { headers: { Authorization: `Bearer ${token}` } });
+      const data = await response.json();
+      if (!response.ok || !data.status) throw new Error(data.message || "Could not load dashboard.");
+      setDashboard(data);
+    } catch (error) {
+      setMessage(error.message || "Could not load dashboard data.");
+    }
   }, []);
+
+  useEffect(() => { loadDashboard(); }, [loadDashboard]);
+  useLiveRefresh(loadDashboard);
 
   const devices = dashboard.devices || [];
   const recentLoanRequests = dashboard.recentLoanRequests || [];

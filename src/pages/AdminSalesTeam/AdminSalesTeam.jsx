@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { FiMail, FiPlus, FiTrash2, FiUsers } from "react-icons/fi";
 import AdminLayout from "../../components/AdminLayout/AdminLayout";
+import useLiveRefresh from "../../hooks/useLiveRefresh";
 import "./adminSalesTeam.css";
 
 const API_BASE_URL = "https://builtright-backend-1.onrender.com";
@@ -20,6 +21,7 @@ function AdminSalesTeam() {
     } catch (error) { setMessage(error.message); }
   }, []);
   useEffect(() => { load(); }, [load]);
+  useLiveRefresh(load);
   const invite = async (event) => {
     event.preventDefault();
     try {

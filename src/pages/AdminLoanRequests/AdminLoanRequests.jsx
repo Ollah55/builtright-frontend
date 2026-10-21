@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FiArrowRight,
@@ -14,6 +14,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import AdminLayout from "../../components/AdminLayout/AdminLayout";
+import useLiveRefresh from "../../hooks/useLiveRefresh";
 import {
   FINANCING_STAGES,
   formatMoney,
@@ -135,24 +136,24 @@ function AdminLoanRequests() {
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    const loadLoanRequests = async () => {
-      const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/loan-requests`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await response.json();
-        if (!response.ok || !data.status) throw new Error(data.message || "Could not load financing cases.");
-        setLoanRequests(Array.isArray(data.loanRequests) ? data.loanRequests.map(normalizeRequest) : []);
-      } catch (error) {
-        setMessage(error.message || "Could not load financing cases.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadLoanRequests();
+  const loadLoanRequests = useCallback(async () => {
+    const token = localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken");
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/loan-requests`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (!response.ok || !data.status) throw new Error(data.message || "Could not load financing cases.");
+      setLoanRequests(Array.isArray(data.loanRequests) ? data.loanRequests.map(normalizeRequest) : []);
+    } catch (error) {
+      setMessage(error.message || "Could not load financing cases.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => { loadLoanRequests(); }, [loadLoanRequests]);
+  useLiveRefresh(loadLoanRequests);
 
   const normalizedRequests = useMemo(() => loanRequests.map(normalizeRequest), [loanRequests]);
   const selectedRequest = normalizedRequests.find((request) => request._id === selectedId) || null;
