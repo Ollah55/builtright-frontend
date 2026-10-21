@@ -35,11 +35,16 @@ function SalesProjects() {
         fetch(`${API_BASE_URL}/api/sales/projects`, { headers: tokenHeaders() }),
         fetch(`${API_BASE_URL}/api/sales/installers`, { headers: tokenHeaders() }),
       ]);
-      const projectData = await projectsResponse.json();
+      let projectData = await projectsResponse.json();
       const installerData = await installersResponse.json();
-      if (!projectsResponse.ok || !projectData.status) throw new Error(projectData.message || "Could not load projects.");
+      if (!projectsResponse.ok || !projectData.status) {
+        const fallbackResponse = await fetch(`${API_BASE_URL}/api/loan-requests`, { headers: tokenHeaders() });
+        const fallbackData = await fallbackResponse.json();
+        if (!fallbackResponse.ok || !fallbackData.status) throw new Error(projectData.message || fallbackData.message || "Could not load registered customers.");
+        projectData = fallbackData;
+      }
       if (!installersResponse.ok || !installerData.status) throw new Error(installerData.message || "Could not load installers.");
-      setProjects(projectData.customers || []);
+      setProjects(projectData.customers || projectData.loanRequests || []);
       setInstallers(installerData.installers || []);
     } catch (error) { setMessage(error.message); }
   }, []);
