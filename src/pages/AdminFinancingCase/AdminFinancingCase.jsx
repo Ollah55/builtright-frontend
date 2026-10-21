@@ -120,6 +120,7 @@ function AdminFinancingCase() {
     : (localStorage.getItem("builtright_admin_token") || localStorage.getItem("adminToken"));
   const [financingCase, setFinancingCase] = useState(null);
   const [documents, setDocuments] = useState([]);
+  const [order, setOrder] = useState(null);
   const [activeTab, setActiveTab] = useState("assessment");
   const [assessment, setAssessment] = useState(normalizeAssessment());
   const [lineItems, setLineItems] = useState([]);
@@ -154,6 +155,7 @@ function AdminFinancingCase() {
         if (!response.ok || !data.status) throw new Error(data.message || "Could not load case workspace.");
         setFinancingCase(data.loanRequest);
         setDocuments(data.documents || []);
+        setOrder(data.order || null);
         setAssessment(normalizeAssessment(data.loanRequest.assessment));
         const latestQuote = (data.documents || []).find((document) => document.type === "quotation");
         setLineItems(latestQuote?.lineItems?.length ? latestQuote.lineItems : buildDefaultLineItems(data.loanRequest));
@@ -190,6 +192,7 @@ function AdminFinancingCase() {
   }, [id, portalToken]);
 
   const latestQuotation = documents.find((document) => document.type === "quotation") || null;
+  const latestInvoice = documents.find((document) => document.type === "invoice") || null;
   const assessmentPassed = financingCase?.assessment?.status === "passed" || assessment.status === "passed";
   const selectedPartner = getFinancingPartner(financingCase?.financeInstitution);
   const equityPercentage = Number(quoteMeta.equityPercentage || selectedPartner.equityPercentage);
@@ -353,6 +356,8 @@ function AdminFinancingCase() {
         <div><span>Finance partner</span><strong>{selectedPartner.name}</strong></div>
         <div><span>Site</span><strong>{financingCase.customer?.location || "Location pending"}</strong></div>
         <div><span>Final project cost</span><strong>{formatMoney(financingCase.finalProjectCost)}</strong></div>
+        <div><span>Order</span><strong>{order?.orderNumber || "Order pending"}</strong><small>{order?.status || "Processing"}</small></div>
+        <div><span>Invoice</span><strong>{latestInvoice?.reference || "Not generated"}</strong>{latestInvoice ? <button type="button" className="case-summary-link" onClick={() => setActiveTab("documents")}>View invoice</button> : <small>Generated after the final project approval stage</small>}</div>
       </section>
 
       {message && <div className="finance-message" role="status">{message}</div>}

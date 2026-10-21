@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FiDownload, FiFileText, FiUserPlus } from "react-icons/fi";
+import { FiCheckCircle, FiChevronRight, FiDownload, FiFileText, FiPackage, FiUserPlus } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import SalesLayout from "../../components/SalesLayout/SalesLayout";
 import useLiveRefresh from "../../hooks/useLiveRefresh";
@@ -15,6 +15,7 @@ const initialForm = {
   systemDescription: "",
   inspectionFeeAmount: "",
   installerId: "",
+  inspectionCompleted: false,
   notes: "",
   consentCaptured: false,
 };
@@ -31,14 +32,14 @@ function SalesProjects() {
   const load = useCallback(async () => {
     try {
       const [projectsResponse, installersResponse] = await Promise.all([
-        fetch(`${API_BASE_URL}/api/loan-requests`, { headers: tokenHeaders() }),
+        fetch(`${API_BASE_URL}/api/sales/projects`, { headers: tokenHeaders() }),
         fetch(`${API_BASE_URL}/api/sales/installers`, { headers: tokenHeaders() }),
       ]);
       const projectData = await projectsResponse.json();
       const installerData = await installersResponse.json();
       if (!projectsResponse.ok || !projectData.status) throw new Error(projectData.message || "Could not load projects.");
       if (!installersResponse.ok || !installerData.status) throw new Error(installerData.message || "Could not load installers.");
-      setProjects(projectData.loanRequests || []);
+      setProjects(projectData.customers || []);
       setInstallers(installerData.installers || []);
     } catch (error) { setMessage(error.message); }
   }, []);
@@ -100,7 +101,7 @@ function SalesProjects() {
     } catch (error) { setMessage(error.message); }
   };
 
-  return <SalesLayout title="Customer projects" subtitle="Book customer assessments, set the fee, assign installers, and prepare quotations after the field report.">
+  return <SalesLayout title="Customers & orders" subtitle="Register customers, follow inspection progress, open project records, and view quotations and invoices.">
     {message && <p className="sales-message" role="status">{message}</p>}
     <section id="new-customer" className="sales-card sales-intake">
       <header><div><p>Direct and WhatsApp enquiries</p><h2>Book assessment and assign installer</h2></div><FiUserPlus /></header>
@@ -119,29 +120,33 @@ function SalesProjects() {
         </fieldset>
         <fieldset>
           <legend>Book site assessment</legend>
+          <label className="sales-offline-complete">
+            <input type="checkbox" checked={form.inspectionCompleted} onChange={(event) => setForm({ ...form, inspectionCompleted: event.target.checked, installerId: event.target.checked ? "" : form.installerId })} />
+            <span><strong>Inspection already completed</strong><small>Use this when the customer completed the inspection, load audit, and assessment payment through WhatsApp or another offline process. No installer will be assigned.</small></span>
+          </label>
           <div className="sales-form-grid">
-            <label>Assessment fee (NGN)<input required type="number" min="1" step="1" value={form.inspectionFeeAmount} onChange={(event) => setForm({ ...form, inspectionFeeAmount: event.target.value })} placeholder="Set by sales; hidden from installer" /></label>
-            <label>Installer<select required value={form.installerId} onChange={(event) => setForm({ ...form, installerId: event.target.value })}><option value="">Select available installer</option>{installers.map((installer) => <option value={installer._id} key={installer._id}>{installer.fullName}</option>)}</select></label>
+            <label>{form.inspectionCompleted ? "Assessment fee paid (NGN, optional)" : "Assessment fee (NGN)"}<input required={!form.inspectionCompleted} type="number" min="1" step="1" value={form.inspectionFeeAmount} onChange={(event) => setForm({ ...form, inspectionFeeAmount: event.target.value })} placeholder={form.inspectionCompleted ? "Enter the amount if available" : "Set by sales; hidden from installer"} /></label>
+            <label>Installer<select required={!form.inspectionCompleted} disabled={form.inspectionCompleted} value={form.installerId} onChange={(event) => setForm({ ...form, installerId: event.target.value })}><option value="">{form.inspectionCompleted ? "Not required for completed inspection" : "Select available installer"}</option>{installers.map((installer) => <option value={installer._id} key={installer._id}>{installer.fullName}</option>)}</select></label>
             <label className="wide">Internal note<textarea rows="2" value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Optional sales note; do not enter the projected WhatsApp load audit" /></label>
           </div>
           <label className="sales-consent"><input type="checkbox" required checked={form.consentCaptured} onChange={(event) => setForm({ ...form, consentCaptured: event.target.checked })} /><span>The customer consented to BuiltRight recording these details and contacting them about the assessment and quotation.</span></label>
         </fieldset>
-        <button className="sales-button" type="submit" disabled={saving}>{saving ? "Booking..." : "Book assessment and assign installer"}</button>
+        <button className="sales-button" type="submit" disabled={saving}>{saving ? "Saving..." : form.inspectionCompleted ? "Register completed assessment & create order" : "Book assessment, assign installer & create order"}</button>
       </form>
     </section>
 
     <section className="sales-card sales-project-register">
-      <header><div><p>Operations register</p><h2>Customer projects</h2></div><input type="search" placeholder="Search customer, phone, location or reference" value={search} onChange={(event) => setSearch(event.target.value)} /></header>
+      <header><div><p>Sales customer register</p><h2>Registered customers</h2></div><input type="search" placeholder="Search customer, phone, location or reference" value={search} onChange={(event) => setSearch(event.target.value)} /></header>
       <div className="sales-project-table">
-        <div className="head"><span>Customer</span><span>Assessment fee</span><span>Installer / site assessment</span><span>Status</span><span>Actions</span></div>
-        {filtered.map((project) => <div className="row" key={project._id}>
-          <span><strong>{project.customer?.fullName}</strong><small>{project.reference} · {project.customer?.location}</small></span>
-          <span><strong>{project.inspection?.feeAmount ? formatMoney(project.inspection.feeAmount) : "Not set"}</strong><small>{project.inspection?.feeStatus || "not requested"}</small><button type="button" className="sales-fee-edit" disabled={["payment-requested", "proof-submitted", "payment-confirmed"].includes(project.inspection?.feeStatus)} onClick={() => updateAssessmentFee(project)}>Edit fee</button>{project.inspection?.feeStatus === "proof-submitted" && <><a className="sales-proof-link" href={project.inspection?.paymentProof?.url} target="_blank" rel="noreferrer">View proof</a><button type="button" className="sales-fee-edit" onClick={() => confirmAssessmentPayment(project)}>Confirm payment</button></>}</span>
-          <span><select aria-label={`Assign installer for ${project.customer?.fullName}`} value={project.installerAssignment?.installer || ""} disabled={project.installerAssignment?.status === "completed"} onChange={(event) => assignInstaller(project._id, event.target.value)}><option value="">Assign installer</option>{installers.map((installer) => <option value={installer._id} key={installer._id}>{installer.fullName}</option>)}</select><small>{project.assessment?.inspection?.status || "pending"} · {project.assessment?.inspection?.result || "pending"}</small></span>
-          <span><i className={project.assessment?.status || "open"}>{project.assessment?.status || "open"}</i><small>{project.quotation?.status || "quotation not started"}</small></span>
-          <span className="actions"><button type="button" title="Download combined report" onClick={() => downloadAssessmentReport(project)}><FiDownload /></button><button type="button" onClick={() => navigate(`/sales/projects/${project._id}`)}><FiFileText /> Review & quote</button></span>
+        <div className="head"><span>Customer</span><span>Order</span><span>Inspection progress</span><span>Invoice</span><span>Open record</span></div>
+        {filtered.map((project) => <div className="row clickable" role="link" tabIndex="0" key={project._id} onClick={() => navigate(`/sales/projects/${project._id}`)} onKeyDown={(event) => { if (event.key === "Enter") navigate(`/sales/projects/${project._id}`); }}>
+          <span><strong>{project.customer?.fullName}</strong><small>{project.reference} · {project.customer?.phone}</small><small>{project.customer?.location}</small></span>
+          <span><strong><FiPackage /> {project.order?.orderNumber || "Creating order"}</strong><small>{project.order?.status || "Processing"}</small><small>{project.paymentMethod === "outright" ? "Outright" : project.financeInstitution}</small></span>
+          <span onClick={(event) => event.stopPropagation()}><strong><FiCheckCircle /> {project.assessment?.inspection?.status || "pending"}</strong><small>Result: {project.assessment?.inspection?.result || "pending"}</small><small>{project.inspection?.feeAmount ? `${formatMoney(project.inspection.feeAmount)} · ` : ""}{project.inspection?.feeStatus || "not requested"}</small>{project.installerAssignment?.status !== "completed" && project.inspection?.status !== "completed" && <select aria-label={`Assign installer for ${project.customer?.fullName}`} value={project.installerAssignment?.installer || ""} onChange={(event) => assignInstaller(project._id, event.target.value)}><option value="">Assign installer</option>{installers.map((installer) => <option value={installer._id} key={installer._id}>{installer.fullName}</option>)}</select>}<button type="button" className="sales-fee-edit" disabled={["payment-requested", "proof-submitted", "payment-confirmed"].includes(project.inspection?.feeStatus)} onClick={() => updateAssessmentFee(project)}>Edit fee</button>{project.inspection?.feeStatus === "proof-submitted" && <><a className="sales-proof-link" href={project.inspection?.paymentProof?.url} target="_blank" rel="noreferrer">View proof</a><button type="button" className="sales-fee-edit" onClick={() => confirmAssessmentPayment(project)}>Confirm payment</button></>}</span>
+          <span><strong>{project.invoice?.reference || "Not generated"}</strong><small>{project.invoice?.status || "Available after final project approval"}</small><small>{project.quotation?.status || "Quotation not started"}</small></span>
+          <span className="actions" onClick={(event) => event.stopPropagation()}><button type="button" title="Download combined assessment report" onClick={() => downloadAssessmentReport(project)}><FiDownload /></button><button type="button" onClick={() => navigate(`/sales/projects/${project._id}`)}><FiFileText /> Details <FiChevronRight /></button></span>
         </div>)}
-        {!filtered.length && <p className="sales-empty">No customer projects found.</p>}
+        {!filtered.length && <p className="sales-empty">No registered customers found.</p>}
       </div>
     </section>
   </SalesLayout>;

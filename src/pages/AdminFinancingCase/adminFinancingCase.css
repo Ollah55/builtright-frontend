@@ -3,6 +3,8 @@
 .case-workspace-summary > div { min-height: 82px; display: grid; align-content: center; gap: 7px; padding: 16px; background: #fff; }
 .case-workspace-summary span { color: var(--ops-muted); font-size: .6rem; font-weight: 850; text-transform: uppercase; }
 .case-workspace-summary strong { width: max-content; max-width: 100%; color: var(--ops-ink); font-size: .78rem; }
+.case-workspace-summary small { color: var(--ops-muted); font-size: .62rem; line-height: 1.4; }
+.case-summary-link { width: max-content; padding: 0; border: 0; background: transparent; color: #159284; font: inherit; font-size: .64rem; font-weight: 850; cursor: pointer; text-decoration: underline; }
 .case-workspace-tabs { display: flex; gap: 8px; margin-top: 16px; padding-bottom: 2px; overflow-x: auto; }
 .case-workspace-tabs button { display: inline-flex; align-items: center; gap: 7px; padding: 11px 15px; border: 1px solid var(--ops-border); border-radius: 10px; color: var(--ops-muted); background: #fff; font-size: .7rem; font-weight: 850; white-space: nowrap; cursor: pointer; }
 .case-workspace-tabs button.active { color: #fff; border-color: var(--ops-teal); background: var(--ops-teal); }
