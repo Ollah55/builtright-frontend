@@ -1,0 +1,29 @@
+.richgreen-form-layer { position: fixed; inset: 0; z-index: 2400; display: grid; place-items: center; padding: 18px; background: rgba(8, 24, 22, .72); backdrop-filter: blur(8px); }
+.richgreen-form-modal { width: min(980px, 100%); max-height: 94vh; overflow-y: auto; border-radius: 18px; background: #f8fbfa; box-shadow: 0 32px 100px rgba(5, 25, 21, .35); }
+.richgreen-form-modal > header { position: sticky; top: 0; z-index: 2; display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding: 22px 24px; color: #fff; background: linear-gradient(125deg, #0e6259, #159284); }
+.richgreen-form-modal > header p { color: #a8f0e5; font-size: .6rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+.richgreen-form-modal > header h2 { margin: 4px 0; font-size: 1.35rem; }
+.richgreen-form-modal > header span { display: block; max-width: 700px; color: rgba(255,255,255,.78); font-size: .67rem; line-height: 1.5; }
+.richgreen-form-modal > header button { width: 34px; height: 34px; border: 1px solid rgba(255,255,255,.25); border-radius: 9px; color: #fff; background: rgba(255,255,255,.1); font-size: 1.3rem; cursor: pointer; }
+.richgreen-form-message { margin: 16px 24px 0; padding: 11px 13px; border: 1px solid #cfe5df; border-radius: 10px; color: #155e55; background: #eaf7f3; font-size: .68rem; font-weight: 800; }
+.richgreen-form-modal form { display: grid; gap: 14px; padding: 20px 24px 24px; }
+.richgreen-form-modal fieldset { min-width: 0; padding: 17px; border: 1px solid #dbe7e3; border-radius: 13px; background: #fff; }
+.richgreen-form-modal legend { padding: 0 7px; color: #173b35; font-size: .72rem; font-weight: 900; }
+.richgreen-form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; }
+.richgreen-form-grid label { display: grid; gap: 5px; color: #536b65; font-size: .61rem; font-weight: 800; }
+.richgreen-form-grid label.wide { grid-column: 1 / -1; }
+.richgreen-form-grid input, .richgreen-form-grid select { width: 100%; min-height: 40px; padding: 9px 10px; border: 1px solid #ccdcd7; border-radius: 8px; color: #17332d; background: #fff; font: inherit; font-size: .69rem; }
+.richgreen-quote-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin-bottom: 13px; }
+.richgreen-quote-summary > div { display: grid; gap: 4px; padding: 11px; border-radius: 10px; background: #eef7f4; }
+.richgreen-quote-summary span { color: #68817b; font-size: .57rem; }
+.richgreen-quote-summary strong { color: #154c43; font-size: .76rem; }
+.richgreen-declaration { color: #52645f; font-size: .66rem; line-height: 1.55; }
+.richgreen-declaration ul { margin: 8px 0 13px 18px; }
+.richgreen-consent { display: flex; align-items: flex-start; gap: 9px; margin-top: 14px; color: #294a43; font-size: .66rem; font-weight: 800; }
+.richgreen-consent input { margin-top: 2px; accent-color: #159284; }
+.richgreen-form-modal form > footer { display: flex; justify-content: flex-end; gap: 9px; }
+.richgreen-form-modal form > footer button { padding: 11px 15px; border-radius: 9px; font-size: .67rem; font-weight: 900; cursor: pointer; }
+.richgreen-form-modal form > footer .secondary { border: 1px solid #cedbd7; color: #526b65; background: #fff; }
+.richgreen-form-modal form > footer .primary { border: 0; color: #fff; background: #b32127; }
+.richgreen-form-modal form > footer button:disabled { opacity: .55; cursor: not-allowed; }
+@media (max-width: 720px) { .richgreen-form-layer { padding: 0; } .richgreen-form-modal { width: 100%; height: 100vh; max-height: none; border-radius: 0; } .richgreen-form-modal > header, .richgreen-form-modal form { padding-left: 15px; padding-right: 15px; } .richgreen-form-grid, .richgreen-quote-summary { grid-template-columns: 1fr; } .richgreen-form-modal form > footer { position: sticky; bottom: 0; padding: 12px 0; background: #f8fbfa; } }

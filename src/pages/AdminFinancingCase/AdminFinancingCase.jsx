@@ -192,7 +192,8 @@ function AdminFinancingCase() {
   }, [id, portalToken]);
 
   const latestQuotation = documents.find((document) => document.type === "quotation") || null;
-  const latestInvoice = documents.find((document) => document.type === "invoice") || null;
+  const latestInvoice = documents.find((document) => document.type === "invoice" && document.purpose !== "inspection-fee") || null;
+  const inspectionInvoice = documents.find((document) => document.type === "invoice" && document.purpose === "inspection-fee") || null;
   const assessmentPassed = financingCase?.assessment?.status === "passed" || assessment.status === "passed";
   const selectedPartner = getFinancingPartner(financingCase?.financeInstitution);
   const equityPercentage = Number(quoteMeta.equityPercentage || selectedPartner.equityPercentage);
@@ -340,6 +341,26 @@ function AdminFinancingCase() {
     }
   };
 
+  const downloadRichGreenApplication = async () => {
+    try {
+      setMessage("");
+      const response = await fetch(`${API_BASE_URL}/api/sales/projects/${id}/richgreen-application/download`, { headers: { Authorization: `Bearer ${portalToken}` } });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || "Could not download the RichGreen application.");
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `RichGreen-Application-${financingCase.reference}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) { setMessage(error.message); }
+  };
+
   if (loading || !financingCase) {
     return <Layout title="Financing case" subtitle="Loading assessment and project documents..."><section className="ops-card financing-workspace-loading">Loading case workspace...</section></Layout>;
   }
@@ -348,7 +369,7 @@ function AdminFinancingCase() {
     <Layout
       title={`${financingCase.reference} · ${financingCase.customer?.fullName}`}
       subtitle="Complete the pre-credit assessment, build the full project quotation, and send it to the customer for approval before bank handoff."
-      actions={<><button className="ops-button secondary" type="button" onClick={() => downloadAssessmentReport(financingCase)}><FiDownload /> Combined report</button><button className="ops-button secondary" type="button" onClick={() => navigate(isSalesPortal ? "/sales/projects" : "/admin/loan-requests")}><FiArrowLeft /> Back to projects</button></>}
+      actions={<><button className="ops-button secondary" type="button" onClick={() => downloadAssessmentReport(financingCase)}><FiDownload /> Combined report</button>{financingCase.bankApplication?.richGreenApplication?.status === "submitted" && <button className="ops-button primary" type="button" onClick={downloadRichGreenApplication}><FiDownload /> RichGreen application</button>}<button className="ops-button secondary" type="button" onClick={() => navigate(isSalesPortal ? "/sales/projects" : "/admin/loan-requests")}><FiArrowLeft /> Back to projects</button></>}
     >
       <section className="case-workspace-summary ops-card">
         <div><span>Current stage</span><strong className={`status-pill ${statusTone(financingCase.status)}`}>{getFinancingStage(financingCase.status).label}</strong></div>
@@ -357,10 +378,11 @@ function AdminFinancingCase() {
         <div><span>Site</span><strong>{financingCase.customer?.location || "Location pending"}</strong></div>
         <div><span>Final project cost</span><strong>{formatMoney(financingCase.finalProjectCost)}</strong></div>
         <div><span>Order</span><strong>{order?.orderNumber || "Order pending"}</strong><small>{order?.status || "Processing"}</small></div>
-        <div><span>Invoice</span><strong>{latestInvoice?.reference || "Not generated"}</strong>{latestInvoice ? <button type="button" className="case-summary-link" onClick={() => setActiveTab("documents")}>View invoice</button> : <small>Generated after the final project approval stage</small>}</div>
+        <div><span>Invoice</span><strong>{latestInvoice?.reference || inspectionInvoice?.reference || "Not generated"}</strong>{latestInvoice || inspectionInvoice ? <button type="button" className="case-summary-link" onClick={() => setActiveTab("documents")}>{latestInvoice ? "View project invoice" : "View inspection invoice"}</button> : <small>Generated after the appropriate billing stage</small>}</div>
       </section>
 
       {message && <div className="finance-message" role="status">{message}</div>}
+      {latestQuotation?.status === "changes-requested" && <section className="quotation-review-alert"><FiClipboard /><div><strong>Customer declined the quotation and requested a review</strong><p>{latestQuotation.customerDecision?.note || "The customer asked to reduce the load or revise the system recommendation."}</p><span>Sales should contact the assigned installer. The load audit has been reopened for editing; complete the revised recommendation before generating a new quotation.</span></div></section>}
 
       <div className="case-workspace-tabs" role="tablist">
         <button type="button" className={activeTab === "assessment" ? "active" : ""} onClick={() => setActiveTab("assessment")}><FiClipboard /> Assessment</button>

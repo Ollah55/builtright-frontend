@@ -6,6 +6,11 @@
 .case-workspace-summary small { color: var(--ops-muted); font-size: .62rem; line-height: 1.4; }
 .case-summary-link { width: max-content; padding: 0; border: 0; background: transparent; color: #159284; font: inherit; font-size: .64rem; font-weight: 850; cursor: pointer; text-decoration: underline; }
 .case-workspace-tabs { display: flex; gap: 8px; margin-top: 16px; padding-bottom: 2px; overflow-x: auto; }
+.quotation-review-alert { display: grid; grid-template-columns: 38px 1fr; gap: 12px; margin-top: 13px; padding: 15px; border: 1px solid #efc7ca; border-radius: 12px; color: #7d2730; background: #fff1f2; }
+.quotation-review-alert > svg { width: 38px; height: 38px; padding: 9px; box-sizing: border-box; border-radius: 10px; color: #fff; background: #b32127; }
+.quotation-review-alert strong { font-size: .75rem; }
+.quotation-review-alert p { margin-top: 5px; font-size: .68rem; line-height: 1.5; }
+.quotation-review-alert span { display: block; margin-top: 6px; color: #76545a; font-size: .62rem; line-height: 1.5; }
 .case-workspace-tabs button { display: inline-flex; align-items: center; gap: 7px; padding: 11px 15px; border: 1px solid var(--ops-border); border-radius: 10px; color: var(--ops-muted); background: #fff; font-size: .7rem; font-weight: 850; white-space: nowrap; cursor: pointer; }
 .case-workspace-tabs button.active { color: #fff; border-color: var(--ops-teal); background: var(--ops-teal); }
 .assessment-workspace { display: grid; gap: 13px; margin-top: 12px; }

@@ -8,6 +8,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import CustomerLayout from "../../components/CustomerLayout/CustomerLayout";
+import RichGreenApplicationForm from "../../components/RichGreenApplicationForm/RichGreenApplicationForm";
 import { formatMoney } from "../../lib/operations";
 import { downloadProjectDocument } from "../../lib/projectDocumentPdf";
 import "./customerDocuments.css";
@@ -23,6 +24,7 @@ function CustomerDocuments() {
   const [changeNote, setChangeNote] = useState("");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [applicationDocument, setApplicationDocument] = useState(null);
 
   useEffect(() => {
     const loadDocuments = async () => {
@@ -81,6 +83,7 @@ function CustomerDocuments() {
             ...item.financing?.bankApplication,
             status: data.bankApplication.status,
             redirectUrl: data.bankApplication.url,
+            richGreenApplication: data.bankApplication.richGreenApplication,
           },
         },
       } : item));
@@ -150,6 +153,8 @@ function CustomerDocuments() {
             {filteredDocuments.map((document) => {
               const bankUrl = document.financing?.bankApplication?.redirectUrl;
               const isOutright = document.financing?.paymentMethod === "outright";
+              const isRichGreen = /richgreen/i.test(document.financing?.financeInstitution || "");
+              const applicationStatus = document.financing?.bankApplication?.richGreenApplication?.status;
               return (
                 <article className="customer-document-card" key={document._id}>
                   <header><div><span>{document.type}</span><h2>{document.reference}</h2></div><i className={`document-status ${document.status}`}>{document.status}</i></header>
@@ -157,9 +162,11 @@ function CustomerDocuments() {
                   <p>{document.project?.systemCapacity || "Solar project"} · {document.project?.siteAddress || document.customer?.location || "Project site"}</p>
                   <dl><div><dt>Total project cost</dt><dd>{formatMoney(document.total)}</dd></div>{document.type === "quotation" && (isOutright ? <div><dt>Payment route</dt><dd>Full outright payment</dd></div> : <><div><dt>Customer equity</dt><dd>{formatMoney(document.equityAmount)}</dd></div><div><dt>Bank finance request</dt><dd>{formatMoney(document.bankFinanceAmount)}</dd></div></>)}</dl>
                   {document.type === "quotation" && document.status === "sent" && <div className="document-action-note pending"><strong>Your decision is required</strong><span>Review the complete cost breakdown before approving.</span></div>}
-                  {document.type === "quotation" && document.status === "approved" && bankUrl && <a className="customer-bank-link" href={bankUrl} target="_blank" rel="noreferrer">Continue to bank credit application <FiArrowUpRight /></a>}
+                  {document.type === "quotation" && document.status === "approved" && bankUrl && !isRichGreen && <a className="customer-bank-link" href={bankUrl} target="_blank" rel="noreferrer">Continue to bank credit application <FiArrowUpRight /></a>}
+                  {document.type === "quotation" && document.status === "approved" && isRichGreen && applicationStatus !== "submitted" && <button className="customer-bank-link" type="button" onClick={() => setApplicationDocument(document)}>Complete RichGreen application <FiArrowUpRight /></button>}
+                  {document.type === "quotation" && document.status === "approved" && isRichGreen && applicationStatus === "submitted" && <div className="document-action-note"><strong>RichGreen application submitted</strong><span>Sales can download the secured application and approved quotation for bank submission.</span></div>}
                   {document.type === "quotation" && document.status === "approved" && isOutright && <div className="document-action-note"><strong>Invoice being prepared</strong><span>Your approval is recorded. BuiltRight will issue the final outright-payment invoice for the confirmed project cost.</span></div>}
-                  {document.type === "quotation" && document.status === "approved" && !bankUrl && !isOutright && <div className="document-action-note"><strong>Bank link pending</strong><span>Your approval is recorded. The application button will appear when the bank provides its hosted URL.</span></div>}
+                  {document.type === "quotation" && document.status === "approved" && !bankUrl && !isOutright && !isRichGreen && <div className="document-action-note"><strong>Bank link pending</strong><span>Your approval is recorded. The application button will appear when the bank provides its hosted URL.</span></div>}
                   <footer><button type="button" onClick={() => setSelectedId(document._id)}>View details</button><button type="button" onClick={() => downloadProjectDocument(document)}><FiDownload /> Download PDF</button></footer>
                 </article>
               );
@@ -182,17 +189,29 @@ function CustomerDocuments() {
             {selectedDocument.type === "quotation" && selectedDocument.status === "sent" && !requestingChanges && (
               <label className="quotation-approval-check"><input type="checkbox" checked={approvalChecked} onChange={(event) => setApprovalChecked(event.target.checked)} /><span>I have reviewed the full project scope, materials, total cost, customer equity, and financing amount, and I approve this quotation.</span></label>
             )}
-            {requestingChanges && <label className="quotation-change-box"><span>Describe the correction you need</span><textarea rows="4" value={changeNote} onChange={(event) => setChangeNote(event.target.value)} placeholder="Explain the item, scope, quantity or amount that should be reviewed." /></label>}
+            {requestingChanges && <label className="quotation-change-box"><span>Why do you need a lower-load or revised system?</span><textarea rows="4" value={changeNote} onChange={(event) => setChangeNote(event.target.value)} placeholder="For example: the monthly repayment is above my budget, so I want to reduce the appliances or backup load included in the recommendation." /></label>}
 
             <footer className="document-modal-actions">
               <button type="button" className="secondary" onClick={() => downloadProjectDocument(selectedDocument)}><FiDownload /> Download PDF</button>
-              {selectedDocument.type === "quotation" && selectedDocument.status === "sent" && !requestingChanges && <button type="button" className="secondary" onClick={() => setRequestingChanges(true)}>Request changes</button>}
+              {selectedDocument.type === "quotation" && selectedDocument.status === "sent" && !requestingChanges && <button type="button" className="secondary" onClick={() => setRequestingChanges(true)}>Decline & request review</button>}
               {selectedDocument.type === "quotation" && selectedDocument.status === "sent" && !requestingChanges && <button type="button" className="primary" disabled={!approvalChecked || saving} onClick={approveQuotation}><FiCheck /> {saving ? "Recording..." : "Accept quotation"}</button>}
-              {requestingChanges && <button type="button" className="primary" disabled={!changeNote.trim() || saving} onClick={submitChangeRequest}>{saving ? "Sending..." : "Send change request"}</button>}
+              {requestingChanges && <button type="button" className="primary" disabled={!changeNote.trim() || saving} onClick={submitChangeRequest}>{saving ? "Sending..." : "Decline quotation & send review request"}</button>}
             </footer>
           </section>
         </div>
       )}
+      {applicationDocument && <RichGreenApplicationForm
+        projectDocument={applicationDocument}
+        onClose={() => setApplicationDocument(null)}
+        onSubmitted={(application) => {
+          setDocuments((items) => items.map((item) => item.financingRequest === applicationDocument.financingRequest ? {
+            ...item,
+            financing: { ...item.financing, bankApplication: { ...item.financing?.bankApplication, status: "manual-application-submitted", richGreenApplication: application } },
+          } : item));
+          setMessage("RichGreen application submitted securely. Sales can now download it for bank submission.");
+          setApplicationDocument(null);
+        }}
+      />}
     </CustomerLayout>
   );
 }

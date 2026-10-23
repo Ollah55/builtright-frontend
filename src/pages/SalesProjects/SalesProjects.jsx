@@ -106,6 +106,26 @@ function SalesProjects() {
     } catch (error) { setMessage(error.message); }
   };
 
+  const downloadRichGreenApplication = async (project) => {
+    try {
+      setMessage("");
+      const response = await fetch(`${API_BASE_URL}/api/sales/projects/${project._id}/richgreen-application/download`, { headers: tokenHeaders() });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || "Could not download the RichGreen application.");
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `RichGreen-Application-${project.reference}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) { setMessage(error.message); }
+  };
+
   return <SalesLayout title="Customers & orders" subtitle="Register customers, follow inspection progress, open project records, and view quotations and invoices.">
     {message && <p className="sales-message" role="status">{message}</p>}
     <section id="new-customer" className="sales-card sales-intake">
@@ -148,8 +168,8 @@ function SalesProjects() {
           <span><strong>{project.customer?.fullName}</strong><small>{project.reference} · {project.customer?.phone}</small><small>{project.customer?.location}</small></span>
           <span><strong><FiPackage /> {project.order?.orderNumber || "Creating order"}</strong><small>{project.order?.status || "Processing"}</small><small>{project.paymentMethod === "outright" ? "Outright" : project.financeInstitution}</small></span>
           <span onClick={(event) => event.stopPropagation()}><strong><FiCheckCircle /> {project.assessment?.inspection?.status || "pending"}</strong><small>Result: {project.assessment?.inspection?.result || "pending"}</small><small>{project.inspection?.feeAmount ? `${formatMoney(project.inspection.feeAmount)} · ` : ""}{project.inspection?.feeStatus || "not requested"}</small>{project.installerAssignment?.status !== "completed" && project.inspection?.status !== "completed" && <select aria-label={`Assign installer for ${project.customer?.fullName}`} value={project.installerAssignment?.installer || ""} onChange={(event) => assignInstaller(project._id, event.target.value)}><option value="">Assign installer</option>{installers.map((installer) => <option value={installer._id} key={installer._id}>{installer.fullName}</option>)}</select>}<button type="button" className="sales-fee-edit" disabled={["payment-requested", "proof-submitted", "payment-confirmed"].includes(project.inspection?.feeStatus)} onClick={() => updateAssessmentFee(project)}>Edit fee</button>{project.inspection?.feeStatus === "proof-submitted" && <><a className="sales-proof-link" href={project.inspection?.paymentProof?.url} target="_blank" rel="noreferrer">View proof</a><button type="button" className="sales-fee-edit" onClick={() => confirmAssessmentPayment(project)}>Confirm payment</button></>}</span>
-          <span><strong>{project.invoice?.reference || "Not generated"}</strong><small>{project.invoice?.status || "Available after final project approval"}</small><small>{project.quotation?.status || "Quotation not started"}</small></span>
-          <span className="actions" onClick={(event) => event.stopPropagation()}><button type="button" title="Download combined assessment report" onClick={() => downloadAssessmentReport(project)}><FiDownload /></button><button type="button" onClick={() => navigate(`/sales/projects/${project._id}`)}><FiFileText /> Details <FiChevronRight /></button></span>
+          <span><strong>{project.invoice?.reference || project.inspectionInvoice?.reference || "Not generated"}</strong><small>{project.invoice?.status || (project.inspectionInvoice ? "Inspection invoice issued" : "Available after final project approval")}</small><small>{project.bankApplication?.richGreenApplication?.status === "submitted" ? "RichGreen application ready" : (project.quotation?.status || "Quotation not started")}</small></span>
+          <span className="actions" onClick={(event) => event.stopPropagation()}><button type="button" title="Download combined assessment report" onClick={() => downloadAssessmentReport(project)}><FiDownload /></button>{project.bankApplication?.richGreenApplication?.status === "submitted" && <button type="button" title="Download submitted RichGreen application" onClick={() => downloadRichGreenApplication(project)}><FiDownload /> RichGreen form</button>}<button type="button" onClick={() => navigate(`/sales/projects/${project._id}`)}><FiFileText /> Details <FiChevronRight /></button></span>
         </div>)}
         {!filtered.length && <p className="sales-empty">No registered customers found.</p>}
       </div>
