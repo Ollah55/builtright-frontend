@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import PasswordInput from "../../components/PasswordInput/PasswordInput";
 import "./installerAccess.css";
 
 const API_BASE_URL = "https://builtright-backend-1.onrender.com";
@@ -43,9 +44,10 @@ function InstallerLogin() {
         <p>Sign in to review inspection assignments, contact customers, schedule visits, and submit assessment reports.</p>
         <form onSubmit={submit}>
           <label>Email<input type="email" value={form.email} onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))} required /></label>
-          <label>Password<input type="password" value={form.password} onChange={(event) => setForm((current) => ({ ...current, password: event.target.value }))} required /></label>
+          <label>Password<PasswordInput autoComplete="current-password" value={form.password} onChange={(event) => setForm((current) => ({ ...current, password: event.target.value }))} required /></label>
           <button type="submit" disabled={submitting}>{submitting ? "Signing in..." : "Sign in to installer profile"}</button>
         </form>
+        <Link className="password-help-link" to="/forgot-password?role=installer">Forgot password?</Link>
         {message && <p className="installer-access-message">{message}</p>}
       </section>
     </main>

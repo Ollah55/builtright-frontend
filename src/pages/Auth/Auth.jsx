@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import PasswordInput from "../../components/PasswordInput/PasswordInput";
 import "./auth.css";
 
 function Auth() {
@@ -153,8 +154,7 @@ function Auth() {
                   required
                 />
 
-                <input
-                  type="password"
+                <PasswordInput
                   name="password"
                   placeholder="Password"
                   value={loginData.password}
@@ -166,6 +166,7 @@ function Auth() {
                   {isSubmitting ? "Logging in..." : "Login"}
                 </button>
               </form>
+              <Link className="password-help-link" to="/forgot-password?role=customer">Forgot password?</Link>
 
               <p className="auth-switch">
                 Don&apos;t have an account?{" "}
@@ -218,8 +219,7 @@ function Auth() {
                 />
 
                 <div className="auth-row">
-                  <input
-                    type="password"
+                  <PasswordInput
                     name="password"
                     placeholder="Password"
                     value={registerData.password}
@@ -227,8 +227,7 @@ function Auth() {
                     required
                   />
 
-                  <input
-                    type="password"
+                  <PasswordInput
                     name="confirmPassword"
                     placeholder="Confirm Password"
                     value={registerData.confirmPassword}

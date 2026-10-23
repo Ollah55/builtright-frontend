@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useSearchParams } from "react-router-dom";
+import PasswordInput from "../../components/PasswordInput/PasswordInput";
 import "../InstallerLogin/installerAccess.css";
 
 const API_BASE_URL = "https://builtright-backend-1.onrender.com";
@@ -43,8 +44,8 @@ function InstallerActivate() {
         <h1>Activate your account</h1>
         <p>Choose a secure password for your installer profile. This invitation is valid for seven days.</p>
         {success ? <Link className="installer-access-link" to="/installer/login">Go to installer login</Link> : <form onSubmit={submit}>
-          <label>New password<input type="password" minLength="8" value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
-          <label>Confirm password<input type="password" minLength="8" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required /></label>
+          <label>New password<PasswordInput minLength="8" autoComplete="new-password" value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
+          <label>Confirm password<PasswordInput minLength="8" autoComplete="new-password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required /></label>
           <button type="submit" disabled={submitting}>{submitting ? "Activating..." : "Activate installer account"}</button>
         </form>}
         {message && <p className={`installer-access-message ${success ? "success" : ""}`}>{message}</p>}

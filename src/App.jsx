@@ -19,6 +19,8 @@ const FinancingForm = lazy(() => import("./pages/FinancingForm/FinancingForm"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess/PaymentSuccess"));
 const Compare = lazy(() => import("./pages/Compare/Compare"));
 const Auth = lazy(() => import("./pages/Auth/Auth"));
+const ForgotPassword = lazy(() => import("./pages/PasswordRecovery/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/PasswordRecovery/ResetPassword"));
 
 // Admin Pages
 const AdminLogin = lazy(() => import("./pages/AdminLogin/AdminLogin"));
@@ -157,6 +159,8 @@ function AppContent() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Shop Pages */}
         <Route path="/shop" element={<Shop />} />
@@ -232,6 +236,8 @@ function AppContent() {
 
         {/* Admin Pages */}
         <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/forgot-password" element={<ForgotPassword />} />
+        <Route path="/admin/reset-password" element={<ResetPassword />} />
         <Route path="/installer/login" element={<InstallerLogin />} />
         <Route path="/installer/activate" element={<InstallerActivate />} />
         <Route path="/installer/assignments" element={<ProtectedInstallerRoute><InstallerAssignments /></ProtectedInstallerRoute>} />

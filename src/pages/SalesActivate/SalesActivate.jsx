@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import PasswordInput from "../../components/PasswordInput/PasswordInput";
 import "../InstallerLogin/installerAccess.css";
 
 const API_BASE_URL = "https://builtright-backend-1.onrender.com";
@@ -20,7 +21,7 @@ function SalesActivate() {
       setSuccess(true); setMessage(data.message);
     } catch (error) { setMessage(error.message); }
   };
-  return <main className="installer-access-page"><section className="installer-access-card"><p className="installer-eyebrow">BuiltRight sales operations</p><h1>Activate sales account</h1><p>Create the password you will use for the sales workspace.</p>{success?<Link className="installer-access-link" to="/sales/login">Go to sales login</Link>:<form onSubmit={submit}><label>New password<input type="password" minLength="8" required value={password} onChange={(event)=>setPassword(event.target.value)}/></label><label>Confirm password<input type="password" minLength="8" required value={confirm} onChange={(event)=>setConfirm(event.target.value)}/></label><button type="submit">Activate sales account</button></form>}{message&&<p className={`installer-access-message ${success?"success":""}`}>{message}</p>}</section></main>;
+  return <main className="installer-access-page"><section className="installer-access-card"><p className="installer-eyebrow">BuiltRight sales operations</p><h1>Activate sales account</h1><p>Create the password you will use for the sales workspace.</p>{success?<Link className="installer-access-link" to="/sales/login">Go to sales login</Link>:<form onSubmit={submit}><label>New password<PasswordInput minLength="8" autoComplete="new-password" required value={password} onChange={(event)=>setPassword(event.target.value)}/></label><label>Confirm password<PasswordInput minLength="8" autoComplete="new-password" required value={confirm} onChange={(event)=>setConfirm(event.target.value)}/></label><button type="submit">Activate sales account</button></form>}{message&&<p className={`installer-access-message ${success?"success":""}`}>{message}</p>}</section></main>;
 }
 
 export default SalesActivate;

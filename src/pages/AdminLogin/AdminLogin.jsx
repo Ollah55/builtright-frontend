@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import PasswordInput from "../../components/PasswordInput/PasswordInput";
 import "./adminlogin.css";
 
 function AdminLogin() {
@@ -118,8 +119,7 @@ function AdminLogin() {
 
               <label>
                 Password
-                <input
-                  type="password"
+                <PasswordInput
                   name="password"
                   placeholder="Enter admin password"
                   value={formData.password}
@@ -131,6 +131,7 @@ function AdminLogin() {
               <button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "Signing in..." : "Login to Dashboard"}
               </button>
+              <Link className="password-help-link" to="/admin/forgot-password">Forgot password?</Link>
 
               {statusMessage && (
                 <p className="admin-login-status">{statusMessage}</p>

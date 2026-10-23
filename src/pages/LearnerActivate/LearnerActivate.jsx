@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useSearchParams } from "react-router-dom";
+import PasswordInput from "../../components/PasswordInput/PasswordInput";
 import "../LearnerLogin/learnerAccess.css";
 import { readLearnerApiResponse } from "../../services/learnerApi";
 
@@ -25,7 +26,7 @@ function LearnerActivate() {
     } catch (error) { setMessage(error.message || "Could not activate account."); } finally { setSubmitting(false); }
   };
 
-  return <main className="learner-access-page"><Helmet><title>Activate Learner Account | BuiltRight Training</title></Helmet><section className="learner-access-card"><p className="learner-eyebrow">BuiltRight virtual training</p><h1>Set your password</h1><p>Activate your learner account to access the current virtual training cohort. This invitation is valid for seven days.</p>{success ? <Link className="learner-access-link" to="/learner/login">Go to learner login</Link> : <form onSubmit={submit}><label>New password<input type="password" minLength="8" value={password} onChange={(event) => setPassword(event.target.value)} required /></label><label>Confirm password<input type="password" minLength="8" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required /></label><button type="submit" disabled={submitting}>{submitting ? "Activating..." : "Activate learner account"}</button></form>}{message && <p className={`learner-access-message ${success ? "success" : ""}`}>{message}</p>}</section></main>;
+  return <main className="learner-access-page"><Helmet><title>Activate Learner Account | BuiltRight Training</title></Helmet><section className="learner-access-card"><p className="learner-eyebrow">BuiltRight virtual training</p><h1>Set your password</h1><p>Activate your learner account to access the current virtual training cohort. This invitation is valid for seven days.</p>{success ? <Link className="learner-access-link" to="/learner/login">Go to learner login</Link> : <form onSubmit={submit}><label>New password<PasswordInput minLength="8" autoComplete="new-password" value={password} onChange={(event) => setPassword(event.target.value)} required /></label><label>Confirm password<PasswordInput minLength="8" autoComplete="new-password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required /></label><button type="submit" disabled={submitting}>{submitting ? "Activating..." : "Activate learner account"}</button></form>}{message && <p className={`learner-access-message ${success ? "success" : ""}`}>{message}</p>}</section></main>;
 }
 
 export default LearnerActivate;
