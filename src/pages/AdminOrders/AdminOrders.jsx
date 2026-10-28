@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import jsPDF from "jspdf";
 import logo from "../../assets/logoooo.png";
 import AdminLayout from "../../components/AdminLayout/AdminLayout";
+import useLiveRefresh from "../../hooks/useLiveRefresh";
 import "./adminOrders.css";
 
 function AdminOrders() {
@@ -13,8 +14,7 @@ function AdminOrders() {
 
   const token = localStorage.getItem("adminToken");
 
-  useEffect(() => {
-    const loadOrders = async () => {
+  const loadOrders = async () => {
       try {
         const response = await fetch("https://builtright-backend-1.onrender.com/api/admin/orders", {
           headers: {
@@ -33,10 +33,12 @@ function AdminOrders() {
       } finally {
         setLoading(false);
       }
-    };
+  };
 
+  useEffect(() => {
     loadOrders();
   }, [token]);
+  useLiveRefresh(loadOrders);
 
   const filteredOrders = useMemo(() => {
     let result = [...orders];

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-const DEFAULT_INTERVAL_MS = 4000;
+const DEFAULT_INTERVAL_MS = 1000;
 
 export default function useLiveRefresh(refresh, options = {}) {
   const { enabled = true, intervalMs = DEFAULT_INTERVAL_MS } = options;
@@ -30,11 +30,13 @@ export default function useLiveRefresh(refresh, options = {}) {
 
     const intervalId = window.setInterval(runRefresh, intervalMs);
     window.addEventListener("focus", runRefresh);
+    window.addEventListener("online", runRefresh);
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       window.clearInterval(intervalId);
       window.removeEventListener("focus", runRefresh);
+      window.removeEventListener("online", runRefresh);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [enabled, intervalMs]);

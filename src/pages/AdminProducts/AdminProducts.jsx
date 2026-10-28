@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import AdminLayout from "../../components/AdminLayout/AdminLayout";
+import useLiveRefresh from "../../hooks/useLiveRefresh";
 import "./adminProducts.css";
 
 function AdminProducts() {
@@ -43,8 +44,7 @@ function AdminProducts() {
 
   const token = localStorage.getItem("adminToken");
 
-  useEffect(() => {
-    const loadProducts = async () => {
+  const loadProducts = async () => {
       try {
         const response = await fetch("https://builtright-backend-1.onrender.com/api/products");
         const data = await response.json();
@@ -58,10 +58,12 @@ function AdminProducts() {
       } finally {
         setLoading(false);
       }
-    };
+  };
 
+  useEffect(() => {
     loadProducts();
   }, []);
+  useLiveRefresh(loadProducts, { enabled: !showModal });
 
   const slugify = (text) =>
     String(text || "")

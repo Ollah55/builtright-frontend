@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { FiBookOpen, FiCalendar, FiClock, FiDownload, FiLogOut, FiPlay } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import useLiveRefresh from "../../hooks/useLiveRefresh";
 import { readLearnerApiResponse } from "../../services/learnerApi";
 import "./learnerPortal.css";
 
@@ -24,6 +25,17 @@ function LearnerPortal() {
       })
       .finally(() => setLoading(false));
   }, [navigate]);
+
+  const refreshPortal = async () => {
+    const token = localStorage.getItem("learnerToken");
+    try {
+      const response = await fetch(API_BASE_URL + "/api/learner/portal", { headers: { Authorization: "Bearer " + token } });
+      setPortal(await readLearnerApiResponse(response, "Could not load your portal."));
+    } catch (error) {
+      if (/token|unauthor/i.test(error.message || "")) navigate("/learner/login");
+    }
+  };
+  useLiveRefresh(refreshPortal);
 
   const logout = () => {
     localStorage.removeItem("learnerToken");

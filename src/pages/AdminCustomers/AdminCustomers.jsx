@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import AdminLayout from "../../components/AdminLayout/AdminLayout";
+import useLiveRefresh from "../../hooks/useLiveRefresh";
 import "./adminCustomers.css";
 
 function AdminCustomers() {
@@ -11,8 +12,7 @@ function AdminCustomers() {
 
   const token = localStorage.getItem("adminToken");
 
-  useEffect(() => {
-    const loadCustomers = async () => {
+  const loadCustomers = async () => {
       try {
         const response = await fetch(
           "https://builtright-backend-1.onrender.com/api/admin/customers",
@@ -34,10 +34,12 @@ function AdminCustomers() {
       } finally {
         setLoading(false);
       }
-    };
+  };
 
+  useEffect(() => {
     loadCustomers();
   }, [token]);
+  useLiveRefresh(loadCustomers);
   const deleteCustomer = async (id) => {
   const confirmDelete = window.confirm(
     "Permanently delete this customer and all linked financing requests, orders, quotations, invoices, devices, alerts, and commands? This cannot be undone."

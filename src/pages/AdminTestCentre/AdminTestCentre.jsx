@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FiCheckCircle, FiPlay, FiRefreshCw, FiTrash2, FiZap } from "react-icons/fi";
 import AdminLayout from "../../components/AdminLayout/AdminLayout";
+import useLiveRefresh from "../../hooks/useLiveRefresh";
 import "./adminTestCentre.css";
 
 const API_BASE_URL = "https://builtright-backend-1.onrender.com";
@@ -29,9 +30,9 @@ function AdminTestCentre() {
     return result;
   };
 
-  const load = async () => {
+  const load = async ({ silent = false } = {}) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       setData(await request("/api/admin/operations-tests"));
     } catch (error) {
       setMessage(error.message);
@@ -41,6 +42,7 @@ function AdminTestCentre() {
   };
 
   useEffect(() => { load(); }, []);
+  useLiveRefresh(load, { enabled: !working });
 
   const createRun = async () => {
     try {

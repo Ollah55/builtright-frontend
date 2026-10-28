@@ -14,6 +14,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import AdminLayout from "../../components/AdminLayout/AdminLayout";
+import useLiveRefresh from "../../hooks/useLiveRefresh";
 import { getProviderIntegrationStatus, sendAshGridDeviceControl, simulateAshGridEvent } from "../../services/providerAdapters";
 import "./adminDevices.css";
 
@@ -102,6 +103,9 @@ function AdminDevices() {
     loadDevices();
     loadIntegration();
   }, []);
+  useLiveRefresh(async () => {
+    await Promise.all([loadDevices(), loadIntegration()]);
+  }, { enabled: !sending && !registering && !simulating });
 
   const devices = useMemo(() => {
     const search = searchTerm.toLowerCase().trim();

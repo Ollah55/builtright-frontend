@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { jsPDF } from "jspdf";
 import logo from "../../assets/logoooo.png";
 import { accountingApi, naira, plainNaira } from "../../services/accountingApi";
+import useLiveRefresh from "../../hooks/useLiveRefresh";
 import "./accounting.css";
 import "./fixedAssets.css";
 
@@ -285,6 +286,7 @@ export default function AccountingPortal() {
       handleError(error);
     }
   };
+  useLiveRefresh(refresh, { enabled: !busy });
   const logout = () => {
     localStorage.removeItem("accountantToken");
     localStorage.removeItem("accountantUser");

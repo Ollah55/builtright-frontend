@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import useLiveRefresh from "../../hooks/useLiveRefresh";
 import "./customerDashboard.css";
 
 function CustomerDashboard() {
@@ -13,8 +14,7 @@ function CustomerDashboard() {
   const [loanRequests, setLoanRequests] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const loadDashboardData = async () => {
+  const loadDashboardData = async () => {
       try {
         const [ordersResponse, loansResponse] = await Promise.all([
           fetch("https://builtright-backend-1.onrender.com/api/customer/orders", {
@@ -44,10 +44,12 @@ function CustomerDashboard() {
       } finally {
         setLoading(false);
       }
-    };
+  };
 
+  useEffect(() => {
     loadDashboardData();
   }, [token]);
+  useLiveRefresh(loadDashboardData);
 
   const handleLogout = () => {
     localStorage.removeItem("customerToken");

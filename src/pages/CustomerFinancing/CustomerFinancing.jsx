@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiArrowRight, FiCheck, FiClock, FiFileText, FiMapPin } from "react-icons/fi";
 import CustomerLayout from "../../components/CustomerLayout/CustomerLayout";
+import useLiveRefresh from "../../hooks/useLiveRefresh";
 import {
   FINANCING_STAGES,
   formatMoney,
@@ -36,8 +37,7 @@ function CustomerFinancing() {
   const [paymentProofs, setPaymentProofs] = useState({});
   const [uploadingPaymentId, setUploadingPaymentId] = useState("");
 
-  useEffect(() => {
-    const loadLoanRequests = async () => {
+  const loadLoanRequests = async () => {
       try {
         const token = localStorage.getItem("customerToken");
         const response = await fetch(`${API_BASE_URL}/api/customer/loan-requests`, {
@@ -51,9 +51,12 @@ function CustomerFinancing() {
       } finally {
         setLoading(false);
       }
-    };
+  };
+
+  useEffect(() => {
     loadLoanRequests();
   }, []);
+  useLiveRefresh(loadLoanRequests, { enabled: !uploadingPaymentId });
 
   const uploadInspectionPaymentProof = async (request) => {
     const proof = paymentProofs[request._id];

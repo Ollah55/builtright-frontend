@@ -22,6 +22,7 @@ import {
 import { downloadProjectDocument } from "../../lib/projectDocumentPdf";
 import { downloadAssessmentReport } from "../../lib/assessmentReportPdf";
 import { getFinancingPartner } from "../../lib/financingPartners";
+import useLiveRefresh from "../../hooks/useLiveRefresh";
 import "./adminFinancingCase.css";
 
 const API_BASE_URL = "https://builtright-backend-1.onrender.com";
@@ -190,6 +191,20 @@ function AdminFinancingCase() {
     };
     loadWorkspace();
   }, [id, portalToken]);
+  useLiveRefresh(async () => {
+    try {
+      const response = await fetch(API_BASE_URL + "/api/loan-requests/" + id + "/workspace", {
+        headers: { Authorization: "Bearer " + portalToken },
+      });
+      const data = await response.json();
+      if (!response.ok || !data.status) return;
+      setFinancingCase(data.loanRequest);
+      setDocuments(data.documents || []);
+      setOrder(data.order || null);
+    } catch {
+      // The current workspace remains visible during a transient refresh failure.
+    }
+  }, { enabled: !saving });
 
   const latestQuotation = documents.find((document) => document.type === "quotation") || null;
   const latestInvoice = documents.find((document) => document.type === "invoice" && document.purpose !== "inspection-fee") || null;

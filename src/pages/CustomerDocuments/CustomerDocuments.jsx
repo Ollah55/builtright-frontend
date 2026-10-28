@@ -11,6 +11,7 @@ import CustomerLayout from "../../components/CustomerLayout/CustomerLayout";
 import RichGreenApplicationForm from "../../components/RichGreenApplicationForm/RichGreenApplicationForm";
 import { formatMoney } from "../../lib/operations";
 import { downloadProjectDocument } from "../../lib/projectDocumentPdf";
+import useLiveRefresh from "../../hooks/useLiveRefresh";
 import "./customerDocuments.css";
 
 const API_BASE_URL = "https://builtright-backend-1.onrender.com";
@@ -26,8 +27,7 @@ function CustomerDocuments() {
   const [message, setMessage] = useState("");
   const [applicationDocument, setApplicationDocument] = useState(null);
 
-  useEffect(() => {
-    const loadDocuments = async () => {
+  const loadDocuments = async () => {
       try {
         const token = localStorage.getItem("customerToken");
         const response = await fetch(`${API_BASE_URL}/api/customer/documents`, {
@@ -41,9 +41,12 @@ function CustomerDocuments() {
       } finally {
         setLoading(false);
       }
-    };
+  };
+
+  useEffect(() => {
     loadDocuments();
   }, []);
+  useLiveRefresh(loadDocuments, { enabled: !saving });
 
   const filteredDocuments = useMemo(
     () => documents.filter((document) => filter === "all" || document.type === filter),

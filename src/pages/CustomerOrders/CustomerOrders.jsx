@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
 import logo from "../../assets/logoooo.png";
 import CustomerLayout from "../../components/CustomerLayout/CustomerLayout";
+import useLiveRefresh from "../../hooks/useLiveRefresh";
 import "./customerOrders.css";
 
 function CustomerOrders() {
@@ -12,8 +13,7 @@ function CustomerOrders() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    const loadOrders = async () => {
+  const loadOrders = async () => {
       try {
         const token = localStorage.getItem("customerToken");
 
@@ -34,10 +34,12 @@ function CustomerOrders() {
       } finally {
         setLoading(false);
       }
-    };
+  };
 
+  useEffect(() => {
     loadOrders();
   }, []);
+  useLiveRefresh(loadOrders);
 
   const downloadInvoice = (order) => {
     const doc = new jsPDF();
