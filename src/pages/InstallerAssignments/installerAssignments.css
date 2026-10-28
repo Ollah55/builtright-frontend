@@ -37,8 +37,25 @@
 .installer-report-head { display: flex; justify-content: space-between; gap: 1rem; }
 .installer-report-head span { max-width: 330px; color: #63736f; font-size: .8rem; line-height: 1.45; }
 .installer-report-grid { display: grid; grid-template-columns: 1fr 1.35fr; gap: 16px; }
-.installer-report-grid > section, .installer-due-diligence, .installer-materials { display: grid; gap: .75rem; padding: 1rem; border: 1px solid #dbe9e6; border-radius: 14px; background: #fafffd; }
+.installer-report-grid > section, .installer-appliances, .installer-due-diligence, .installer-materials { display: grid; gap: .75rem; padding: 1rem; border: 1px solid #dbe9e6; border-radius: 14px; background: #fafffd; }
 .installer-sizing-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .6rem; }
+.installer-sizing-grid input[readonly] { color: #225d54; background: #edf7f5; font-weight: 900; }
+.installer-appliances-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.installer-appliances-head p { max-width: 750px; margin: .35rem 0 0; color: #657570; font-size: .8rem; line-height: 1.5; }
+.installer-appliance-table { display: grid; gap: .5rem; overflow-x: auto; }
+.installer-appliance-header, .installer-appliance-row { display: grid; grid-template-columns: minmax(210px, 1.6fr) minmax(90px, .7fr) minmax(76px, .55fr) minmax(90px, .7fr) minmax(76px, .55fr) minmax(90px, .7fr) 36px; gap: .5rem; min-width: 850px; align-items: center; }
+.installer-appliance-header { padding: 0 .2rem; color: #667b76; font-size: .68rem; font-weight: 900; text-transform: uppercase; }
+.installer-appliance-row { padding: .6rem; border: 1px solid #dfece9; border-radius: 11px; background: #fff; }
+.installer-appliance-name { display: grid; gap: .4rem; }
+.installer-appliance-row input, .installer-appliance-row select { min-width: 0; padding: .6rem .65rem; }
+.installer-appliance-row output { color: #225d54; font-size: .8rem; font-weight: 900; }
+.installer-appliance-row > button { width: 34px; height: 34px; border: 0; border-radius: 8px; color: #9e2429; background: #fff0f1; cursor: pointer; }
+.installer-critical-check { display: flex !important; align-items: center; gap: .35rem !important; }
+.installer-critical-check input { width: 17px !important; height: 17px; margin: 0; padding: 0; }
+.installer-audit-totals { display: grid; grid-template-columns: repeat(3, 1fr); gap: .7rem; }
+.installer-audit-totals div { display: grid; gap: .2rem; padding: .8rem; border-radius: 10px; background: #eaf7f4; }
+.installer-audit-totals span { color: #657570; font-size: .68rem; font-weight: 800; text-transform: uppercase; }
+.installer-audit-totals strong { color: #145e54; font-size: 1rem; }
 .installer-due-diligence > div { display: grid; gap: .55rem; }
 .installer-due-diligence > div label { grid-template-columns: 1fr 120px; align-items: center; }
 .installer-materials { background: #fff; }
@@ -47,4 +64,4 @@
 .installer-add-material { width: max-content; color: var(--primary-green); background: #e9f7f4; }
 .installer-save-report { justify-self: start; }
 @media (max-width: 900px) { .installer-workspace { padding: 1.2rem 4%; } .installer-customer-grid, .installer-response-grid, .installer-report-grid { grid-template-columns: 1fr; } }
-@media (max-width: 600px) { .installer-workspace-header, .installer-report-head { flex-direction: column; } .installer-customer-grid div { padding: .85rem 1rem; } .installer-sizing-grid { grid-template-columns: 1fr; } .installer-due-diligence > div label, .installer-material-row { grid-template-columns: 1fr; } .installer-material-row button { min-height: 34px; } }
+@media (max-width: 600px) { .installer-workspace-header, .installer-report-head, .installer-appliances-head { flex-direction: column; } .installer-customer-grid div { padding: .85rem 1rem; } .installer-sizing-grid, .installer-audit-totals { grid-template-columns: 1fr; } .installer-due-diligence > div label, .installer-material-row { grid-template-columns: 1fr; } .installer-material-row button { min-height: 34px; } }
