@@ -16,6 +16,7 @@ const initialForm = {
   inspectionFeeAmount: "",
   installerId: "",
   inspectionCompleted: false,
+  assessmentFeePaid: false,
   notes: "",
   consentCaptured: false,
 };
@@ -146,17 +147,21 @@ function SalesProjects() {
         <fieldset>
           <legend>Book site assessment</legend>
           <label className="sales-offline-complete">
-            <input type="checkbox" checked={form.inspectionCompleted} onChange={(event) => setForm({ ...form, inspectionCompleted: event.target.checked, installerId: event.target.checked ? "" : form.installerId })} />
+            <input type="checkbox" checked={form.inspectionCompleted} onChange={(event) => setForm({ ...form, inspectionCompleted: event.target.checked, assessmentFeePaid: event.target.checked ? true : false, installerId: event.target.checked ? "" : form.installerId })} />
             <span><strong>Inspection already completed</strong><small>Use this when the customer completed the inspection, load audit, and assessment payment through WhatsApp or another offline process. No installer will be assigned.</small></span>
           </label>
+          {!form.inspectionCompleted && <label className="sales-offline-complete sales-payment-complete">
+            <input required type="checkbox" checked={form.assessmentFeePaid} onChange={(event) => setForm({ ...form, assessmentFeePaid: event.target.checked, installerId: event.target.checked ? form.installerId : "" })} />
+            <span><strong>I confirm the assessment fee has been received</strong><small>This confirmation must be completed first. Only after payment is confirmed can sales select an installer and create the inspection assignment.</small></span>
+          </label>}
           <div className="sales-form-grid">
-            <label>{form.inspectionCompleted ? "Assessment fee paid (NGN, optional)" : "Assessment fee (NGN)"}<input required={!form.inspectionCompleted} type="number" min="1" step="1" value={form.inspectionFeeAmount} onChange={(event) => setForm({ ...form, inspectionFeeAmount: event.target.value })} placeholder={form.inspectionCompleted ? "Enter the amount if available" : "Set by sales; hidden from installer"} /></label>
-            <label>Installer<select required={!form.inspectionCompleted} disabled={form.inspectionCompleted} value={form.installerId} onChange={(event) => setForm({ ...form, installerId: event.target.value })}><option value="">{form.inspectionCompleted ? "Not required for completed inspection" : "Select available installer"}</option>{installers.map((installer) => <option value={installer._id} key={installer._id}>{installer.fullName}</option>)}</select></label>
+            <label>{form.inspectionCompleted ? "Assessment fee paid (NGN, optional)" : "Assessment fee received (NGN)"}<input required={!form.inspectionCompleted} type="number" min="1" step="1" value={form.inspectionFeeAmount} onChange={(event) => setForm({ ...form, inspectionFeeAmount: event.target.value })} placeholder={form.inspectionCompleted ? "Enter the amount if available" : "Enter the confirmed amount received"} /></label>
+            <label>Installer<select required={!form.inspectionCompleted} disabled={form.inspectionCompleted || !form.assessmentFeePaid} value={form.installerId} onChange={(event) => setForm({ ...form, installerId: event.target.value })}><option value="">{form.inspectionCompleted ? "Not required for completed inspection" : !form.assessmentFeePaid ? "Confirm payment first" : "Select available installer"}</option>{installers.map((installer) => <option value={installer._id} key={installer._id}>{installer.fullName}</option>)}</select></label>
             <label className="wide">Internal note<textarea rows="2" value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Optional sales note; do not enter the projected WhatsApp load audit" /></label>
           </div>
           <label className="sales-consent"><input type="checkbox" required checked={form.consentCaptured} onChange={(event) => setForm({ ...form, consentCaptured: event.target.checked })} /><span>The customer consented to BuiltRight recording these details and contacting them about the assessment and quotation.</span></label>
         </fieldset>
-        <button className="sales-button" type="submit" disabled={saving}>{saving ? "Saving..." : form.inspectionCompleted ? "Register completed assessment & create order" : "Book assessment, assign installer & create order"}</button>
+        <button className="sales-button" type="submit" disabled={saving || (!form.inspectionCompleted && !form.assessmentFeePaid)}>{saving ? "Saving..." : form.inspectionCompleted ? "Register completed assessment & create order" : form.assessmentFeePaid ? "Confirm payment, assign installer & create order" : "Confirm payment to continue"}</button>
       </form>
     </section>
 

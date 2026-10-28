@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://builtright-backend-1.onrender.com";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://builtright-backend-1.onrender.com";
 
 export const providerState = {
   bank: {
@@ -47,13 +47,21 @@ export async function createBankApplication(payload) {
 }
 
 export async function sendAshGridDeviceControl({ customerDeviceId, deviceNumber, control, reason, confirmation }) {
-  if (!providerState.ashGridX.configured) {
-    throw new ProviderNotConfiguredError("AshGridX");
-  }
   return providerRequest("/api/integrations/ashgridx/device/control", {
     method: "POST",
     body: JSON.stringify({ customerDeviceId, deviceNumber, control, reason, confirmation }),
   });
+}
+
+export async function requestAshGridActivationToken({ customerDeviceId, deviceNumber, reason, confirmation }) {
+  return providerRequest("/api/integrations/ashgridx/device/activation-token", {
+    method: "POST",
+    body: JSON.stringify({ customerDeviceId, deviceNumber, reason, confirmation }),
+  });
+}
+
+export async function getProviderIntegrationStatus() {
+  return providerRequest("/api/integrations/status");
 }
 
 export async function getAshGridDeviceStatus(deviceId) {

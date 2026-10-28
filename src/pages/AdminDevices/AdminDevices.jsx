@@ -14,7 +14,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import AdminLayout from "../../components/AdminLayout/AdminLayout";
-import { providerState, sendAshGridDeviceControl, simulateAshGridEvent } from "../../services/providerAdapters";
+import { getProviderIntegrationStatus, sendAshGridDeviceControl, simulateAshGridEvent } from "../../services/providerAdapters";
 import "./adminDevices.css";
 
 const deviceFilters = [
@@ -25,7 +25,7 @@ const deviceFilters = [
   { id: "grace-period", label: "Grace period" },
 ];
 
-const API_BASE_URL = "https://builtright-backend-1.onrender.com";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://builtright-backend-1.onrender.com";
 
 function normalizeDevice(device) {
   const graceStartedAt = device.gracePeriod?.startedAt ? new Date(device.gracePeriod.startedAt) : null;
@@ -38,7 +38,10 @@ function normalizeDevice(device) {
     customer: device.customerSnapshot?.fullName || "Unassigned customer",
     project: device.projectReference || "No project reference",
     site: device.site?.address || "Site not recorded",
-    state: device.inverterState || "unknown",
+    loadState: device.loadServiceState || "unknown",
+    protectionState: device.protectionState || "unknown",
+    lastProviderEvent: device.lastProviderEvent || "No provider event received",
+    lastProviderEventAt: device.lastProviderEventAt ? new Date(device.lastProviderEventAt).toLocaleString("en-NG") : "Never",
     payment: device.paymentStanding || "unknown",
     graceDays,
     tamper: device.tamper?.status && device.tamper.status !== "clear",
@@ -61,6 +64,14 @@ function AdminDevices() {
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   const [registering, setRegistering] = useState(false);
   const [registerForm, setRegisterForm] = useState({ deviceNumber: "", customerDeviceId: "", serialNumber: "", siteAddress: "" });
+  const [integration, setIntegration] = useState({
+    configured: false,
+    commandsEnabled: false,
+    disconnectReady: false,
+    activationTokenReady: false,
+    environment: "staging",
+    events: ["DEVICE_ONLINE", "DEVICE_OFFLINE", "BYPASS", "BYPASS_REVERSED"],
+  });
 
   const loadDevices = async () => {
     try {
@@ -78,7 +89,19 @@ function AdminDevices() {
     }
   };
 
-  useEffect(() => { loadDevices(); }, []);
+  const loadIntegration = async () => {
+    try {
+      const data = await getProviderIntegrationStatus();
+      if (data?.integrations?.ashGridX) setIntegration(data.integrations.ashGridX);
+    } catch {
+      setIntegration((current) => ({ ...current, configured: false, commandsEnabled: false }));
+    }
+  };
+
+  useEffect(() => {
+    loadDevices();
+    loadIntegration();
+  }, []);
 
   const devices = useMemo(() => {
     const search = searchTerm.toLowerCase().trim();
@@ -99,7 +122,10 @@ function AdminDevices() {
     customer: "No live devices registered",
     project: "",
     site: "",
-    state: "unknown",
+    loadState: "unknown",
+    protectionState: "unknown",
+    lastProviderEvent: "No provider event received",
+    lastProviderEventAt: "Never",
     connectivity: "unknown",
     payment: "unknown",
     graceDays: 0,
@@ -107,19 +133,27 @@ function AdminDevices() {
     installed: "",
     lastSeen: "",
   };
-  const canDisable =
-    selectedDevice.state !== "off" &&
+  const canDisconnect =
+    integration.disconnectReady &&
+    selectedDevice.loadState !== "disconnected" &&
     selectedDevice.payment === "default-eligible" &&
     selectedDevice.graceDays >= 10 &&
     selectedDevice.connectivity === "online";
-  const disableReason =
-      selectedDevice.payment === "current"
-      ? "Disablement is locked because this customer is current."
+  const disconnectReason =
+      !integration.disconnectReady
+      ? "Customer-load disconnection is locked until the AshGridX sandbox command guide and credentials are configured."
+      : selectedDevice.payment === "current"
+      ? "Disconnection is locked because this customer is current."
       : selectedDevice.graceDays < 10
-        ? `Disablement is locked until the 10-day grace period is complete (${selectedDevice.graceDays}/10 days).`
+        ? `Disconnection is locked until the 10-day grace period is complete (${selectedDevice.graceDays}/10 days).`
         : selectedDevice.connectivity !== "online"
-          ? "Disablement is locked until device connectivity is restored and verified."
-          : "Disablement requires authorized human confirmation.";
+          ? "Disconnection is locked until device connectivity is restored and verified."
+          : "Disconnection requires authorized human confirmation.";
+  const canRestore =
+    integration.activationTokenReady &&
+    selectedDevice.loadState === "disconnected" &&
+    ["current", "cleared"].includes(selectedDevice.payment) &&
+    selectedDevice.connectivity === "online";
   const paymentStandingLabel = {
     current: "Current",
     "grace-period": "Grace period active",
@@ -138,17 +172,17 @@ function AdminDevices() {
   };
 
   const submitControl = async () => {
-    if (!controlIntent || !providerState.ashGridX.configured) return;
+    if (!controlIntent) return;
     setSending(true);
     try {
       await sendAshGridDeviceControl({
         customerDeviceId: selectedDevice.customerDeviceId,
         deviceNumber: selectedDevice.deviceNumber,
         control: controlIntent,
-        reason: controlIntent === "off" ? "Authorized BuiltRight admin action" : "Payment cleared and activation authorized",
+        reason: controlIntent === "disconnect-load" ? "Authorized BuiltRight customer-load protection action" : "Payment cleared and customer-load restoration authorized",
         confirmation: confirmationText,
       });
-      setMessage(`The ${controlIntent} command was submitted for ${selectedDevice.deviceNumber}.`);
+      setMessage(`The ${controlIntent === "disconnect-load" ? "customer-load disconnection" : "customer-load restoration"} request was submitted for ${selectedDevice.deviceNumber}.`);
       closeControl();
     } catch (error) {
       setMessage(error.message);
@@ -157,12 +191,13 @@ function AdminDevices() {
     }
   };
 
-  const simulateTamper = async () => {
+  const simulateProtectionEvent = async () => {
     if (!selectedDevice.id) return;
+    const event = selectedDevice.protectionState === "bypass" ? "BYPASS_REVERSED" : "BYPASS";
     setSimulating(true);
     try {
-      await simulateAshGridEvent(selectedDevice.id, "BYPASS");
-      setMessage(`Test BYPASS/tamper event recorded for ${selectedDevice.deviceNumber}.`);
+      await simulateAshGridEvent(selectedDevice.id, event);
+      setMessage(`Test ${event} event recorded for ${selectedDevice.deviceNumber}.`);
       await loadDevices();
     } catch (error) {
       setMessage(error.message || "Could not record the test event.");
@@ -204,14 +239,14 @@ function AdminDevices() {
   return (
     <AdminLayout
       title="Device control centre"
-      subtitle="Assign multiple AshGridX devices to financed projects, monitor connectivity and tamper signals, and keep every control action auditable."
+      subtitle="Assign multiple AshGridX devices to financed projects, monitor connectivity and protection events, and keep every customer-load control action auditable."
       actions={<button type="button" className="ops-button primary" onClick={() => setRegisterModalOpen(true)}><FiCpu /> Add device assignment</button>}
     >
       <section className="device-policy-banner">
         <FiShield />
         <div>
           <strong>Pilot safety policy</strong>
-          <p>Automatic shutdown is off. Disablement requires a verified default, completed 10-day grace period, recorded communications, and authorized human confirmation.</p>
+          <p>AshGridX does not shut down the inverter; it disconnects the customer load from generation output. Any disconnection requires a verified default, completed 10-day grace period, recorded communications, and authorized human confirmation.</p>
         </div>
         <span>Manual approval</span>
       </section>
@@ -251,7 +286,7 @@ function AdminDevices() {
         <aside className="device-detail ops-card">
           <div className="device-detail-head">
             <div><p className="ops-section-kicker">Selected asset</p><h2>{selectedDevice.deviceNumber}</h2><span>{selectedDevice.id}</span></div>
-            <i className={`status-pill ${selectedDevice.state === "on" ? "success" : "danger"}`}>{selectedDevice.state === "on" ? "Active" : "Disabled"}</i>
+            <i className={`status-pill ${selectedDevice.loadState === "connected" ? "success" : selectedDevice.loadState === "disconnected" ? "danger" : "warning"}`}>Load {selectedDevice.loadState}</i>
           </div>
 
           {selectedDevice.tamper && (
@@ -265,6 +300,8 @@ function AdminDevices() {
             <div><span>Installed</span><strong>{selectedDevice.installed}</strong></div>
             <div><span>Connectivity</span><strong className={selectedDevice.connectivity}>{selectedDevice.connectivity}</strong></div>
             <div><span>Last seen</span><strong>{selectedDevice.lastSeen}</strong></div>
+            <div><span>Customer-load service</span><strong>{selectedDevice.loadState}</strong></div>
+            <div><span>Protection state</span><strong>{selectedDevice.protectionState}</strong></div>
             <div><span>AshGridX customerDeviceId</span><strong>{selectedDevice.customerDeviceId || "Pending onboarding"}</strong></div>
           </div>
 
@@ -275,14 +312,14 @@ function AdminDevices() {
           </section>
 
           <div className="device-control-actions">
-            <button type="button" className="activate" disabled={selectedDevice.state === "on"} onClick={() => openControl("on")}><FiPower /> Activate</button>
-            <button type="button" className="disable" disabled={!canDisable} title={disableReason} onClick={() => openControl("off")}><FiPower /> Disable</button>
+            <button type="button" className="activate" disabled={!canRestore} onClick={() => openControl("restore-load")}><FiPower /> Restore customer load</button>
+            <button type="button" className="disable" disabled={!canDisconnect} title={disconnectReason} onClick={() => openControl("disconnect-load")}><FiPower /> Disconnect customer load</button>
           </div>
-          {!canDisable && selectedDevice.state !== "off" && <p className="device-control-lock"><FiShield /> {disableReason}</p>}
+          {!canDisconnect && selectedDevice.loadState !== "disconnected" && <p className="device-control-lock"><FiShield /> {disconnectReason}</p>}
 
           <section className="device-audit-preview">
-            <div className="device-audit-head"><p>Recent device activity</p><button type="button" onClick={simulateTamper} disabled={!selectedDevice.id || simulating}>{simulating ? "Recording..." : "Test tamper event"}</button></div>
-            <div><span className="success"><FiCheckCircle /></span><p><strong>Device state checked</strong><small>System reported {selectedDevice.state} - {selectedDevice.lastSeen}</small></p></div>
+            <div className="device-audit-head"><p>Recent device activity</p><button type="button" onClick={simulateProtectionEvent} disabled={!selectedDevice.id || simulating}>{simulating ? "Recording..." : selectedDevice.protectionState === "bypass" ? "Test bypass reversed" : "Test bypass event"}</button></div>
+            <div><span className="success"><FiCheckCircle /></span><p><strong>{selectedDevice.lastProviderEvent}</strong><small>Last provider event: {selectedDevice.lastProviderEventAt}</small></p></div>
             {selectedDevice.tamper && <div><span className="danger"><FiAlertTriangle /></span><p><strong>AshGridX BYPASS / cable disconnection</strong><small>Provider tamper event recorded; investigate the assigned site.</small></p></div>}
             <div><span><FiClock /></span><p><strong>Assignment reviewed</strong><small>BuiltRight operations - 11 Aug 2026</small></p></div>
           </section>
@@ -293,18 +330,18 @@ function AdminDevices() {
         <div className="device-modal-layer" onMouseDown={(event) => { if (event.target === event.currentTarget) closeControl(); }}>
           <div className="device-control-modal" role="dialog" aria-modal="true" aria-label={`${controlIntent} ${selectedDevice.deviceNumber}`}>
             <button type="button" className="modal-close" onClick={closeControl} aria-label="Close"><FiX /></button>
-            <span className={`control-modal-icon ${controlIntent}`}><FiPower /></span>
+            <span className={`control-modal-icon ${controlIntent === "disconnect-load" ? "off" : "on"}`}><FiPower /></span>
             <p className="ops-section-kicker">High-trust action</p>
-            <h2>{controlIntent === "off" ? "Disable inverter system?" : "Activate inverter system?"}</h2>
+            <h2>{controlIntent === "disconnect-load" ? "Disconnect customer load?" : "Restore customer load?"}</h2>
             <p>This action targets <strong>{selectedDevice.deviceNumber}</strong>, assigned to <strong>{selectedDevice.customer}</strong> at {selectedDevice.site}.</p>
-            <div className="provider-pending-note"><FiShield /><span><strong>AshGridX is not connected.</strong> The interface is ready, but no command can leave BuiltRight until staging credentials and confirmation rules are configured.</span></div>
+            <div className="provider-pending-note"><FiShield /><span><strong>Outbound commands are locked.</strong> No request can leave BuiltRight until the AshGridX dashboard/API key, IP whitelist, sandbox credentials and command mapping are configured and tested.</span></div>
             <label className="device-command-confirmation">
-              <span>Type <strong>{selectedDevice.id}</strong> to confirm</span>
-              <input value={confirmationText} onChange={(event) => setConfirmationText(event.target.value)} placeholder={selectedDevice.id} autoComplete="off" />
+              <span>Type <strong>{selectedDevice.deviceNumber}</strong> to confirm</span>
+              <input value={confirmationText} onChange={(event) => setConfirmationText(event.target.value)} placeholder={selectedDevice.deviceNumber} autoComplete="off" />
             </label>
             <div className="device-modal-actions">
               <button type="button" className="ops-button secondary" onClick={closeControl}>Cancel</button>
-              <button type="button" className={controlIntent === "off" ? "ops-button danger" : "ops-button primary"} disabled={!providerState.ashGridX.configured || sending || confirmationText !== selectedDevice.id} onClick={submitControl}>{sending ? "Sending..." : providerState.ashGridX.configured ? `Confirm ${controlIntent}` : "Connection required"}</button>
+              <button type="button" className={controlIntent === "disconnect-load" ? "ops-button danger" : "ops-button primary"} disabled={sending || confirmationText !== selectedDevice.deviceNumber || (controlIntent === "disconnect-load" ? !integration.disconnectReady : !integration.activationTokenReady)} onClick={submitControl}>{sending ? "Sending..." : (controlIntent === "disconnect-load" ? integration.disconnectReady : integration.activationTokenReady) ? "Confirm protected action" : "Provider connection required"}</button>
             </div>
           </div>
         </div>

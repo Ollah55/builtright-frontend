@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import useLiveRefresh from "../../hooks/useLiveRefresh";
 import "./installerAssignments.css";
 
-const API_BASE_URL = "https://builtright-backend-1.onrender.com";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://builtright-backend-1.onrender.com";
 const authHeaders = () => ({ "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("installerToken")}` });
 
 const checklistDefaults = [
@@ -17,6 +17,7 @@ const checklistDefaults = [
 ];
 
 const makeReport = (assignment) => ({
+  assignmentRevision: Number(assignment.installerAssignment?.revision || 0),
   inspection: { status: assignment.assessment?.inspection?.status || "scheduled", result: assignment.assessment?.inspection?.result || "pending", notes: assignment.assessment?.inspection?.notes || "" },
   siteDetails: { propertyType: assignment.inspection?.propertyType || "", cableDistance: assignment.inspection?.cableDistance || "", mountingMethod: assignment.inspection?.mountingMethod || "", notes: assignment.inspection?.notes || "" },
   loadAudit: { status: assignment.assessment?.loadAudit?.status || "pending", result: assignment.assessment?.loadAudit?.result || "pending", peakLoadKw: assignment.assessment?.loadAudit?.peakLoadKw ?? "", dailyEnergyKwh: assignment.assessment?.loadAudit?.dailyEnergyKwh ?? "", criticalLoadKw: assignment.assessment?.loadAudit?.criticalLoadKw ?? "", recommendedInverterKva: assignment.assessment?.loadAudit?.recommendedInverterKva ?? "", recommendedBatteryKwh: assignment.assessment?.loadAudit?.recommendedBatteryKwh ?? "", recommendedSolarKw: assignment.assessment?.loadAudit?.recommendedSolarKw ?? "", backupHours: assignment.assessment?.loadAudit?.backupHours ?? "", notes: assignment.assessment?.loadAudit?.notes || "" },
@@ -33,14 +34,17 @@ function InstallerAssignments() {
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState("");
 
-  const load = useCallback(async ({ silent = false } = {}) => {
+  const load = useCallback(async ({ silent = false, resetReports = false } = {}) => {
     try {
       if (!silent) setLoading(true);
       const response = await fetch(`${API_BASE_URL}/api/installer/assignments`, { headers: authHeaders() });
       const data = await response.json();
       if (!response.ok || !data.status) throw new Error(data.message || "Could not load assignments.");
       setAssignments(data.assignments);
-      setReports((current) => Object.fromEntries(data.assignments.map((assignment) => [assignment._id, current[assignment._id] || makeReport(assignment)])));
+      setReports((current) => Object.fromEntries(data.assignments.map((assignment) => [
+        assignment._id,
+        resetReports ? makeReport(assignment) : current[assignment._id] || makeReport(assignment),
+      ])));
     } catch (error) {
       setMessage(error.message || "Could not load assignments.");
       if (/Unauthorized|expired/i.test(error.message || "")) navigate("/installer/login");
@@ -53,16 +57,31 @@ function InstallerAssignments() {
   const request = async (path, body) => {
     const response = await fetch(`${API_BASE_URL}${path}`, { method: "PATCH", headers: authHeaders(), body: JSON.stringify(body) });
     const data = await response.json();
-    if (!response.ok || !data.status) throw new Error(data.message || "Update failed.");
+    if (!response.ok || !data.status) {
+      const error = new Error(data.message || "Update failed.");
+      error.code = data.code || "";
+      throw error;
+    }
     return data;
   };
+
+  const handleUpdateError = async (error) => {
+    setMessage(error.message || "Update failed.");
+    if (error.code === "ASSIGNMENT_CHANGED") {
+      await load({ silent: true, resetReports: true });
+    }
+  };
+
+  const revisionFor = (id) => Number(
+    assignments.find((assignment) => assignment._id === id)?.installerAssignment?.revision || 0,
+  );
 
   const accept = async (id) => {
     try {
       setBusyId(id); setMessage("");
-      const data = await request(`/api/installer/assignments/${id}/accept`, {});
-      setMessage(data.message); await load();
-    } catch (error) { setMessage(error.message); } finally { setBusyId(""); }
+      const data = await request(`/api/installer/assignments/${id}/accept`, { assignmentRevision: revisionFor(id) });
+      setMessage(data.message); await load({ resetReports: true });
+    } catch (error) { await handleUpdateError(error); } finally { setBusyId(""); }
   };
 
   const scheduleInspection = async (event, id) => {
@@ -70,29 +89,30 @@ function InstallerAssignments() {
     const formData = new FormData(event.currentTarget);
     const details = {
       scheduledAt: String(formData.get("scheduledAt") || "").trim(),
+      assignmentRevision: revisionFor(id),
     };
     try {
       setBusyId(id); setMessage("");
       if (!details.scheduledAt) throw new Error("Enter the inspection date and time.");
       const data = await request(`/api/installer/assignments/${id}/accept`, details);
-      setMessage(data.message); await load();
-    } catch (error) { setMessage(error.message); } finally { setBusyId(""); }
+      setMessage(data.message); await load({ resetReports: true });
+    } catch (error) { await handleUpdateError(error); } finally { setBusyId(""); }
   };
 
   const decline = async (id) => {
     try {
       setBusyId(id); setMessage("");
-      const data = await request(`/api/installer/assignments/${id}/decline`, { reason: declineReason[id] });
-      setMessage(data.message); await load();
-    } catch (error) { setMessage(error.message); } finally { setBusyId(""); }
+      const data = await request(`/api/installer/assignments/${id}/decline`, { reason: declineReason[id], assignmentRevision: revisionFor(id) });
+      setMessage(data.message); await load({ resetReports: true });
+    } catch (error) { await handleUpdateError(error); } finally { setBusyId(""); }
   };
 
   const saveReport = async (id) => {
     try {
       setBusyId(id); setMessage("");
       const data = await request(`/api/installer/assignments/${id}/report`, reports[id]);
-      setMessage(data.message); await load();
-    } catch (error) { setMessage(error.message); } finally { setBusyId(""); }
+      setMessage(data.message); await load({ resetReports: true });
+    } catch (error) { await handleUpdateError(error); } finally { setBusyId(""); }
   };
 
   const updateReport = (id, section, field, value) => setReports((current) => ({ ...current, [id]: { ...current[id], [section]: { ...current[id][section], [field]: value } } }));

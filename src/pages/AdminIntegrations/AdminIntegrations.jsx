@@ -22,7 +22,8 @@ const plugPoints = [
   { label: "Approved quotation delivery", path: "BANK_APPLICATION_EMAIL", owner: "Document workflow", ready: true },
   { label: "Bank application creation", path: "POST /api/integrations/bank/applications", owner: "Future bank adapter", ready: true },
   { label: "Bank status webhook", path: "POST /api/webhooks/bank/:provider", owner: "Bank adapter", ready: true },
-  { label: "Device on/off control", path: "POST /api/integrations/ashgridx/device/control", owner: "AshGridX adapter", ready: true },
+  { label: "Customer-load disconnect/restoration", path: "POST /api/integrations/ashgridx/device/control", owner: "AshGridX adapter", ready: true },
+  { label: "Restoration activation token", path: "POST /api/integrations/ashgridx/device/activation-token", owner: "AshGridX adapter", ready: true },
   { label: "AshGridX event webhook", path: "POST /api/webhooks/ashgridx", owner: "AshGridX adapter", ready: true },
 ];
 
@@ -82,11 +83,14 @@ function AdminIntegrations() {
           <div className="ops-card-head"><div><p className="ops-section-kicker">Event handling</p><h2>Webhook guardrails</h2></div><FiShield /></div>
           <div className="webhook-checklist">
             <div><FiCheck /><span><strong>Raw body verification</strong><small>Signature checked before JSON parsing.</small></span></div>
-            <div><FiCheck /><span><strong>Replay protection</strong><small>Timestamp tolerance and event IDs required.</small></span></div>
-            <div><FiCheck /><span><strong>Idempotent processing</strong><small>Duplicate events cannot create duplicate orders.</small></span></div>
+            <div><FiCheck /><span><strong>Replay protection</strong><small>Unix timestamp is limited to the confirmed 120-second tolerance.</small></span></div>
+            <div><FiCheck /><span><strong>Duplicate protection</strong><small>A raw-payload fingerprint is used because AshGridX events have no global event ID.</small></span></div>
             <div><FiCheck /><span><strong>Audit retention</strong><small>Payload hash, outcome, and correlation ID retained.</small></span></div>
           </div>
-          <div className="webhook-pending"><FiClock /><p>Exact signature construction, retries, event catalogue, and timestamp format remain pending from each provider.</p></div>
+          <div className="ashgrid-event-list" aria-label="Confirmed AshGridX events">
+            <span>DEVICE_ONLINE</span><span>DEVICE_OFFLINE</span><span>BYPASS</span><span>BYPASS_REVERSED</span>
+          </div>
+          <div className="webhook-pending"><FiClock /><p>The four event names, HMAC SHA-256 envelope, 120-second tolerance, 2xx acknowledgement and one failed-delivery retry are confirmed. The dashboard guide, API-key process, IP whitelist steps, sandbox credentials and outbound command mappings are still pending.</p></div>
         </article>
       </section>
 

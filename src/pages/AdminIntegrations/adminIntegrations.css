@@ -69,6 +69,8 @@
 .webhook-checklist span { display: grid; gap: 3px; }
 .webhook-checklist strong { color: var(--ops-ink); font-size: 0.67rem; }
 .webhook-checklist small { color: var(--ops-muted); font-size: 0.59rem; line-height: 1.4; }
+.ashgrid-event-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 13px; }
+.ashgrid-event-list span { padding: 6px 8px; border: 1px solid #cfe4df; border-radius: 8px; color: #276b5d; background: #eef8f5; font-size: 0.56rem; font-weight: 900; }
 .webhook-pending { display: grid; grid-template-columns: 24px 1fr; gap: 8px; margin-top: 13px; padding: 11px; border-radius: 10px; color: #765d1e; background: #fff6df; }
 .webhook-pending p { font-size: 0.61rem; line-height: 1.5; }
 
