@@ -11,6 +11,59 @@
   --ops-shadow: 0 18px 48px rgba(18, 48, 42, 0.08);
 }
 
+.ops-button {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 15px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.ops-button.primary {
+  color: #fff;
+  background: var(--ops-teal);
+  box-shadow: 0 10px 24px rgba(22, 143, 130, 0.2);
+}
+
+.ops-button.primary:hover:not(:disabled) {
+  background: var(--ops-teal-dark);
+  transform: translateY(-1px);
+}
+
+.ops-button.secondary {
+  color: var(--ops-ink);
+  border-color: var(--ops-border);
+  background: #fff;
+}
+
+.ops-button.danger {
+  color: #fff;
+  background: var(--ops-red);
+}
+
+.ops-button.full {
+  width: 100%;
+}
+
+.ops-button:focus-visible {
+  outline: 3px solid rgba(21, 146, 132, 0.18);
+  outline-offset: 3px;
+}
+
+.ops-button:disabled {
+  opacity: 0.58;
+  box-shadow: none;
+  cursor: wait;
+}
+
 .ops-layout {
   min-height: 100vh;
   display: grid;
