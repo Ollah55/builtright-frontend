@@ -542,7 +542,7 @@ def build_story(logo_path: Path) -> list:
         ["Email", "info@builtrightltd.com"],
         ["Telephone", "+234 913 499 1239 | +234 701 574 9737"],
         ["Address", "1b Adeniji Street, Off Odusami Street, Ogba, Lagos, Nigeria"],
-        ["Website", "https://builtright-frontend.vercel.app/"],
+        ["Website", "https://www.builtrightltd.com/"],
     ]
     story.append(make_table(["Contact field", "Details"], contact_rows, [42 * mm, 130 * mm]))
     story.append(Spacer(1, 5 * mm))
