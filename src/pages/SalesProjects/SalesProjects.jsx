@@ -17,6 +17,10 @@ const initialForm = {
   installerId: "",
   inspectionCompleted: false,
   assessmentFeePaid: false,
+  quotationAccepted: false,
+  quotationTotal: "",
+  systemCapacity: "",
+  quotationFile: null,
   notes: "",
   consentCaptured: false,
 };
@@ -61,7 +65,16 @@ function SalesProjects() {
     try {
       setSaving(true);
       setMessage("");
-      const response = await fetch(`${API_BASE_URL}/api/sales/projects`, { method: "POST", headers: tokenHeaders(true), body: JSON.stringify(form) });
+      const requestOptions = form.quotationAccepted
+        ? (() => {
+          const body = new FormData();
+          const { quotationFile, ...payload } = form;
+          body.append("payload", JSON.stringify(payload));
+          if (quotationFile) body.append("quotationFile", quotationFile);
+          return { method: "POST", headers: tokenHeaders(), body };
+        })()
+        : { method: "POST", headers: tokenHeaders(true), body: JSON.stringify(form) };
+      const response = await fetch(`${API_BASE_URL}/api/sales/projects`, requestOptions);
       const data = await response.json();
       if (!response.ok || !data.status) throw new Error(data.message || "Could not book the assessment.");
       setForm(initialForm);
@@ -139,29 +152,36 @@ function SalesProjects() {
             <label>Email<input type="email" required value={form.customer.email} onChange={(event) => setCustomer("email", event.target.value)} /></label>
             <label>Phone / WhatsApp<input required value={form.customer.phone} onChange={(event) => setCustomer("phone", event.target.value)} /></label>
             <label>Project location<input required value={form.customer.location} onChange={(event) => setCustomer("location", event.target.value)} /></label>
-            <label>Payment route<select value={form.paymentMethod} onChange={(event) => setForm({ ...form, paymentMethod: event.target.value })}><option value="bank-financing">Bank financing</option><option value="outright">Outright payment</option></select></label>
-            <label>Finance institution<select disabled={form.paymentMethod === "outright"} value={form.financeInstitution} onChange={(event) => setForm({ ...form, financeInstitution: event.target.value })}><option>RichGreen Microfinance Bank</option><option>LOTUS Bank</option></select></label>
-            <label className="wide">System discussed<input value={form.systemDescription} onChange={(event) => setForm({ ...form, systemDescription: event.target.value })} placeholder="Optional; final system design follows the site assessment" /></label>
+            <label>Payment route<select value={form.paymentMethod} onChange={(event) => setForm({ ...form, paymentMethod: event.target.value, quotationAccepted: event.target.value === "outright" ? false : form.quotationAccepted })}><option value="bank-financing">Bank financing</option><option value="outright">Outright payment</option></select></label>
+            <label>Finance institution<select disabled={form.paymentMethod === "outright"} value={form.financeInstitution} onChange={(event) => setForm({ ...form, financeInstitution: event.target.value, quotationAccepted: /richgreen/i.test(event.target.value) ? form.quotationAccepted : false })}><option>RichGreen Microfinance Bank</option><option>LOTUS Bank</option></select></label>
+            <label className="wide">System discussed<input required={form.quotationAccepted} value={form.systemDescription} onChange={(event) => setForm({ ...form, systemDescription: event.target.value })} placeholder={form.quotationAccepted ? "Enter the system on the accepted quotation" : "Optional; final system design follows the site assessment"} /></label>
           </div>
         </fieldset>
         <fieldset>
-          <legend>Book site assessment</legend>
-          <label className="sales-offline-complete">
-            <input type="checkbox" checked={form.inspectionCompleted} onChange={(event) => setForm({ ...form, inspectionCompleted: event.target.checked, assessmentFeePaid: event.target.checked ? true : false, installerId: event.target.checked ? "" : form.installerId })} />
-            <span><strong>Inspection already completed</strong><small>Use this when the customer completed the inspection, load audit, and assessment payment through WhatsApp or another offline process. No installer will be assigned.</small></span>
-          </label>
-          {!form.inspectionCompleted && <label className="sales-offline-complete sales-payment-complete">
-            <input required type="checkbox" checked={form.assessmentFeePaid} onChange={(event) => setForm({ ...form, assessmentFeePaid: event.target.checked, installerId: event.target.checked ? form.installerId : "" })} />
-            <span><strong>I confirm the assessment fee has been received</strong><small>This confirmation must be completed first. Only after payment is confirmed can sales select an installer and create the inspection assignment.</small></span>
-          </label>}
+          <legend>Completed steps and continuation point</legend>
+          <div className="sales-progress-checklist">
+            <label className="sales-offline-complete sales-payment-complete">
+              <input required type="checkbox" checked={form.assessmentFeePaid} onChange={(event) => setForm({ ...form, assessmentFeePaid: event.target.checked, inspectionCompleted: event.target.checked ? form.inspectionCompleted : false, quotationAccepted: event.target.checked ? form.quotationAccepted : false, installerId: event.target.checked ? form.installerId : "" })} />
+              <span><strong>1. Assessment fee payment confirmed</strong><small>This must be confirmed before an installer is assigned or any later completed step is recorded.</small></span>
+            </label>
+            <label className={`sales-offline-complete ${!form.assessmentFeePaid ? "disabled" : ""}`}>
+              <input type="checkbox" disabled={!form.assessmentFeePaid} checked={form.inspectionCompleted} onChange={(event) => setForm({ ...form, inspectionCompleted: event.target.checked, quotationAccepted: event.target.checked ? form.quotationAccepted : false, installerId: event.target.checked ? "" : form.installerId })} />
+              <span><strong>2. Inspection, load audit and due diligence completed</strong><small>Use this only when BuiltRight has already completed and passed the assessment outside the portal. No installer will be assigned again.</small></span>
+            </label>
+            <label className={`sales-offline-complete sales-quotation-complete ${!form.inspectionCompleted || form.paymentMethod === "outright" || !/richgreen/i.test(form.financeInstitution) ? "disabled" : ""}`}>
+              <input type="checkbox" disabled={!form.inspectionCompleted || form.paymentMethod === "outright" || !/richgreen/i.test(form.financeInstitution)} checked={form.quotationAccepted} onChange={(event) => setForm({ ...form, quotationAccepted: event.target.checked })} />
+              <span><strong>3. Final quotation already accepted by customer</strong><small>For an existing RichGreen financing customer such as Mrs Joy. The customer will continue directly with the secure RichGreen application form.</small></span>
+            </label>
+          </div>
           <div className="sales-form-grid">
-            <label>{form.inspectionCompleted ? "Assessment fee paid (NGN, optional)" : "Assessment fee received (NGN)"}<input required={!form.inspectionCompleted} type="number" min="1" step="1" value={form.inspectionFeeAmount} onChange={(event) => setForm({ ...form, inspectionFeeAmount: event.target.value })} placeholder={form.inspectionCompleted ? "Enter the amount if available" : "Enter the confirmed amount received"} /></label>
+            <label>Assessment fee received (NGN)<input required type="number" min="1" step="1" value={form.inspectionFeeAmount} onChange={(event) => setForm({ ...form, inspectionFeeAmount: event.target.value })} placeholder="Enter the confirmed amount received" /></label>
             <label>Installer<select required={!form.inspectionCompleted} disabled={form.inspectionCompleted || !form.assessmentFeePaid} value={form.installerId} onChange={(event) => setForm({ ...form, installerId: event.target.value })}><option value="">{form.inspectionCompleted ? "Not required for completed inspection" : !form.assessmentFeePaid ? "Confirm payment first" : "Select available installer"}</option>{installers.map((installer) => <option value={installer._id} key={installer._id}>{installer.fullName}</option>)}</select></label>
+            {form.quotationAccepted && <><label>Approved quotation total (NGN)<input required type="number" min="1" step="1" value={form.quotationTotal} onChange={(event) => setForm({ ...form, quotationTotal: event.target.value })} placeholder="Full approved project cost" /></label><label>System capacity<input value={form.systemCapacity} onChange={(event) => setForm({ ...form, systemCapacity: event.target.value })} placeholder="For example, 5 kVA / 10 kWh" /></label><label className="wide sales-quotation-upload">Upload accepted quotation (PDF)<input required type="file" accept="application/pdf,.pdf" onChange={(event) => setForm({ ...form, quotationFile: event.target.files?.[0] || null })} /><small>This exact quotation will be visible and downloadable by the customer, sales team and admin.</small></label></>}
             <label className="wide">Internal note<textarea rows="2" value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Optional sales note; do not enter the projected WhatsApp load audit" /></label>
           </div>
           <label className="sales-consent"><input type="checkbox" required checked={form.consentCaptured} onChange={(event) => setForm({ ...form, consentCaptured: event.target.checked })} /><span>The customer consented to BuiltRight recording these details and contacting them about the assessment and quotation.</span></label>
         </fieldset>
-        <button className="sales-button" type="submit" disabled={saving || (!form.inspectionCompleted && !form.assessmentFeePaid)}>{saving ? "Saving..." : form.inspectionCompleted ? "Register completed assessment & create order" : form.assessmentFeePaid ? "Confirm payment, assign installer & create order" : "Confirm payment to continue"}</button>
+        <button className="sales-button" type="submit" disabled={saving || !form.assessmentFeePaid || (form.quotationAccepted && (!form.quotationTotal || !form.systemDescription.trim() || !form.quotationFile))}>{saving ? "Saving..." : form.quotationAccepted ? "Upload quotation, add customer & send application invite" : form.inspectionCompleted ? "Register completed assessment & create order" : form.assessmentFeePaid ? "Confirm payment, assign installer & create order" : "Confirm payment to continue"}</button>
       </form>
     </section>
 

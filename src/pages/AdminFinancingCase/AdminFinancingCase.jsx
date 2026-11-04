@@ -500,11 +500,11 @@ function AdminFinancingCase() {
         <section className="case-document-grid">
           {documents.length === 0 ? <div className="ops-card case-document-empty">No quotations or invoices have been generated.</div> : documents.map((document) => (
             <article className="ops-card case-document-card" key={document._id}>
-              <div><span>{document.type}</span><h2>{document.reference}</h2><p>{document.title}</p></div>
+              <div><span>{document.type}</span><h2>{document.reference}</h2><p>{document.title}</p>{document.uploadedFile?.url && <small>Original quotation uploaded by {document.uploadedFile.uploadedBy || "sales"}: {document.uploadedFile.fileName}</small>}</div>
               <i className={`status-pill ${document.status === "approved" || document.status === "issued" ? "success" : document.status === "sent" ? "violet" : "neutral"}`}>{document.status}</i>
               <dl><div><dt>Total</dt><dd>{formatMoney(document.total)}</dd></div><div><dt>Version</dt><dd>V{document.version}</dd></div><div><dt>Customer decision</dt><dd>{document.customerDecision?.status || "Not required"}</dd></div><div><dt>Email delivery</dt><dd>{document.emailDelivery?.status || "Not sent"}</dd></div></dl>
               <div className="case-document-actions">
-                <button type="button" className="ops-button secondary" onClick={() => downloadProjectDocument(document)}><FiDownload /> Download PDF</button>
+                <button type="button" className="ops-button secondary" onClick={() => downloadProjectDocument(document)}><FiDownload /> {document.uploadedFile?.url ? "Open uploaded quotation" : "Download PDF"}</button>
                 {document.type === "invoice" && <button type="button" className="ops-button primary" disabled={saving} onClick={() => sendInvoice(document)}><FiSend /> {document.emailDelivery?.status === "sent" ? "Resend invoice" : "Email invoice"}</button>}
               </div>
             </article>

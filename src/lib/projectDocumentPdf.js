@@ -124,6 +124,17 @@ const downloadInvoiceDocument = (projectDocument) => {
 };
 
 export function downloadProjectDocument(projectDocument) {
+  if (projectDocument.uploadedFile?.url) {
+    const link = document.createElement("a");
+    link.href = projectDocument.uploadedFile.url;
+    link.target = "_blank";
+    link.rel = "noreferrer";
+    link.download = projectDocument.uploadedFile.fileName || `BuiltRight-Quotation-${projectDocument.reference}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    return;
+  }
   if (projectDocument.type === "invoice") return downloadInvoiceDocument(projectDocument);
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const margin = 18;

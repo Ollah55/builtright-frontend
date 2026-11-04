@@ -163,6 +163,7 @@ function CustomerDocuments() {
                   <header><div><span>{document.type}</span><h2>{document.reference}</h2></div><i className={`document-status ${document.status}`}>{document.status}</i></header>
                   <h3>{document.title}</h3>
                   <p>{document.project?.systemCapacity || "Solar project"} · {document.project?.siteAddress || document.customer?.location || "Project site"}</p>
+                  {document.uploadedFile?.url && <div className="document-action-note"><strong>Original accepted quotation</strong><span>{document.uploadedFile.fileName} was uploaded by BuiltRight sales and is available below.</span></div>}
                   <dl><div><dt>Total project cost</dt><dd>{formatMoney(document.total)}</dd></div>{document.type === "quotation" && (isOutright ? <div><dt>Payment route</dt><dd>Full outright payment</dd></div> : <><div><dt>Customer equity</dt><dd>{formatMoney(document.equityAmount)}</dd></div><div><dt>Bank finance request</dt><dd>{formatMoney(document.bankFinanceAmount)}</dd></div></>)}</dl>
                   {document.type === "quotation" && document.status === "sent" && <div className="document-action-note pending"><strong>Your decision is required</strong><span>Review the complete cost breakdown before approving.</span></div>}
                   {document.type === "quotation" && document.status === "approved" && bankUrl && !isRichGreen && <a className="customer-bank-link" href={bankUrl} target="_blank" rel="noreferrer">Continue to bank credit application <FiArrowUpRight /></a>}
@@ -170,7 +171,7 @@ function CustomerDocuments() {
                   {document.type === "quotation" && document.status === "approved" && isRichGreen && applicationStatus === "submitted" && <div className="document-action-note"><strong>RichGreen application submitted</strong><span>Sales can download the secured application and approved quotation for bank submission.</span></div>}
                   {document.type === "quotation" && document.status === "approved" && isOutright && <div className="document-action-note"><strong>Invoice being prepared</strong><span>Your approval is recorded. BuiltRight will issue the final outright-payment invoice for the confirmed project cost.</span></div>}
                   {document.type === "quotation" && document.status === "approved" && !bankUrl && !isOutright && !isRichGreen && <div className="document-action-note"><strong>Bank link pending</strong><span>Your approval is recorded. The application button will appear when the bank provides its hosted URL.</span></div>}
-                  <footer><button type="button" onClick={() => setSelectedId(document._id)}>View details</button><button type="button" onClick={() => downloadProjectDocument(document)}><FiDownload /> Download PDF</button></footer>
+                  <footer><button type="button" onClick={() => setSelectedId(document._id)}>View details</button><button type="button" onClick={() => downloadProjectDocument(document)}><FiDownload /> {document.uploadedFile?.url ? "Open quotation" : "Download PDF"}</button></footer>
                 </article>
               );
             })}
@@ -195,7 +196,7 @@ function CustomerDocuments() {
             {requestingChanges && <label className="quotation-change-box"><span>Why do you need a lower-load or revised system?</span><textarea rows="4" value={changeNote} onChange={(event) => setChangeNote(event.target.value)} placeholder="For example: the monthly repayment is above my budget, so I want to reduce the appliances or backup load included in the recommendation." /></label>}
 
             <footer className="document-modal-actions">
-              <button type="button" className="secondary" onClick={() => downloadProjectDocument(selectedDocument)}><FiDownload /> Download PDF</button>
+              <button type="button" className="secondary" onClick={() => downloadProjectDocument(selectedDocument)}><FiDownload /> {selectedDocument.uploadedFile?.url ? "Open uploaded quotation" : "Download PDF"}</button>
               {selectedDocument.type === "quotation" && selectedDocument.status === "sent" && !requestingChanges && <button type="button" className="secondary" onClick={() => setRequestingChanges(true)}>Decline & request review</button>}
               {selectedDocument.type === "quotation" && selectedDocument.status === "sent" && !requestingChanges && <button type="button" className="primary" disabled={!approvalChecked || saving} onClick={approveQuotation}><FiCheck /> {saving ? "Recording..." : "Accept quotation"}</button>}
               {requestingChanges && <button type="button" className="primary" disabled={!changeNote.trim() || saving} onClick={submitChangeRequest}>{saving ? "Sending..." : "Decline quotation & send review request"}</button>}

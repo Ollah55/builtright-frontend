@@ -118,6 +118,7 @@ function CustomerFinancing() {
               const firstItem = request.items?.[0];
               const bankApplicationUrl = request.bankApplication?.redirectUrl;
               const isOutright = request.paymentMethod === "outright";
+              const isRichGreen = /richgreen/i.test(String(request.financeInstitution || request.bankApplication?.provider || ""));
               const quotationApproved = status === "quotation-approved" || currentIndex > getStageIndex("quotation-approved");
               const quotationAvailable = currentIndex >= getStageIndex("quotation-draft");
               const inspectionFeeStatus = request.inspection?.feeStatus || "not-requested";
@@ -127,7 +128,7 @@ function CustomerFinancing() {
                   : quotationApproved && bankApplicationUrl
                     ? "Continue to the bank's secure credit application"
                     : quotationApproved
-                      ? (isOutright ? "Your quotation is approved; BuiltRight will issue your final payment invoice" : "Your quotation is approved; BuiltRight is preparing the bank application link")
+                      ? (isOutright ? "Your quotation is approved; BuiltRight will issue your final payment invoice" : isRichGreen ? "Open Documents and complete your RichGreen application" : "Your quotation is approved; BuiltRight is preparing the bank application link")
                       : status === "rejected"
                         ? "BuiltRight will contact you about available next steps"
                         : nextStage?.customerLabel || "Your project is complete";
