@@ -17,6 +17,7 @@
 .richgreen-form-grid label.has-error input, .richgreen-form-grid label.has-error select { border-color: #b32127; background: #fff8f8; }
 .richgreen-form-grid label.has-error input:focus, .richgreen-form-grid label.has-error select:focus { outline-color: rgba(179,33,39,.15); border-color: #b32127; box-shadow: 0 0 0 1px #b32127; }
 .richgreen-field-error { display: block; color: #a51f25; font-size: .65rem; font-weight: 800; line-height: 1.35; }
+.richgreen-field-help { display: block; color: #6c7f7a; font-size: .63rem; font-weight: 600; line-height: 1.4; }
 .richgreen-quote-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin-bottom: 13px; }
 .richgreen-quote-summary > div { display: grid; gap: 4px; padding: 11px; border-radius: 10px; background: #eef7f4; }
 .richgreen-quote-summary span { color: #68817b; font-size: .57rem; }

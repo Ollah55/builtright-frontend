@@ -31,7 +31,8 @@ const validateApplication = (form, businessOwner) => {
   if (form.bvn && !/^\d{11}$/.test(form.bvn)) errors.bvn = "BVN must contain exactly 11 digits.";
   if (form.nin && !/^\d{11}$/.test(form.nin)) errors.nin = "NIN must contain exactly 11 digits.";
   if (form.accountNumber && !/^\d{10}$/.test(form.accountNumber)) errors.accountNumber = "Account number must contain exactly 10 digits.";
-  if (form.monthlyNetIncome && !(Number(form.monthlyNetIncome) > 0)) errors.monthlyNetIncome = "Monthly net income must be greater than zero.";
+  const normalizedMonthlyIncome = Number(String(form.monthlyNetIncome || "").replace(/[^\d.]/g, ""));
+  if (form.monthlyNetIncome && !(normalizedMonthlyIncome > 0)) errors.monthlyNetIncome = "Enter the income in figures, for example 250000.";
   if (form.dateOfBirth && new Date(form.dateOfBirth) >= new Date()) errors.dateOfBirth = "Date of birth must be in the past.";
   if (businessOwner) {
     [["guarantorName", "Enter the guarantor's name."], ["guarantorPhoneNumber", "Enter the guarantor's phone number."], ["guarantorOccupation", "Enter the guarantor's occupation."], ["guarantorResidentialAddress", "Enter the guarantor's address."], ["guarantorRelationship", "Enter the guarantor's relationship to the applicant."]]
@@ -100,11 +101,12 @@ function RichGreenApplicationForm({ projectDocument, onClose, onSubmitted }) {
     });
   };
 
-  const renderField = ({ label, name, type = "text", options, optional, wide, ...props }) => (
+  const renderField = ({ label, name, type = "text", options, optional, wide, numericOnly, help, ...props }) => (
     <label key={name} htmlFor={`richgreen-${name}`} className={`${wide ? "wide " : ""}${errors[name] ? "has-error" : ""}`.trim()}>
       <span>{label}{optional ? " (optional)" : " *"}</span>
       {options ? <select id={`richgreen-${name}`} name={name} required={!optional} aria-invalid={Boolean(errors[name])} aria-describedby={errors[name] ? `richgreen-${name}-error` : undefined} autoComplete={fieldAutoComplete[name] || "off"} value={form[name]} onChange={(event) => update(name, event.target.value)}><option value="">Select {label.toLowerCase()}</option>{options.map((option) => <option value={option} key={option}>{option}</option>)}</select>
-        : <input id={`richgreen-${name}`} name={name} required={!optional} aria-invalid={Boolean(errors[name])} aria-describedby={errors[name] ? `richgreen-${name}-error` : undefined} autoComplete={props.autoComplete ?? fieldAutoComplete[name] ?? "off"} type={type} value={form[name]} onChange={(event) => update(name, event.target.value)} {...props} />}
+        : <input id={`richgreen-${name}`} name={name} required={!optional} aria-invalid={Boolean(errors[name])} aria-describedby={errors[name] ? `richgreen-${name}-error` : help ? `richgreen-${name}-help` : undefined} autoComplete={props.autoComplete ?? fieldAutoComplete[name] ?? "off"} type={type} value={form[name]} onChange={(event) => update(name, numericOnly ? event.target.value.replace(/\D/g, "") : event.target.value)} {...props} />}
+      {help && !errors[name] && <small id={`richgreen-${name}-help`} className="richgreen-field-help">{help}</small>}
       {errors[name] && <small id={`richgreen-${name}-error`} className="richgreen-field-error" role="alert">{errors[name]}</small>}
     </label>
   );
@@ -163,7 +165,7 @@ function RichGreenApplicationForm({ projectDocument, onClose, onSubmitted }) {
           {renderField(field("Employer or business name", "employerBusinessName"))}
           {renderField(field("Office or business address", "officeBusinessAddress", { wide: true }))}
           {renderField(field("Position or business type", "positionBusinessType"))}
-          {renderField(field("Monthly net income (NGN)", "monthlyNetIncome", { type: "number", min: 1, step: 1000 }))}
+          {renderField(field("Monthly net income (NGN)", "monthlyNetIncome", { type: "text", inputMode: "numeric", numericOnly: true, maxLength: 15, placeholder: "Example: 250000", help: "Enter figures only—no ₦, N, #, comma, full stop, or words. Example: 250000." }))}
           {renderField(field("Years in employment or business", "yearsInEmploymentBusiness"))}
         </div></fieldset>
 
