@@ -26,6 +26,19 @@
 .installer-payment-status h3 { margin: 0; color: #1d413a; }
 .installer-payment-status p { margin: 0; color: #58716b; font-size: .8rem; line-height: 1.5; }
 .installer-payment-status a { width: max-content; color: var(--primary-green); font-size: .78rem; font-weight: 900; }
+.installer-installation-panel { display: grid; gap: 1rem; margin: 1.35rem; padding: 1.1rem; border: 1px solid #d8e5e2; border-radius: 15px; background: #f8fbfa; }
+.installer-installation-panel.ready { border-color: #b9ddd5; background: #effaf7; }
+.installer-installation-panel.locked { border-color: #e2d9bd; background: #fffaf0; }
+.installer-installation-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.installer-installation-heading p { margin: 0 0 .25rem; color: var(--primary-green); font-size: .7rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.installer-installation-heading h3 { margin: 0; color: #1d413a; }
+.installer-installation-heading i { padding: .4rem .65rem; border-radius: 999px; color: #0d7368; background: #dff2ed; font-size: .68rem; font-style: normal; font-weight: 900; text-transform: capitalize; }
+.installer-installation-panel > p, .installer-installation-progress > p { margin: 0; color: #58716b; font-size: .8rem; line-height: 1.55; }
+.installer-installation-panel form { display: grid; grid-template-columns: minmax(220px, .8fr) minmax(280px, 1.2fr); gap: .8rem; }
+.installer-installation-panel form label { display: grid; gap: 6px; color: #506662; font-size: .74rem; font-weight: 800; }
+.installer-installation-panel form input, .installer-installation-panel form textarea { width: 100%; padding: .68rem .75rem; border: 1px solid #bcd7d1; border-radius: 9px; color: #233c38; background: #fff; font: inherit; }
+.installer-installation-panel form button { align-self: end; justify-self: start; }
+.installer-installation-progress { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .installer-response-grid h3, .installer-report h3, .installer-report h4 { margin: 0; color: #1d413a; }
 .installer-response-grid label, .installer-report label { display: grid; gap: 6px; color: #506662; font-size: .74rem; font-weight: 800; }
 .installer-response-grid input, .installer-report input, .installer-report textarea, .installer-report select, .installer-decline textarea { width: 100%; padding: .68rem .75rem; border: 1px solid #cbddd9; border-radius: 9px; color: #233c38; background: #fff; font: inherit; }
@@ -63,5 +76,5 @@
 .installer-material-row button { border: 0; border-radius: 8px; color: #9e2429; background: #fff0f1; cursor: pointer; }
 .installer-add-material { width: max-content; color: var(--primary-green); background: #e9f7f4; }
 .installer-save-report { justify-self: start; }
-@media (max-width: 900px) { .installer-workspace { padding: 1.2rem 4%; } .installer-customer-grid, .installer-response-grid, .installer-report-grid { grid-template-columns: 1fr; } }
-@media (max-width: 600px) { .installer-workspace-header, .installer-report-head, .installer-appliances-head { flex-direction: column; } .installer-customer-grid div { padding: .85rem 1rem; } .installer-sizing-grid, .installer-audit-totals { grid-template-columns: 1fr; } .installer-due-diligence > div label, .installer-material-row { grid-template-columns: 1fr; } .installer-material-row button { min-height: 34px; } }
+@media (max-width: 900px) { .installer-workspace { padding: 1.2rem 4%; } .installer-customer-grid, .installer-response-grid, .installer-report-grid, .installer-installation-panel form { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .installer-workspace-header, .installer-report-head, .installer-appliances-head, .installer-installation-heading, .installer-installation-progress { align-items: flex-start; flex-direction: column; } .installer-customer-grid div { padding: .85rem 1rem; } .installer-sizing-grid, .installer-audit-totals { grid-template-columns: 1fr; } .installer-due-diligence > div label, .installer-material-row { grid-template-columns: 1fr; } .installer-material-row button { min-height: 34px; } .installer-installation-panel { margin: 1rem; } }
