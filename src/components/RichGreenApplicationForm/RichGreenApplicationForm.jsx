@@ -25,13 +25,30 @@ const fieldAutoComplete = {
   employerBusinessName: "organization", positionBusinessType: "organization-title", accountName: "off",
   installationAddress: "off", guarantorName: "off", guarantorPhoneNumber: "off", applicantName: "name", electronicSignature: "off",
 };
+const sanitizeCurrencyInput = (value) => {
+  const cleaned = String(value || "").replace(/[^\d,.]/g, "");
+  const decimalIndex = cleaned.indexOf(".");
+  if (decimalIndex < 0) return cleaned;
+  const whole = cleaned.slice(0, decimalIndex).replace(/\./g, "");
+  const decimals = cleaned.slice(decimalIndex + 1).replace(/[.,]/g, "").slice(0, 2);
+  return `${whole}.${decimals}`;
+};
+const currencyNumber = (value) => {
+  const normalized = sanitizeCurrencyInput(value).replace(/,/g, "");
+  return normalized && normalized !== "." ? Number(normalized) : Number.NaN;
+};
+const formatCurrencyInput = (value) => {
+  const amount = currencyNumber(value);
+  if (!Number.isFinite(amount)) return "";
+  return amount.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
 
 const validateApplication = (form, businessOwner) => {
   const errors = Object.fromEntries(requiredApplicationFields.filter(([name]) => !String(form[name] ?? "").trim()).map(([name, message]) => [name, message]));
   if (form.bvn && !/^\d{11}$/.test(form.bvn)) errors.bvn = "BVN must contain exactly 11 digits.";
   if (form.nin && !/^\d{11}$/.test(form.nin)) errors.nin = "NIN must contain exactly 11 digits.";
   if (form.accountNumber && !/^\d{10}$/.test(form.accountNumber)) errors.accountNumber = "Account number must contain exactly 10 digits.";
-  const normalizedMonthlyIncome = Number(String(form.monthlyNetIncome || "").replace(/[^\d.]/g, ""));
+  const normalizedMonthlyIncome = currencyNumber(form.monthlyNetIncome);
   if (form.monthlyNetIncome && !(normalizedMonthlyIncome > 0)) errors.monthlyNetIncome = "Enter the income in figures, for example 250000.";
   if (form.dateOfBirth && new Date(form.dateOfBirth) >= new Date()) errors.dateOfBirth = "Date of birth must be in the past.";
   if (businessOwner) {
@@ -101,11 +118,11 @@ function RichGreenApplicationForm({ projectDocument, onClose, onSubmitted }) {
     });
   };
 
-  const renderField = ({ label, name, type = "text", options, optional, wide, numericOnly, help, ...props }) => (
+  const renderField = ({ label, name, type = "text", options, optional, wide, numericOnly, currencyInput, help, ...props }) => (
     <label key={name} htmlFor={`richgreen-${name}`} className={`${wide ? "wide " : ""}${errors[name] ? "has-error" : ""}`.trim()}>
       <span>{label}{optional ? " (optional)" : " *"}</span>
       {options ? <select id={`richgreen-${name}`} name={name} required={!optional} aria-invalid={Boolean(errors[name])} aria-describedby={errors[name] ? `richgreen-${name}-error` : undefined} autoComplete={fieldAutoComplete[name] || "off"} value={form[name]} onChange={(event) => update(name, event.target.value)}><option value="">Select {label.toLowerCase()}</option>{options.map((option) => <option value={option} key={option}>{option}</option>)}</select>
-        : <input id={`richgreen-${name}`} name={name} required={!optional} aria-invalid={Boolean(errors[name])} aria-describedby={errors[name] ? `richgreen-${name}-error` : help ? `richgreen-${name}-help` : undefined} autoComplete={props.autoComplete ?? fieldAutoComplete[name] ?? "off"} type={type} value={form[name]} onChange={(event) => update(name, numericOnly ? event.target.value.replace(/\D/g, "") : event.target.value)} {...props} />}
+        : <input id={`richgreen-${name}`} name={name} required={!optional} aria-invalid={Boolean(errors[name])} aria-describedby={errors[name] ? `richgreen-${name}-error` : help ? `richgreen-${name}-help` : undefined} autoComplete={props.autoComplete ?? fieldAutoComplete[name] ?? "off"} type={type} value={form[name]} onChange={(event) => update(name, currencyInput ? sanitizeCurrencyInput(event.target.value) : numericOnly ? event.target.value.replace(/\D/g, "") : event.target.value)} onBlur={currencyInput ? () => update(name, formatCurrencyInput(form[name])) : undefined} {...props} />}
       {help && !errors[name] && <small id={`richgreen-${name}-help`} className="richgreen-field-help">{help}</small>}
       {errors[name] && <small id={`richgreen-${name}-error`} className="richgreen-field-error" role="alert">{errors[name]}</small>}
     </label>
@@ -165,7 +182,7 @@ function RichGreenApplicationForm({ projectDocument, onClose, onSubmitted }) {
           {renderField(field("Employer or business name", "employerBusinessName"))}
           {renderField(field("Office or business address", "officeBusinessAddress", { wide: true }))}
           {renderField(field("Position or business type", "positionBusinessType"))}
-          {renderField(field("Monthly net income (NGN)", "monthlyNetIncome", { type: "text", inputMode: "numeric", numericOnly: true, maxLength: 15, placeholder: "Example: 250000", help: "Enter figures only—no ₦, N, #, comma, full stop, or words. Example: 250000." }))}
+          {renderField(field("Monthly net income (NGN)", "monthlyNetIncome", { type: "text", inputMode: "decimal", currencyInput: true, maxLength: 20, placeholder: "Example: 250,000.00", help: "Enter the amount in figures. Commas and a decimal point are accepted, for example 250,000.00." }))}
           {renderField(field("Years in employment or business", "yearsInEmploymentBusiness"))}
         </div></fieldset>
 
