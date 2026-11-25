@@ -56,6 +56,7 @@ function CustomerMaintenance() {
     [requests, selectedProperty]
   );
   const openRequests = propertyRequests.filter((item) => OPEN_STATUSES.has(item.status));
+  const onboarding = selectedProperty?.onboarding || {};
   const nextVisit = selectedProperty?.visits
     ?.filter((visit) => visit.status === "scheduled" && new Date(visit.scheduledFor) >= new Date())
     .sort((a, b) => new Date(a.scheduledFor) - new Date(b.scheduledFor))[0];
@@ -123,6 +124,19 @@ function CustomerMaintenance() {
                   <FiHome /><span><strong>{item.property.name}</strong><small>{item.property.address}</small></span>
                 </button>
               ))}
+            </section>
+
+            <section className="maintenance-onboarding-panel">
+              <header><div><p>Contract onboarding</p><h2>{titleCase(onboarding.stage || "site-inspection-pending")}</h2></div><span>{selectedProperty.reference}</span></header>
+              <div className="maintenance-onboarding-steps">
+                <article className={onboarding.inspection?.completedAt ? "complete" : "current"}><i>{onboarding.inspection?.completedAt ? <FiCheckCircle /> : "1"}</i><div><strong>Inspection & due diligence</strong><small>{onboarding.inspection?.completedAt ? `Completed ${formatDate(onboarding.inspection.completedAt)}` : onboarding.inspection?.scheduledAt ? `Scheduled ${formatDate(onboarding.inspection.scheduledAt)}` : "BuiltRight inspection pending"}</small></div></article>
+                <article className={["not-required","completed"].includes(onboarding.remediation?.status) ? "complete" : ["required","in-progress"].includes(onboarding.remediation?.status) ? "current" : ""}><i>{["not-required","completed"].includes(onboarding.remediation?.status) ? <FiCheckCircle /> : "2"}</i><div><strong>Remediation clearance</strong><small>{onboarding.remediation?.status === "not-required" ? "No remediation required" : onboarding.remediation?.status === "completed" ? "Required work completed" : onboarding.remediation?.status === "in-progress" ? "Corrective work in progress" : onboarding.remediation?.status === "required" ? "Corrective work required before contract" : "Decision follows due diligence"}</small></div></article>
+                <article className={onboarding.probation?.paymentStatus === "paid" ? "complete" : onboarding.stage === "probation-payment-due" ? "current" : ""}><i>{onboarding.probation?.paymentStatus === "paid" ? <FiCheckCircle /> : "3"}</i><div><strong>Three-month payment</strong><small>{onboarding.probation?.paymentStatus === "paid" ? `${formatMoney(onboarding.probation.amount)} paid in full · non-refundable` : "Full probation payment due after clearance"}</small></div></article>
+                <article className={["probation-review","contract-active","terminated"].includes(onboarding.stage) ? "complete" : onboarding.stage === "probation-active" ? "current" : ""}><i>{["probation-review","contract-active","terminated"].includes(onboarding.stage) ? <FiCheckCircle /> : "4"}</i><div><strong>Three-month probation</strong><small>{onboarding.probation?.startsAt ? `${formatDate(onboarding.probation.startsAt)} to ${formatDate(onboarding.probation.endsAt)}` : "Starts after payment confirmation"}</small></div></article>
+                <article className={onboarding.stage === "contract-active" ? "complete" : ["probation-review","terminated"].includes(onboarding.stage) ? "current" : ""}><i>{onboarding.stage === "contract-active" ? <FiCheckCircle /> : "5"}</i><div><strong>Continue or terminate</strong><small>{onboarding.stage === "contract-active" ? "Continuing maintenance contract active" : onboarding.stage === "terminated" ? "Contract ended after review" : onboarding.stage === "probation-review" ? "Both parties are reviewing the relationship" : "Decision after the probation period"}</small></div></article>
+              </div>
+              {onboarding.remediation?.scope && <div className="maintenance-remediation-note"><strong>Remediation scope</strong><p>{onboarding.remediation.scope}</p></div>}
+              <p className="maintenance-probation-term"><FiShield /> The first three months are a probationary period paid in full and non-refundable after any required remediation is completed. Either party may continue or terminate the contract after this period.</p>
             </section>
 
             <section className="maintenance-summary-grid">

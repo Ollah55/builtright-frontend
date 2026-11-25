@@ -74,6 +74,13 @@
 .maintenance-admin-form label > span { display: block; margin-bottom: .35rem; color: #3f4c48; font-size: .82rem; font-weight: 800; }
 .maintenance-admin-form input, .maintenance-admin-form select, .maintenance-admin-form textarea { width: 100%; min-height: 44px; border: 1px solid #d9e1df; border-radius: 11px; padding: .7rem .75rem; font: inherit; font-size: 1rem; outline: none; background: #fff; }
 .maintenance-admin-form textarea { resize: vertical; }
+.maintenance-admin-section-title { background: #eef8f6; border-left: 4px solid #159284; border-radius: 0 11px 11px 0; padding: .8rem; margin-top: .35rem; }
+.maintenance-admin-section-title strong, .maintenance-admin-section-title span { display: block; }
+.maintenance-admin-section-title strong { color: #176d64; }
+.maintenance-admin-section-title span { color: #68807a; font-size: .78rem; margin-top: .2rem; }
+.maintenance-admin-check { display: flex; gap: .6rem; align-items: center; background: #f8faf9; border-radius: 11px; padding: .7rem; }
+.maintenance-admin-check input { width: 20px; min-height: 20px; flex: 0 0 auto; }
+.maintenance-admin-check > span { margin: 0 !important; }
 .maintenance-admin-form input:focus, .maintenance-admin-form select:focus, .maintenance-admin-form textarea:focus { border-color: #159284; box-shadow: 0 0 0 4px rgba(21,146,132,.09); }
 .maintenance-admin-modal form > footer { display: flex; justify-content: flex-end; gap: .55rem; margin-top: 1rem; }
 .maintenance-admin-modal form > footer button { border: 0; min-height: 44px; padding: .7rem .9rem; border-radius: 11px; font-weight: 900; cursor: pointer; }
