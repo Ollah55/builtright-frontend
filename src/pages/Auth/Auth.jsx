@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { FiCreditCard, FiHome, FiShield, FiSun } from "react-icons/fi";
 import PasswordInput from "../../components/PasswordInput/PasswordInput";
 import "./auth.css";
 
 function Auth() {
   const location = useLocation();
-  const redirectTo = location.state?.from || "/customer/dashboard";
+  const requestedPath = location.state?.from || "";
   const navigate = useNavigate();
   const [isRegister, setIsRegister] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,6 +25,7 @@ function Auth() {
     location: "",
     password: "",
     confirmPassword: "",
+    serviceInterest: requestedPath.startsWith("/customer/maintenance") ? "maintenance" : "",
   });
 
   const handleLoginChange = (e) => {
@@ -63,7 +65,7 @@ function Auth() {
       }
 
       saveAuth(data);
-      navigate(redirectTo);
+      navigate(requestedPath || data.nextPath || "/customer/dashboard");
     } catch (error) {
       setMessage(error.message || "Login failed.");
     } finally {
@@ -94,6 +96,7 @@ function Auth() {
           phone: registerData.phone,
           location: registerData.location,
           password: registerData.password,
+          serviceInterest: registerData.serviceInterest,
         }),
       });
 
@@ -104,7 +107,7 @@ function Auth() {
       }
 
       saveAuth(data);
-      navigate(redirectTo);
+      navigate(requestedPath || data.nextPath || (registerData.serviceInterest === "maintenance" ? "/customer/maintenance" : "/customer/dashboard"));
     } catch (error) {
       setMessage(error.message || "Registration failed.");
     } finally {
@@ -118,23 +121,23 @@ function Auth() {
         <title>{isRegister ? "Create Account" : "Login"} | BuiltRight</title>
         <meta
           name="description"
-          content="Login or create a BuiltRight account to shop, checkout, and request financing."
+          content="Login or create a BuiltRight customer account for solar financing or facility maintenance services."
         />
       </Helmet>
 
       <section className="auth-shell">
         <div className="auth-info">
           <p className="section-label">BuiltRight Account</p>
-          <h1>Shop, compare, checkout, and apply for financing securely.</h1>
+          <h1>One secure account for energy and facility care.</h1>
           <p>
-            Create an account to manage your cart, submit financing requests,
-            track orders, and access support from BuiltRight.
+            Choose the service you need when signing up. Your account will open
+            the correct portal for solar financing or facility maintenance.
           </p>
 
           <div className="auth-benefits">
-            <span>Secure checkout</span>
-            <span>Solar financing</span>
-            <span>Order tracking</span>
+            <span><FiSun /> Solar & financing</span>
+            <span><FiHome /> Facility maintenance</span>
+            <span><FiShield /> One secure login</span>
           </div>
         </div>
 
@@ -142,7 +145,7 @@ function Auth() {
           <div className="auth-card">
             <div className="auth-face auth-front">
               <h2>Welcome Back</h2>
-              <p>Login to continue shopping with BuiltRight.</p>
+              <p>Use your customer email and password. We will open the service connected to your account.</p>
 
               <form onSubmit={handleLogin}>
                 <input
@@ -180,9 +183,31 @@ function Auth() {
 
             <div className="auth-face auth-back">
               <h2>Create Account</h2>
-              <p>Register to checkout or apply for financing.</p>
+              <p>First, choose the BuiltRight service you want to access.</p>
 
               <form onSubmit={handleRegister}>
+                <fieldset className="auth-service-choice">
+                  <legend>What do you need?</legend>
+                  <button
+                    type="button"
+                    className={registerData.serviceInterest === "financing" ? "selected" : ""}
+                    onClick={() => setRegisterData((current) => ({ ...current, serviceInterest: "financing" }))}
+                    aria-pressed={registerData.serviceInterest === "financing"}
+                  >
+                    <span><FiCreditCard /></span>
+                    <div><strong>Solar & Financing</strong><small>Solar products, quotations, bank application and installation tracking</small></div>
+                  </button>
+                  <button
+                    type="button"
+                    className={registerData.serviceInterest === "maintenance" ? "selected" : ""}
+                    onClick={() => setRegisterData((current) => ({ ...current, serviceInterest: "maintenance" }))}
+                    aria-pressed={registerData.serviceInterest === "maintenance"}
+                  >
+                    <span><FiHome /></span>
+                    <div><strong>Facility Maintenance</strong><small>Inspection, due diligence, maintenance plan and emergency support</small></div>
+                  </button>
+                  <input type="hidden" name="serviceInterest" value={registerData.serviceInterest} required />
+                </fieldset>
                 <input
                   type="text"
                   name="fullName"
@@ -213,7 +238,7 @@ function Auth() {
                 <input
                   type="text"
                   name="location"
-                  placeholder="Location"
+                  placeholder={registerData.serviceInterest === "maintenance" ? "Property Location / Area" : "Location"}
                   value={registerData.location}
                   onChange={handleRegisterChange}
                 />
@@ -236,7 +261,7 @@ function Auth() {
                   />
                 </div>
 
-                <button type="submit" disabled={isSubmitting}>
+                <button type="submit" disabled={isSubmitting || !registerData.serviceInterest}>
                   {isSubmitting ? "Creating..." : "Create Account"}
                 </button>
               </form>

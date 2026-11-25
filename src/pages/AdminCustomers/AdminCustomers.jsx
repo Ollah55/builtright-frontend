@@ -148,6 +148,7 @@ function AdminCustomers() {
                   <th>Email</th>
                   <th>Phone</th>
                   <th>Location</th>
+                  <th>Primary Service</th>
                   <th>Date Joined</th>
                   <th>Action</th>
                 </tr>
@@ -164,6 +165,7 @@ function AdminCustomers() {
                     <td>{customer.email}</td>
                     <td>{customer.phone}</td>
                     <td>{customer.location || "N/A"}</td>
+                    <td><span>{customer.serviceInterest === "maintenance" ? "Facility maintenance" : "Solar & financing"}</span></td>
 
                     <td>
                       {customer.createdAt
