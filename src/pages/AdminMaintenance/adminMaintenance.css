@@ -1,0 +1,90 @@
+.maintenance-admin-primary { border: 0; background: #159284; color: #fff; min-height: 44px; padding: .7rem 1rem; border-radius: 12px; font-weight: 900; display: inline-flex; align-items: center; gap: .45rem; cursor: pointer; }
+.maintenance-admin-message { background: #eaf8f6; border: 1px solid #bde8e2; color: #0c6c62; padding: .9rem 1rem; border-radius: 13px; margin-bottom: 1rem; font-weight: 800; }
+.maintenance-admin-emergencies { background: linear-gradient(135deg,#7d1218,#B32127); border-radius: 20px; padding: 1.2rem; color: #fff; margin-bottom: 1rem; box-shadow: 0 18px 40px rgba(126,18,24,.18); }
+.maintenance-admin-emergencies header { display: flex; gap: .7rem; align-items: center; margin-bottom: .8rem; }
+.maintenance-admin-emergencies header svg { font-size: 1.55rem; }
+.maintenance-admin-emergencies header span { text-transform: uppercase; letter-spacing: .12em; font-size: .7rem; font-weight: 900; opacity: .75; }
+.maintenance-admin-emergencies header h2 { font-size: 1.15rem; margin-top: .2rem; }
+.maintenance-admin-emergencies > div { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: .65rem; }
+.maintenance-admin-emergencies button { border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.1); color: #fff; border-radius: 14px; padding: .8rem; text-align: left; cursor: pointer; }
+.maintenance-admin-emergencies button strong, .maintenance-admin-emergencies button span, .maintenance-admin-emergencies button small { display: block; }
+.maintenance-admin-emergencies button span { font-weight: 900; margin: .25rem 0; }
+.maintenance-admin-emergencies button small { opacity: .78; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.maintenance-admin-emergencies button i { display: inline-block; margin-top: .6rem; background: #fff; color: #A11D24; border-radius: 999px; padding: .2rem .5rem; font-size: .7rem; font-style: normal; font-weight: 900; }
+.maintenance-admin-stats { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: .8rem; margin-bottom: 1rem; }
+.maintenance-admin-stats article { background: #fff; border: 1px solid #e4ebe9; border-radius: 17px; padding: 1rem; display: flex; gap: .7rem; align-items: center; }
+.maintenance-admin-stats article > span { width: 42px; height: 42px; border-radius: 13px; background: #eaf8f6; color: #159284; display: grid; place-items: center; flex: 0 0 auto; }
+.maintenance-admin-stats article.emergency > span { background: #ffebec; color: #B32127; }
+.maintenance-admin-stats small, .maintenance-admin-stats strong { display: block; }
+.maintenance-admin-stats small { color: #71807b; font-size: .76rem; }
+.maintenance-admin-stats strong { color: #1d2a26; font-size: 1.5rem; margin-top: .1rem; }
+.maintenance-admin-toolbar { display: grid; grid-template-columns: minmax(240px,1fr) auto auto; gap: .7rem; align-items: center; background: #fff; border: 1px solid #e4ebe9; border-radius: 17px; padding: .8rem; margin-bottom: 1rem; }
+.maintenance-admin-toolbar input { width: 100%; border: 1px solid #dbe3e1; min-height: 43px; border-radius: 11px; padding: .7rem .8rem; font: inherit; outline: none; }
+.maintenance-admin-toolbar input:focus { border-color: #159284; box-shadow: 0 0 0 4px rgba(21,146,132,.08); }
+.maintenance-admin-toolbar > div { display: flex; gap: .4rem; flex-wrap: wrap; }
+.maintenance-admin-toolbar button { border: 1px solid #dce4e2; background: #fff; min-height: 40px; padding: .6rem .75rem; border-radius: 10px; color: #586661; font-weight: 800; cursor: pointer; }
+.maintenance-admin-toolbar button.active { background: #159284; border-color: #159284; color: #fff; }
+.maintenance-admin-toolbar button.refresh { display: flex; align-items: center; gap: .35rem; }
+.maintenance-admin-layout { display: grid; grid-template-columns: minmax(0,1.35fr) minmax(330px,.65fr); gap: 1rem; align-items: start; }
+.maintenance-admin-panel { background: #fff; border: 1px solid #e4ebe9; border-radius: 20px; padding: 1rem; min-width: 0; }
+.maintenance-admin-panel > header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .2rem .2rem 1rem; }
+.maintenance-admin-panel > header p { color: #159284; text-transform: uppercase; letter-spacing: .12em; font-size: .7rem; font-weight: 900; }
+.maintenance-admin-panel > header h2 { color: #1f2c28; font-size: 1.15rem; margin-top: .25rem; }
+.maintenance-admin-panel > header > span { border-radius: 999px; padding: .3rem .6rem; background: #eaf8f6; color: #0b766b; font-size: .75rem; font-weight: 900; }
+.maintenance-admin-property-list { display: grid; gap: .75rem; }
+.maintenance-admin-property-list article { border: 1px solid #e6ecea; border-radius: 16px; padding: .9rem; }
+.property-main { display: grid; grid-template-columns: auto 1fr; gap: .75rem; align-items: center; }
+.property-health { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; background: #eef7f5; color: #159284; font-size: 1.2rem; }
+.property-health.attention, .property-health.critical { background: #ffebec; color: #B32127; }
+.property-main small { color: #83908c; font-size: .7rem; }
+.property-main h3 { color: #24312d; margin: .15rem 0; }
+.property-main p { color: #6d7b76; font-size: .85rem; }
+.property-main em { display: inline-block; margin-top: .35rem; color: #159284; font-style: normal; font-size: .78rem; font-weight: 900; }
+.maintenance-admin-property-list dl { display: grid; grid-template-columns: repeat(4,1fr); gap: .5rem; margin: .85rem 0; }
+.maintenance-admin-property-list dl div { background: #f8faf9; border-radius: 10px; padding: .6rem; }
+.maintenance-admin-property-list dt { color: #81908b; font-size: .68rem; }
+.maintenance-admin-property-list dd { color: #35433e; font-weight: 900; font-size: .8rem; margin-top: .2rem; }
+.maintenance-admin-property-list dd.active { color: #0b7d67; }
+.maintenance-admin-property-list footer { display: flex; gap: .45rem; align-items: center; border-top: 1px solid #edf1f0; padding-top: .7rem; }
+.maintenance-admin-property-list footer button { border: 1px solid #dce4e2; background: #fff; color: #41504b; border-radius: 9px; padding: .55rem .65rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: .35rem; }
+.maintenance-admin-property-list footer button:first-child { background: #159284; border-color: #159284; color: #fff; }
+.maintenance-admin-property-list footer button.delete { margin-left: auto; color: #B32127; background: #fff4f4; }
+.maintenance-admin-requests > div { display: grid; gap: .55rem; max-height: 720px; overflow-y: auto; }
+.maintenance-admin-requests > div > button { width: 100%; border: 1px solid #e5ece9; background: #fff; border-radius: 13px; padding: .75rem; display: grid; grid-template-columns: auto 1fr auto; gap: .65rem; text-align: left; align-items: center; cursor: pointer; }
+.maintenance-admin-requests > div > button.emergency { border-color: #efb9bc; background: #fff8f8; }
+.request-kind { width: 37px; height: 37px; border-radius: 11px; background: #eaf8f6; color: #159284; display: grid; place-items: center; }
+.maintenance-admin-requests button.emergency .request-kind { background: #ffebec; color: #B32127; }
+.maintenance-admin-requests small { color: #86938f; font-size: .66rem; }
+.maintenance-admin-requests strong { display: block; color: #26332f; margin: .18rem 0; font-size: .86rem; }
+.maintenance-admin-requests p { color: #77847f; font-size: .73rem; }
+.maintenance-admin-requests i { font-style: normal; border-radius: 999px; padding: .25rem .45rem; background: #edf2f0; color: #53615c; font-size: .66rem; font-weight: 900; white-space: nowrap; }
+.maintenance-admin-requests i.resolved, .maintenance-admin-requests i.closed { background: #dff7ef; color: #08765d; }
+.maintenance-admin-empty { padding: 2rem; text-align: center; color: #7c8985; }
+.maintenance-admin-modal-layer { position: fixed; inset: 0; z-index: 1000; background: rgba(7,18,15,.72); backdrop-filter: blur(5px); display: grid; place-items: center; padding: 1rem; overflow-y: auto; }
+.maintenance-admin-modal { position: relative; width: min(760px,100%); max-height: calc(100vh - 2rem); overflow-y: auto; background: #fff; border-radius: 22px; padding: 1.35rem; }
+.maintenance-admin-modal > button.close { position: absolute; right: .9rem; top: .9rem; z-index: 2; border: 0; width: 38px; height: 38px; border-radius: 50%; background: #edf1f0; cursor: pointer; display: grid; place-items: center; }
+.modal-title { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; padding-right: 3rem; }
+.modal-title > svg { width: 48px; height: 48px; padding: .75rem; border-radius: 14px; background: #eaf8f6; color: #159284; flex: 0 0 auto; }
+.modal-title.emergency > svg { background: #ffebec; color: #B32127; }
+.modal-title p { text-transform: uppercase; letter-spacing: .1em; font-size: .7rem; font-weight: 900; color: #159284; }
+.modal-title h2 { color: #1e2b27; margin: .2rem 0; }
+.modal-title span { color: #74827d; font-size: .85rem; }
+.maintenance-admin-form { display: grid; grid-template-columns: repeat(2,1fr); gap: .8rem; }
+.maintenance-admin-form label.wide { grid-column: 1 / -1; }
+.maintenance-admin-form label > span { display: block; margin-bottom: .35rem; color: #3f4c48; font-size: .82rem; font-weight: 800; }
+.maintenance-admin-form input, .maintenance-admin-form select, .maintenance-admin-form textarea { width: 100%; min-height: 44px; border: 1px solid #d9e1df; border-radius: 11px; padding: .7rem .75rem; font: inherit; font-size: 1rem; outline: none; background: #fff; }
+.maintenance-admin-form textarea { resize: vertical; }
+.maintenance-admin-form input:focus, .maintenance-admin-form select:focus, .maintenance-admin-form textarea:focus { border-color: #159284; box-shadow: 0 0 0 4px rgba(21,146,132,.09); }
+.maintenance-admin-modal form > footer { display: flex; justify-content: flex-end; gap: .55rem; margin-top: 1rem; }
+.maintenance-admin-modal form > footer button { border: 0; min-height: 44px; padding: .7rem .9rem; border-radius: 11px; font-weight: 900; cursor: pointer; }
+.maintenance-admin-modal form > footer button:first-child { background: #edf1f0; color: #46534f; }
+.maintenance-admin-modal form > footer button:last-child { background: #159284; color: #fff; }
+.maintenance-request-detail { background: #f8faf9; border-radius: 14px; padding: .9rem; margin-bottom: 1rem; }
+.maintenance-request-detail > p { color: #4e5c57; line-height: 1.55; }
+.maintenance-request-detail dl { display: grid; grid-template-columns: repeat(4,1fr); gap: .5rem; margin-top: .8rem; }
+.maintenance-request-detail dl div { background: #fff; padding: .6rem; border-radius: 9px; }
+.maintenance-request-detail dt { color: #87938f; font-size: .68rem; }
+.maintenance-request-detail dd { color: #33403c; font-weight: 800; font-size: .78rem; margin-top: .2rem; }
+@media (max-width: 1200px) { .maintenance-admin-stats { grid-template-columns: repeat(3,1fr); } .maintenance-admin-layout { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .maintenance-admin-stats { grid-template-columns: repeat(2,1fr); } .maintenance-admin-toolbar { grid-template-columns: 1fr; } .maintenance-admin-property-list dl { grid-template-columns: repeat(2,1fr); } .maintenance-admin-form { grid-template-columns: 1fr; } .maintenance-admin-form label.wide { grid-column: auto; } .maintenance-request-detail dl { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 480px) { .maintenance-admin-stats { grid-template-columns: 1fr; } .maintenance-admin-property-list footer { flex-wrap: wrap; } .maintenance-admin-property-list footer button.delete { margin-left: 0; } .maintenance-admin-requests > div > button { grid-template-columns: auto 1fr; } .maintenance-admin-requests i { grid-column: 2; width: fit-content; } }

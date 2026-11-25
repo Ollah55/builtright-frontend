@@ -61,6 +61,8 @@ const CustomerFinancing = lazy(() => import("./pages/CustomerFinancing/CustomerF
 const CustomerOrders = lazy(() => import("./pages/CustomerOrders/CustomerOrders"));
 const CustomerProfile = lazy(() => import("./pages/CustomerProfile/CustomerProfile"));
 const CustomerDocuments = lazy(() => import("./pages/CustomerDocuments/CustomerDocuments"));
+const CustomerMaintenance = lazy(() => import("./pages/CustomerMaintenance/CustomerMaintenance"));
+const AdminMaintenance = lazy(() => import("./pages/AdminMaintenance/AdminMaintenance"));
 
 // Components
 import Navbar from "./components/Navbar/Navbar";
@@ -89,7 +91,7 @@ function App() {
 function AppContent() {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith("/admin");
-  const isPortalPage = isAdminPage || location.pathname.startsWith("/installer") || location.pathname.startsWith("/learner") || location.pathname.startsWith("/accounting") || location.pathname.startsWith("/sales");
+  const isPortalPage = isAdminPage || location.pathname.startsWith("/customer") || location.pathname.startsWith("/installer") || location.pathname.startsWith("/learner") || location.pathname.startsWith("/accounting") || location.pathname.startsWith("/sales");
 
   const [isCartOpen, setIsCartOpen] = useState(false);
 
@@ -234,6 +236,15 @@ function AppContent() {
           }
         />
 
+        <Route
+          path="/customer/maintenance"
+          element={
+            <ProtectedRoute>
+              <CustomerMaintenance />
+            </ProtectedRoute>
+          }
+        />
+
         {/* Admin Pages */}
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/forgot-password" element={<ForgotPassword />} />
@@ -316,6 +327,11 @@ function AppContent() {
               <AdminProjects />
             </ProtectedAdminRoute>
           }
+        />
+
+        <Route
+          path="/admin/maintenance"
+          element={<ProtectedAdminRoute><AdminMaintenance /></ProtectedAdminRoute>}
         />
 
         <Route

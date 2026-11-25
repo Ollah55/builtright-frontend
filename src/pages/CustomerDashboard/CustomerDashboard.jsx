@@ -79,6 +79,7 @@ function CustomerDashboard() {
             <NavLink to="/customer/dashboard">Overview</NavLink>
             <NavLink to="/customer/orders">My Orders</NavLink>
             <NavLink to="/customer/financing">My Financing</NavLink>
+            <NavLink to="/customer/maintenance">Facility Care</NavLink>
             <NavLink to="/customer/profile">Profile</NavLink>
           </nav>
         </div>

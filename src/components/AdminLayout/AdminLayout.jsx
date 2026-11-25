@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
+  FiActivity,
   FiBell,
   FiBox,
   FiChevronRight,
@@ -28,6 +29,7 @@ const navGroups = [
       { to: "/admin/dashboard", label: "Overview", icon: FiGrid },
       { to: "/admin/loan-requests", label: "Financing", icon: FiCreditCard },
       { to: "/admin/projects", label: "Projects", icon: FiTool },
+      { to: "/admin/maintenance", label: "Facility maintenance", icon: FiActivity },
       { to: "/admin/devices", label: "Devices", icon: FiCpu },
       { to: "/admin/installers", label: "Installers", icon: FiTool },
       { to: "/admin/sales-team", label: "Sales team", icon: FiUsers },

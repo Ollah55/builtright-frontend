@@ -1,0 +1,114 @@
+.maintenance-portal { max-width: 1500px; margin: 0 auto; }
+.maintenance-hero { background: linear-gradient(125deg, #0c403b, #159284 62%, #1da995); color: #fff; border-radius: 28px; padding: 2rem; display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; box-shadow: 0 22px 55px rgba(21,146,132,.2); }
+.maintenance-hero p, .maintenance-panel header p { text-transform: uppercase; letter-spacing: .12em; font-size: .75rem; font-weight: 900; opacity: .78; }
+.maintenance-hero h1 { font-size: clamp(2rem, 4vw, 3.35rem); line-height: 1.05; margin: .45rem 0 .7rem; }
+.maintenance-hero span { display: block; max-width: 760px; line-height: 1.65; color: rgba(255,255,255,.82); }
+.maintenance-hero-actions { display: flex; gap: .75rem; flex-wrap: wrap; justify-content: flex-end; }
+.maintenance-hero-actions button { border: 0; border-radius: 14px; min-height: 48px; padding: .8rem 1rem; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: .5rem; white-space: nowrap; }
+.maintenance-service-button { background: #fff; color: #0d6f64; }
+.maintenance-emergency-button { background: #B32127; color: #fff; box-shadow: 0 12px 25px rgba(87,9,14,.25); }
+.maintenance-hero-actions button:disabled { opacity: .55; cursor: not-allowed; }
+.maintenance-message { margin: 1rem 0; padding: .95rem 1rem; border-radius: 14px; background: #eaf8f6; border: 1px solid #bde8e2; color: #0c6c62; font-weight: 800; }
+.maintenance-property-switcher { margin: 1.25rem 0; display: flex; gap: .75rem; overflow-x: auto; padding-bottom: .3rem; }
+.maintenance-property-switcher button { min-width: 260px; text-align: left; background: #fff; border: 1px solid #dde6e3; padding: .9rem 1rem; border-radius: 16px; display: flex; gap: .75rem; align-items: center; color: #33433f; cursor: pointer; }
+.maintenance-property-switcher button.active { border-color: #159284; background: #effaf8; box-shadow: 0 8px 22px rgba(21,146,132,.1); }
+.maintenance-property-switcher svg { flex: 0 0 auto; font-size: 1.25rem; color: #159284; }
+.maintenance-property-switcher span, .maintenance-property-switcher strong, .maintenance-property-switcher small { display: block; }
+.maintenance-property-switcher small { color: #73817d; margin-top: .2rem; }
+.maintenance-summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1rem; margin-bottom: 1rem; }
+.maintenance-summary-grid article { background: #fff; border: 1px solid #e4ebe9; border-radius: 20px; padding: 1.15rem; display: flex; align-items: center; gap: .9rem; min-height: 120px; }
+.maintenance-card-icon { width: 48px; height: 48px; border-radius: 15px; background: #eaf8f6; color: #159284; display: grid; place-items: center; font-size: 1.25rem; flex: 0 0 auto; }
+.maintenance-summary-grid span, .maintenance-summary-grid strong, .maintenance-summary-grid small { display: block; }
+.maintenance-summary-grid span { color: #73817d; font-size: .82rem; font-weight: 800; }
+.maintenance-summary-grid strong { color: #17231f; font-size: 1.05rem; margin: .25rem 0; }
+.maintenance-summary-grid small { color: #8a9692; line-height: 1.4; }
+.maintenance-health-card.critical .maintenance-card-icon, .maintenance-health-card.attention .maintenance-card-icon { background: #fff0f0; color: #B32127; }
+.maintenance-plan-status { width: fit-content; border-radius: 999px; padding: .15rem .55rem; background: #eef2f1; }
+.maintenance-plan-status.active { background: #dff7ef; color: #08765d; }
+.maintenance-content-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 1rem; margin-bottom: 1rem; }
+.maintenance-lower-grid { grid-template-columns: 1.15fr .85fr; }
+.maintenance-panel { background: #fff; border: 1px solid #e4ebe9; border-radius: 22px; padding: 1.35rem; min-width: 0; }
+.maintenance-panel header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; }
+.maintenance-panel header p { color: #159284; }
+.maintenance-panel header h2 { color: #16221e; margin-top: .35rem; font-size: 1.25rem; }
+.maintenance-panel header > svg { color: #159284; font-size: 1.5rem; }
+.maintenance-health-badge, .request-status { font-style: normal; border-radius: 999px; padding: .35rem .65rem; font-size: .75rem; font-weight: 900; background: #eff3f2; color: #52605c; white-space: nowrap; }
+.maintenance-health-badge.healthy, .request-status.resolved, .request-status.closed { background: #dff7ef; color: #08765d; }
+.maintenance-health-badge.attention, .request-status.acknowledged, .request-status.team-assigned { background: #fff5d6; color: #8a5b00; }
+.maintenance-health-badge.critical, .request-status.submitted { background: #ffebec; color: #a71e25; }
+.maintenance-property-address { color: #687671; display: flex; gap: .5rem; align-items: flex-start; line-height: 1.5; }
+.maintenance-property-address svg { color: #159284; margin-top: .2rem; }
+.maintenance-health-meter { margin: 1.25rem 0; }
+.maintenance-health-meter > div { display: flex; justify-content: space-between; margin-bottom: .55rem; color: #46534f; }
+.maintenance-health-meter progress { appearance: none; width: 100%; height: 11px; border: 0; border-radius: 999px; overflow: hidden; }
+.maintenance-health-meter progress::-webkit-progress-bar { background: #edf1f0; }
+.maintenance-health-meter progress::-webkit-progress-value { background: linear-gradient(90deg,#159284,#45c7b4); border-radius: 999px; }
+.maintenance-health-summary { background: #f6faf9; border-left: 4px solid #159284; padding: .9rem 1rem; border-radius: 0 12px 12px 0; line-height: 1.6; color: #4b5a55; }
+.maintenance-detail-list { display: grid; grid-template-columns: repeat(3,1fr); gap: .65rem; margin-top: 1rem; }
+.maintenance-detail-list div { background: #fafcfc; border-radius: 12px; padding: .75rem; }
+.maintenance-detail-list dt, .maintenance-subscription-meta span { color: #7b8985; font-size: .75rem; }
+.maintenance-detail-list dd, .maintenance-subscription-meta strong { color: #26332f; font-weight: 900; margin-top: .25rem; }
+.maintenance-subscription-meta { display: grid; grid-template-columns: repeat(3,1fr); gap: .65rem; margin-bottom: 1.2rem; }
+.maintenance-subscription-meta div { background: #f7faf9; padding: .8rem; border-radius: 12px; }
+.maintenance-plan-panel h3, .maintenance-assets h3 { font-size: .9rem; color: #26332f; margin-bottom: .75rem; }
+.maintenance-coverage-list { list-style: none; display: grid; gap: .55rem; }
+.maintenance-coverage-list li { display: flex; gap: .55rem; align-items: center; color: #475550; }
+.maintenance-coverage-list svg { color: #159284; flex: 0 0 auto; }
+.maintenance-request-list { display: grid; gap: .8rem; max-height: 560px; overflow-y: auto; padding-right: .2rem; }
+.maintenance-request-list article { border: 1px solid #e7edeb; border-radius: 16px; padding: 1rem; }
+.maintenance-request-list article.emergency { border-color: #efb9bc; background: #fffafa; }
+.maintenance-request-top { display: grid; grid-template-columns: auto 1fr auto; gap: .7rem; align-items: center; }
+.maintenance-request-icon { width: 38px; height: 38px; border-radius: 12px; background: #eaf8f6; color: #159284; display: grid; place-items: center; }
+.maintenance-request-icon.emergency { background: #ffeaeb; color: #B32127; }
+.maintenance-request-top small { color: #84918d; font-size: .7rem; }
+.maintenance-request-top h3 { color: #22302c; font-size: .98rem; margin-top: .2rem; }
+.maintenance-request-list article > p { margin: .8rem 0; color: #596762; line-height: 1.5; }
+.maintenance-request-list article > strong { color: #159284; font-size: .82rem; }
+.maintenance-request-list blockquote { margin-top: .7rem; background: #f6faf9; border-left: 3px solid #159284; padding: .65rem; color: #52605c; }
+.maintenance-request-list footer { margin-top: .8rem; padding-top: .7rem; border-top: 1px solid #edf1f0; display: flex; justify-content: space-between; gap: .5rem; color: #7c8985; font-size: .75rem; }
+.maintenance-request-list footer span { display: flex; align-items: center; gap: .3rem; }
+.maintenance-visit-list { display: grid; gap: .65rem; }
+.maintenance-visit-list > div { display: grid; grid-template-columns: auto 1fr auto; gap: .65rem; align-items: center; padding-bottom: .65rem; border-bottom: 1px solid #edf1f0; }
+.visit-dot { width: 10px; height: 10px; border-radius: 50%; background: #159284; }
+.visit-dot.completed { background: #1f9d6c; }
+.visit-dot.cancelled { background: #b8c1be; }
+.maintenance-visit-list strong, .maintenance-visit-list small { display: block; }
+.maintenance-visit-list small { margin-top: .2rem; color: #84918d; }
+.maintenance-visit-list i { font-style: normal; font-size: .72rem; font-weight: 900; color: #159284; }
+.maintenance-assets { margin-top: 1.2rem; }
+.maintenance-assets > div { display: flex; justify-content: space-between; gap: .8rem; padding: .65rem 0; border-bottom: 1px solid #edf1f0; }
+.maintenance-assets span small { display: block; color: #899591; margin-top: .2rem; }
+.maintenance-assets i { font-style: normal; font-size: .75rem; font-weight: 900; color: #08765d; }
+.maintenance-assets i.attention, .maintenance-assets i.critical { color: #B32127; }
+.maintenance-list-empty { color: #82908c; padding: 1rem 0; }
+.maintenance-empty { background: #fff; border: 1px solid #e4ebe9; border-radius: 22px; padding: 3rem; text-align: center; color: #687671; }
+.maintenance-empty-onboarding svg { font-size: 2.3rem; color: #159284; }
+.maintenance-empty h2 { color: #1f2c28; margin: .8rem 0; }
+.maintenance-empty p { max-width: 640px; margin: 0 auto; line-height: 1.6; }
+.maintenance-empty a { display: inline-flex; margin-top: 1rem; background: #159284; color: #fff; padding: .8rem 1rem; border-radius: 12px; text-decoration: none; font-weight: 900; }
+.maintenance-modal-layer { position: fixed; inset: 0; z-index: 1000; background: rgba(7,18,15,.7); backdrop-filter: blur(5px); display: grid; place-items: center; padding: 1rem; overflow-y: auto; }
+.maintenance-modal { width: min(720px,100%); max-height: calc(100vh - 2rem); overflow-y: auto; background: #fff; border-radius: 24px; padding: 1.5rem; position: relative; }
+.maintenance-modal.emergency { border-top: 7px solid #B32127; }
+.maintenance-modal-close { position: absolute; right: 1rem; top: 1rem; width: 38px; height: 38px; border: 0; border-radius: 50%; background: #eef2f1; display: grid; place-items: center; cursor: pointer; }
+.maintenance-modal-heading { display: flex; gap: .85rem; align-items: center; padding-right: 3rem; margin-bottom: 1rem; }
+.maintenance-modal-heading > span { width: 48px; height: 48px; border-radius: 15px; display: grid; place-items: center; color: #159284; background: #eaf8f6; font-size: 1.3rem; flex: 0 0 auto; }
+.maintenance-modal.emergency .maintenance-modal-heading > span { color: #B32127; background: #ffebec; }
+.maintenance-modal-heading p { font-size: .72rem; color: #81908b; font-weight: 900; }
+.maintenance-modal-heading h2 { color: #1f2b27; margin: .2rem 0; }
+.maintenance-modal-heading small { color: #71807b; }
+.maintenance-safety-notice { background: #fff2f2; color: #842127; border: 1px solid #f2c4c6; border-radius: 14px; padding: .9rem; margin-bottom: 1rem; line-height: 1.5; }
+.maintenance-form-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: .9rem; }
+.maintenance-form-grid label > span { display: block; font-weight: 800; color: #34413d; margin-bottom: .4rem; font-size: .88rem; }
+.maintenance-form-grid label.wide { grid-column: 1 / -1; }
+.maintenance-form-grid input, .maintenance-form-grid select, .maintenance-form-grid textarea { width: 100%; border: 1px solid #d9e1df; border-radius: 12px; padding: .8rem; font: inherit; font-size: 1rem; outline: none; background: #fff; }
+.maintenance-form-grid input:focus, .maintenance-form-grid select:focus, .maintenance-form-grid textarea:focus { border-color: #159284; box-shadow: 0 0 0 4px rgba(21,146,132,.1); }
+.maintenance-safe-check { display: flex; gap: .65rem; align-items: flex-start; background: #f8faf9; padding: .8rem; border-radius: 12px; }
+.maintenance-safe-check input { width: 20px; height: 20px; flex: 0 0 auto; }
+.maintenance-modal footer { display: flex; justify-content: flex-end; gap: .65rem; margin-top: 1.2rem; }
+.maintenance-modal footer button { min-height: 45px; border: 0; border-radius: 12px; padding: .7rem 1rem; font-weight: 900; cursor: pointer; }
+.maintenance-modal footer button:first-child { background: #edf1f0; color: #44524d; }
+.maintenance-modal footer button:last-child { background: #159284; color: #fff; }
+.maintenance-modal.emergency footer button:last-child { background: #B32127; }
+.maintenance-modal footer button:disabled { opacity: .6; cursor: wait; }
+@media (max-width: 1100px) { .maintenance-summary-grid { grid-template-columns: repeat(2,1fr); } .maintenance-content-grid, .maintenance-lower-grid { grid-template-columns: 1fr; } }
+@media (max-width: 700px) { .maintenance-hero { padding: 1.25rem; align-items: stretch; flex-direction: column; } .maintenance-hero-actions { justify-content: stretch; } .maintenance-hero-actions button { flex: 1; justify-content: center; } .maintenance-summary-grid { grid-template-columns: 1fr; } .maintenance-detail-list, .maintenance-subscription-meta { grid-template-columns: 1fr; } .maintenance-form-grid { grid-template-columns: 1fr; } .maintenance-form-grid label.wide { grid-column: auto; } .maintenance-request-top { grid-template-columns: auto 1fr; } .maintenance-request-top .request-status { grid-column: 2; width: fit-content; } .maintenance-modal { padding: 1.1rem; } }
