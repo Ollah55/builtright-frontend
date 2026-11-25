@@ -22,9 +22,23 @@ const formatDate = (value, fallback = "Not set") => value ? new Date(value).toLo
 const dateInput = (value) => value ? new Date(value).toISOString().slice(0, 10) : "";
 
 const emptyPropertyForm = {
-  customerId: "", propertyName: "", propertyType: "residential-building", address: "", city: "Lagos", state: "Lagos",
+  customerId: "", technicianId: "", propertyName: "", propertyType: "residential-building", address: "", city: "Lagos", state: "Lagos",
   landmark: "", plan: "bronze", subscriptionStatus: "pending", billingCycle: "monthly", amount: "", startsAt: "", endsAt: "", nextRenewalAt: "",
 };
+const defaultVisit = { type: "preventive", scheduledFor: "", technician: "BuiltRight maintenance team", summary: "Scheduled maintenance visit" };
+
+function TechnicianPicker({ technicians, value, onChange }) {
+  return (
+    <label className="wide">
+      <span>Technician for this address</span>
+      <select value={value} onChange={(event) => onChange(event.target.value)}>
+        <option value="">Unassigned</option>
+        {technicians.map((technician) => <option key={technician._id} value={technician._id}>{technician.fullName}</option>)}
+      </select>
+      {!technicians.length && <small>No active technicians yet. Add or activate one under Installers.</small>}
+    </label>
+  );
+}
 
 function AdminMaintenance() {
   const token = localStorage.getItem("adminToken");
@@ -38,9 +52,11 @@ function AdminMaintenance() {
   const [dialog, setDialog] = useState("");
   const [propertyForm, setPropertyForm] = useState(emptyPropertyForm);
   const [selectedPropertyId, setSelectedPropertyId] = useState("");
+  const [technicianId, setTechnicianId] = useState("");
+  const [assignmentError, setAssignmentError] = useState("");
   const [selectedRequestId, setSelectedRequestId] = useState("");
   const [requestForm, setRequestForm] = useState({ status: "acknowledged", assignedTeam: "", responseNote: "" });
-  const [visitForm, setVisitForm] = useState({ type: "preventive", scheduledFor: "", technician: "BuiltRight maintenance team", summary: "Scheduled maintenance visit" });
+  const [visitForm, setVisitForm] = useState(defaultVisit);
 
   const loadDesk = async () => {
     try {
@@ -64,13 +80,14 @@ function AdminMaintenance() {
   useLiveRefresh(loadDesk, { enabled: !saving && !dialog });
 
   const selectedProperty = data.properties.find((item) => item._id === selectedPropertyId) || null;
+  const technicians = data.technicians || [];
   const selectedRequest = data.requests.find((item) => item._id === selectedRequestId) || null;
   const emergencyRequests = data.requests.filter((item) => item.requestType === "emergency" && !["resolved", "closed", "cancelled"].includes(item.status));
   const filteredProperties = useMemo(() => {
     const term = search.toLowerCase();
     return data.properties.filter((item) => {
       const filterMatch = filter === "all" || (filter === "attention" ? ["attention", "critical"].includes(item.health?.status) : item.subscription?.status === filter);
-      const searchMatch = !term || [item.property?.name, item.property?.address, item.reference, item.customer?.fullName, item.customer?.email].some((value) => String(value || "").toLowerCase().includes(term));
+      const searchMatch = !term || [item.property?.name, item.property?.address, item.reference, item.customer?.fullName, item.customer?.email, item.assignedTechnician?.fullName].some((value) => String(value || "").toLowerCase().includes(term));
       return filterMatch && searchMatch;
     });
   }, [data.properties, filter, search]);
@@ -79,11 +96,47 @@ function AdminMaintenance() {
     event.preventDefault();
     setSaving(true); setMessage("");
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/maintenance/properties`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(propertyForm) });
+      const response = await fetch(`${API_BASE_URL}/api/admin/maintenance/properties`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ ...propertyForm, technicianId: propertyForm.technicianId || null }) });
       const result = await response.json();
       if (!response.ok || !result.status) throw new Error(result.message || "Could not add the property.");
       setMessage(result.message); setPropertyForm(emptyPropertyForm); setDialog(""); await loadDesk();
     } catch (error) { setMessage(error.message); } finally { setSaving(false); }
+  };
+
+  const openTechnicianAssignment = (property) => {
+    setSelectedPropertyId(property._id);
+    setTechnicianId(property.assignedTechnician?._id || "");
+    setAssignmentError("");
+    setDialog("technician");
+  };
+
+  const saveTechnicianAssignment = async (event) => {
+    event.preventDefault();
+    setSaving(true);
+    setAssignmentError("");
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/maintenance/properties/${selectedPropertyId}/technician`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ technicianId: technicianId || null }),
+      });
+      const result = await response.json().catch(() => null);
+      if (!response.ok || !result?.status) throw new Error(result?.message || "Could not update the technician. Please refresh the desk and try again.");
+      setData((current) => ({
+        ...current,
+        properties: current.properties.map((property) => property._id === selectedPropertyId
+          ? { ...property, assignedTechnician: result.assignedTechnician }
+          : property),
+      }));
+      setMessage(result.message);
+      setDialog("");
+    } catch (error) { setAssignmentError(error.message); } finally { setSaving(false); }
+  };
+
+  const openVisit = (property) => {
+    setSelectedPropertyId(property._id);
+    setVisitForm({ ...defaultVisit, technician: property.assignedTechnician?.fullName || defaultVisit.technician });
+    setDialog("visit");
   };
 
   const openProperty = (property) => {
@@ -165,7 +218,7 @@ function AdminMaintenance() {
       </section>
 
       <section className="maintenance-admin-toolbar">
-        <input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search property, customer, address or reference" />
+        <input type="search" value={search} onChange={(event) => setSearch(event.target.value)} aria-label="Search maintenance properties" placeholder="Search address, customer, technician or reference" />
         <div>{["all", "active", "pending", "attention"].map((item) => <button type="button" key={item} className={filter === item ? "active" : ""} onClick={() => setFilter(item)}>{titleCase(item)}</button>)}</div>
         <button type="button" className="refresh" onClick={loadDesk}><FiRefreshCw /> Refresh</button>
       </section>
@@ -175,7 +228,19 @@ function AdminMaintenance() {
           <header><div><p>Facility portfolio</p><h2>{filteredProperties.length} properties</h2></div></header>
           {loading ? <p className="maintenance-admin-empty">Loading facilities...</p> : filteredProperties.length === 0 ? <p className="maintenance-admin-empty">No maintenance properties found.</p> : <div className="maintenance-admin-property-list">{filteredProperties.map((property) => {
             const openCount = data.requests.filter((request) => String(request.property?._id || request.property) === String(property._id) && !["resolved", "closed", "cancelled"].includes(request.status)).length;
-            return <article key={property._id}><div className="property-main"><span className={`property-health ${property.health?.status}`}><FiHome /></span><div><small>{property.reference}</small><h3>{property.property?.name}</h3><p>{property.property?.address}</p><em>{property.customer?.fullName || property.customerSnapshot?.fullName}</em></div></div><dl><div><dt>Plan</dt><dd>{titleCase(property.subscription?.plan)}</dd></div><div><dt>Status</dt><dd className={property.subscription?.status}>{titleCase(property.subscription?.status)}</dd></div><div><dt>Health</dt><dd>{property.health?.score || 0}% · {titleCase(property.health?.status)}</dd></div><div><dt>Open jobs</dt><dd>{openCount}</dd></div></dl><footer><button type="button" onClick={() => openProperty(property)}>Manage property</button><button type="button" onClick={() => { setSelectedPropertyId(property._id); setDialog("visit"); }}><FiCalendar /> Schedule visit</button><button type="button" className="delete" onClick={() => deleteProperty(property)} aria-label={`Delete ${property.property?.name}`}><FiTrash2 /></button></footer></article>;
+            return (
+              <article key={property._id}>
+                <div className="property-main"><span className={`property-health ${property.health?.status}`}><FiHome /></span><div><small>{property.reference}</small><h3>{property.property?.name}</h3><p>{property.property?.address}</p><em>{property.customer?.fullName || property.customerSnapshot?.fullName}</em></div></div>
+                <dl><div><dt>Plan</dt><dd>{titleCase(property.subscription?.plan)}</dd></div><div><dt>Status</dt><dd className={property.subscription?.status}>{titleCase(property.subscription?.status)}</dd></div><div><dt>Health</dt><dd>{property.health?.score || 0}% · {titleCase(property.health?.status)}</dd></div><div><dt>Open jobs</dt><dd>{openCount}</dd></div></dl>
+                <p className="maintenance-assigned-technician">Assigned technician: <strong>{property.assignedTechnician?.fullName || "Unassigned"}</strong></p>
+                <footer>
+                  <button type="button" onClick={() => openProperty(property)}>Manage property</button>
+                  <button type="button" onClick={() => openTechnicianAssignment(property)}><FiTool /> {property.assignedTechnician ? "Change technician" : "Assign technician"}</button>
+                  <button type="button" onClick={() => openVisit(property)}><FiCalendar /> Schedule visit</button>
+                  <button type="button" className="delete" onClick={() => deleteProperty(property)} aria-label={`Delete ${property.property?.name}`}><FiTrash2 /></button>
+                </footer>
+              </article>
+            );
           })}</div>}
         </section>
 
@@ -187,12 +252,23 @@ function AdminMaintenance() {
 
       {dialog && <div className="maintenance-admin-modal-layer" onMouseDown={(event) => { if (event.target === event.currentTarget && !saving) setDialog(""); }}>
         <section className="maintenance-admin-modal" role="dialog" aria-modal="true">
-          <button type="button" className="close" onClick={() => setDialog("")}><FiX /></button>
+          <button type="button" className="close" onClick={() => setDialog("")} aria-label="Close dialog" disabled={saving}><FiX /></button>
+          {dialog === "technician" && selectedProperty && (
+            <form onSubmit={saveTechnicianAssignment}>
+              <div className="modal-title"><FiTool /><div><p>{selectedProperty.property?.name}</p><h2>Assign a technician</h2><span>{selectedProperty.property?.address}</span></div></div>
+              <div className="maintenance-admin-form">
+                <TechnicianPicker technicians={technicians} value={technicianId} onChange={setTechnicianId} />
+              </div>
+              {assignmentError && <p className="maintenance-assignment-error" role="alert">{assignmentError}</p>}
+              <footer><button type="button" onClick={() => setDialog("")} disabled={saving}>Cancel</button><button type="submit" disabled={saving}>{saving ? "Saving..." : "Save assignment"}</button></footer>
+            </form>
+          )}
           {dialog === "new" && <form onSubmit={createProperty}><div className="modal-title"><FiHome /><div><p>New maintenance account</p><h2>Add a customer property</h2></div></div><div className="maintenance-admin-form">
             <label className="wide"><span>Customer account</span><select required value={propertyForm.customerId} onChange={(event) => setPropertyForm({ ...propertyForm, customerId: event.target.value })}><option value="">Select customer</option>{customers.map((customer) => <option key={customer._id} value={customer._id}>{customer.fullName} · {customer.email}</option>)}</select></label>
             <label><span>Property name</span><input required value={propertyForm.propertyName} onChange={(event) => setPropertyForm({ ...propertyForm, propertyName: event.target.value })} placeholder="Example: Joy Alimi Residence" /></label>
             <label><span>Property type</span><select value={propertyForm.propertyType} onChange={(event) => setPropertyForm({ ...propertyForm, propertyType: event.target.value })}>{["apartment","residential-building","office","school","hotel","retail","industrial","estate","other"].map((item) => <option key={item} value={item}>{titleCase(item)}</option>)}</select></label>
             <label className="wide"><span>Property address</span><input required value={propertyForm.address} onChange={(event) => setPropertyForm({ ...propertyForm, address: event.target.value })} /></label>
+            <TechnicianPicker technicians={technicians} value={propertyForm.technicianId} onChange={(value) => setPropertyForm({ ...propertyForm, technicianId: value })} />
             <label><span>City</span><input value={propertyForm.city} onChange={(event) => setPropertyForm({ ...propertyForm, city: event.target.value })} /></label><label><span>State</span><input value={propertyForm.state} onChange={(event) => setPropertyForm({ ...propertyForm, state: event.target.value })} /></label>
             <label><span>Subscription plan</span><select value={propertyForm.plan} onChange={(event) => setPropertyForm({ ...propertyForm, plan: event.target.value })}>{["bronze","silver","gold","platinum","custom"].map((item) => <option key={item} value={item}>{titleCase(item)}</option>)}</select></label>
             <label><span>Onboarding status</span><input value="Site inspection pending" disabled /></label>

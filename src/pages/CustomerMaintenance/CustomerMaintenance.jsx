@@ -168,6 +168,7 @@ function CustomerMaintenance() {
                   <div><dt>Property type</dt><dd>{titleCase(selectedProperty.property.type)}</dd></div>
                   <div><dt>Last assessment</dt><dd>{formatDate(selectedProperty.health?.lastAssessmentAt, "Not completed")}</dd></div>
                   <div><dt>Care reference</dt><dd>{selectedProperty.reference}</dd></div>
+                  <div><dt>Assigned technician</dt><dd>{selectedProperty.assignedTechnician?.fullName || "Not assigned yet"}</dd></div>
                 </dl>
               </section>
 

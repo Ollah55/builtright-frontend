@@ -45,7 +45,9 @@
 .maintenance-admin-property-list dt { color: #81908b; font-size: .68rem; }
 .maintenance-admin-property-list dd { color: #35433e; font-weight: 900; font-size: .8rem; margin-top: .2rem; }
 .maintenance-admin-property-list dd.active { color: #0b7d67; }
-.maintenance-admin-property-list footer { display: flex; gap: .45rem; align-items: center; border-top: 1px solid #edf1f0; padding-top: .7rem; }
+.maintenance-admin-property-list footer { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; border-top: 1px solid #edf1f0; padding-top: .7rem; }
+.maintenance-assigned-technician { color: #41504b; margin-bottom: .7rem; font-size: .9rem; overflow-wrap: anywhere; }
+.maintenance-assignment-error { color: #a51f28; margin-top: .7rem; }
 .maintenance-admin-property-list footer button { border: 1px solid #dce4e2; background: #fff; color: #41504b; border-radius: 9px; padding: .55rem .65rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: .35rem; }
 .maintenance-admin-property-list footer button:first-child { background: #159284; border-color: #159284; color: #fff; }
 .maintenance-admin-property-list footer button.delete { margin-left: auto; color: #B32127; background: #fff4f4; }
