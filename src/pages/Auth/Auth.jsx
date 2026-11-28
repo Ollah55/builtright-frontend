@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FiCreditCard, FiHome, FiShield, FiSun } from "react-icons/fi";
 import PasswordInput from "../../components/PasswordInput/PasswordInput";
 import "./auth.css";
+
+const emptyLogin = { email: "", password: "" };
 
 function Auth() {
   const location = useLocation();
@@ -13,10 +15,8 @@ function Auth() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState("");
 
-  const [loginData, setLoginData] = useState({
-    email: "",
-    password: "",
-  });
+  const [loginData, setLoginData] = useState(emptyLogin);
+  const [loginFormVersion, setLoginFormVersion] = useState(0);
 
   const [registerData, setRegisterData] = useState({
     fullName: "",
@@ -36,6 +36,23 @@ function Auth() {
   const handleRegisterChange = (e) => {
     const { name, value } = e.target;
     setRegisterData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  useEffect(() => {
+    const onPageShow = (event) => {
+      if (!event.persisted) return;
+      setLoginData(emptyLogin);
+      setLoginFormVersion((version) => version + 1);
+    };
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, []);
+
+  const switchMode = (register) => {
+    setLoginData(emptyLogin);
+    setRegisterData((current) => ({ ...current, password: "", confirmPassword: "" }));
+    setMessage("");
+    setIsRegister(register);
   };
 
   const saveAuth = (data) => {
@@ -65,6 +82,7 @@ function Auth() {
       }
 
       saveAuth(data);
+      setLoginData(emptyLogin);
       navigate(requestedPath || data.nextPath || "/customer/dashboard");
     } catch (error) {
       setMessage(error.message || "Login failed.");
@@ -143,14 +161,16 @@ function Auth() {
 
         <div className={`auth-card-wrap ${isRegister ? "flipped" : ""}`}>
           <div className="auth-card">
-            <div className="auth-face auth-front">
+            <div className="auth-face auth-front" inert={isRegister}>
               <h2>Welcome Back</h2>
               <p>Use your customer email and password. We will open the service connected to your account.</p>
 
-              <form onSubmit={handleLogin}>
+              {!isRegister && <form key={loginFormVersion} autoComplete="off" onSubmit={handleLogin}>
                 <input
                   type="email"
                   name="email"
+                  autoComplete="off"
+                  aria-label="Email address"
                   placeholder="Email Address"
                   value={loginData.email}
                   onChange={handleLoginChange}
@@ -159,6 +179,8 @@ function Auth() {
 
                 <PasswordInput
                   name="password"
+                  autoComplete="off"
+                  aria-label="Password"
                   placeholder="Password"
                   value={loginData.password}
                   onChange={handleLoginChange}
@@ -168,12 +190,12 @@ function Auth() {
                 <button type="submit" disabled={isSubmitting}>
                   {isSubmitting ? "Logging in..." : "Login"}
                 </button>
-              </form>
+              </form>}
               <Link className="password-help-link" to="/forgot-password?role=customer">Forgot password?</Link>
 
               <p className="auth-switch">
                 Don&apos;t have an account?{" "}
-                <button type="button" onClick={() => setIsRegister(true)}>
+                <button type="button" disabled={isSubmitting} onClick={() => switchMode(true)}>
                   Register
                 </button>
               </p>
@@ -181,11 +203,11 @@ function Auth() {
               {message && !isRegister && <p className="auth-message">{message}</p>}
             </div>
 
-            <div className="auth-face auth-back">
+            <div className="auth-face auth-back" inert={!isRegister}>
               <h2>Create Account</h2>
               <p>First, choose the BuiltRight service you want to access.</p>
 
-              <form onSubmit={handleRegister}>
+              {isRegister && <form onSubmit={handleRegister}>
                 <fieldset className="auth-service-choice">
                   <legend>What do you need?</legend>
                   <button
@@ -246,6 +268,7 @@ function Auth() {
                 <div className="auth-row">
                   <PasswordInput
                     name="password"
+                    autoComplete="new-password"
                     placeholder="Password"
                     value={registerData.password}
                     onChange={handleRegisterChange}
@@ -254,6 +277,7 @@ function Auth() {
 
                   <PasswordInput
                     name="confirmPassword"
+                    autoComplete="new-password"
                     placeholder="Confirm Password"
                     value={registerData.confirmPassword}
                     onChange={handleRegisterChange}
@@ -264,11 +288,11 @@ function Auth() {
                 <button type="submit" disabled={isSubmitting || !registerData.serviceInterest}>
                   {isSubmitting ? "Creating..." : "Create Account"}
                 </button>
-              </form>
+              </form>}
 
               <p className="auth-switch">
                 Already have an account?{" "}
-                <button type="button" onClick={() => setIsRegister(false)}>
+                <button type="button" disabled={isSubmitting} onClick={() => switchMode(false)}>
                   Login
                 </button>
               </p>
